@@ -10,10 +10,17 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jsonpath-plus": "^10.3.0",
+=======
+    "@codesandbox/sandpack-react": "^2.20.0",
+    "axios": "^1.7.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+>>>>>>> 69abddd239eb056f62f1d18cfb58def62e4b3462
     "lodash": "^4.17.21",
     "next": "15.2.0",
     "react": "^19.0.0",

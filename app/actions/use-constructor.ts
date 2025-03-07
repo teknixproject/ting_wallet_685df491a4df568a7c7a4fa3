@@ -1,8 +1,8 @@
 // "use client";
 
-import _ from "lodash";
-import { useRef } from "react";
-import useSWR from "swr";
+import _ from 'lodash';
+import { useRef } from 'react';
+import useSWR from 'swr';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -23,7 +23,7 @@ export function useConstructorDataAPI(documentId?: string, pageName?: string) {
   );
 
   if (error) {
-    console.error("❌ Error fetching constructor:", error);
+    console.error('❌ Error fetching constructor:', error);
     return { layout: {}, component: {}, isLoading: false };
   }
 
@@ -31,10 +31,10 @@ export function useConstructorDataAPI(documentId?: string, pageName?: string) {
 
   // 🔥 Kiểm tra component string có hợp lệ không
   const componentString = data?.componentConfig?.component?.trim();
-  if (!componentString || typeof componentString !== "string") {
-    console.error("❌ Error: componentString is missing or invalid.");
+  if (!componentString || typeof componentString !== 'string') {
+    console.error('❌ Error: componentString is missing or invalid.');
     return {
-      layout: _.get(data, "layoutJson.layoutJson", {}),
+      layout: _.get(data, 'layoutJson.layoutJson', {}),
       component: {},
       isLoading: false,
     };
@@ -42,13 +42,13 @@ export function useConstructorDataAPI(documentId?: string, pageName?: string) {
 
   // 🔥 Chỉ rebuild component nếu componentString thay đổi
   if (componentString !== prevComponentRef.current) {
-    console.log("🔄 Rebuilding component...");
+    console.log('🔄 Rebuilding component...');
     rebuilComponentMonaco(componentString);
     prevComponentRef.current = componentString;
   }
 
   return {
-    layout: _.get(data, "layoutJson.layoutJson", {}),
+    layout: _.get(data, 'layoutJson.layoutJson', {}),
     component: componentString,
     isLoading: false,
   };
@@ -56,8 +56,8 @@ export function useConstructorDataAPI(documentId?: string, pageName?: string) {
 
 export async function rebuilComponentMonaco(componentString: string) {
   try {
-    if (!componentString || typeof componentString !== "string") {
-      console.error("Error: Invalid componentString", componentString);
+    if (!componentString || typeof componentString !== 'string') {
+      console.error('Error: Invalid componentString', componentString);
       return;
     }
 
@@ -71,6 +71,23 @@ export async function rebuilComponentMonaco(componentString: string) {
 
     // await response.text();
   } catch (error) {
-    console.error("Build failed:", error);
+    console.error('Build failed:', error);
   }
+}
+
+export function usePreviewUI(projectId?: string) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const { data: dataPreviewUI } = useSWR(
+    projectId ? `${API_URL}/api/preview-ui?projectId=${projectId}` : null,
+    fetcher,
+    { revalidateOnFocus: false, refreshInterval: 60000 }
+  );
+
+  if (!dataPreviewUI) return { data: {}, isLoading: true };
+
+  return {
+    dataPreviewUI,
+    isLoading: false,
+  };
 }
