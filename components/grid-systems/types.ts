@@ -1,9 +1,8 @@
-import { Content } from "@prismicio/client";
-import { GridItem } from "./const";
+import { Content } from '@prismicio/client';
 
-export interface GridSystemProps
-  extends Content.PageDocument,
-    Content.PageDocumentData {
+import { GridItem } from './const';
+
+export interface GridSystemProps extends Content.PageDocument, Content.PageDocumentData {
   page?: GridItem;
   layoutId?: string;
   deviceType: string;

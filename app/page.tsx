@@ -1,9 +1,10 @@
-import ClientWrapper from "@/components/grid-systems/ClientWrapGridSystem";
-import { Fragment } from "react";
+import { Fragment } from 'react';
 
-export const dynamic = "force-static";
+import ClientWrapper from '@/components/grid-systems/ClientWrapGridSystem';
+
+export const dynamic = 'force-static';
 export const revalidate = 60;
-const pathName = "home";
+const pathName = 'home';
 
 export default async function Home() {
   const layoutId = pathName;
@@ -11,6 +12,7 @@ export default async function Home() {
   return (
     <Fragment>
       <ClientWrapper layoutId={layoutId} pathName={pathName} />
+      <div> test</div>
     </Fragment>
   );
 }
