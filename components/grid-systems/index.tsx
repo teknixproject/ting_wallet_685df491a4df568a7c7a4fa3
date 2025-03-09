@@ -10,7 +10,7 @@ import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
 import { componentRegistry } from '@/lib/slices';
 import { getDeviceSize } from '@/lib/utils';
-import { apiCallStore } from '@/stores';
+import { apiCallStore, TApiData } from '@/stores';
 
 import NotFound from './404';
 import {
@@ -26,89 +26,128 @@ import {
 import LoadingPage from './loadingPage';
 import { GridSystemProps, RenderGripProps } from './types';
 
-type TRenderSlice = { slice: GridItem | null | undefined };
+const allowTypeGenerate = ['flex', 'grid', 'content'];
+// Hàm lấy dữ liệu từ API hoặc store
+const getDataFromApi = async (
+  apiData: TApiData[],
+  apiCall: Pick<ValueRender, 'apiCall'>['apiCall']
+) => {
+  const existingApiData = apiData.find((item: any) => item.id === apiCall?.id);
+  if (!_.isEmpty(existingApiData)) return existingApiData.data;
+
+  const response = await axios.request({
+    url: apiCall?.url,
+    method: apiCall?.method.toLowerCase(),
+  });
+  return response.data;
+};
+
+// Hàm cập nhật jsonPath theo index của card
+const updateJsonPath = (jsonPath: string, index: number) => {
+  return _.replace(jsonPath, /\[\d*\]/, `[${index}]`);
+};
+
+const updateJsonPathForChild = (slice: GridItem, index: number) => {
+  const updateSlide = {
+    ...slice,
+    valueRender: {
+      ...slice.valueRender,
+      jsonPath: updateJsonPath(slice.valueRender?.jsonPath ?? '', index),
+    },
+  };
+  const childs = updateSlide.childs;
+
+  if (!childs?.length) return updateSlide;
+
+  const updateChilds = childs.map((child) => updateJsonPathForChild(child, index));
+  updateSlide.childs = updateChilds;
+
+  return updateSlide;
+};
+// Hàm tạo các card từ dữ liệu API
+const createCardsFromApi = (sliceRef: GridItem, apiData: any) => {
+  if (!allowTypeGenerate.includes(sliceRef.type) || !sliceRef.valueRender?.allowDynamicGenerate) {
+    return sliceRef.childs;
+  }
+
+  const childs = sliceRef.childs?.filter((value: GridItem) =>
+    allowTypeGenerate.includes(value.type ?? '')
+  );
+
+  if (_.isEmpty(childs)) return [];
+
+  const newCards = _.flatMap(_.range(apiData.length), (index) =>
+    _.map(childs, (value: GridItem) => {
+      const newChild = {
+        ...value,
+        valueRender: {
+          ...(value.valueRender ?? {}),
+          index,
+        },
+      };
+      if (newChild?.childs?.length) {
+        newChild.childs = newChild.childs.map((child) => updateJsonPathForChild(child, index));
+      }
+
+      return newChild;
+    })
+  );
+
+  return newCards;
+};
+
+const updateTitleInText = (sliceRef: GridItem, result: any): string | undefined => {
+  if (!allowTypeGenerate.includes(sliceRef.type ?? '') || !sliceRef?.valueRender?.jsonPath) return;
+
+  const jsonPath = sliceRef.valueRender?.jsonPath;
+  // console.log(`🚀 ~ updateTitleInText ~ jsonPath: ${sliceRef.id}`, jsonPath);
+
+  if (_.isEmpty(jsonPath)) return;
+  const title = JSONPath({ path: jsonPath!, json: result });
+
+  // console.log(`🚀 ~ fetchData ~ title: ${sliceRef.id}`, title);
+  return title;
+};
+type TRenderSlice = { slice: GridItem | null | undefined; indexParent?: number };
 const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   const { apiData, addApiData } = apiCallStore();
-  // const [exist, setExist] = useState<boolean>(false);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
-  // fetchData from 'valueRender'
 
   useEffect(() => {
-    if (!slice) return;
+    if (!sliceRef) return;
 
     const fetchData = async () => {
-      const getDataFromApi = async (apiCall: Pick<ValueRender, 'apiCall'>['apiCall']) => {
-        const existingApiData = apiData.find((item) => item.id === apiCall.id);
-        const result = _.isEmpty(existingApiData)
-          ? await axios
-              .request({
-                url: apiCall.url,
-                method: apiCall.method.toLowerCase(),
-              })
-              .then((response) => response.data)
-          : existingApiData.data;
-        return result;
-      };
+      // Hàm cập nhật tiêu đề cho text hoặc description
 
-      const createChildsFromApi = async (sliceRef: GridItem, apiData: any) => {
-        if (sliceRef.type === 'flex' || sliceRef.type === 'grid') {
-          if (_.isEmpty(sliceRef.childs)) return;
-          const childs = sliceRef.childs?.filter((value: GridItem) => value.value === 'text');
+      if (!sliceRef?.valueRender) return;
 
-          const newChilds = childs
-            ? Array.from({ length: apiData.length }).flatMap((_, index) =>
-                childs.map((value: GridItem) => ({
-                  ...value,
-                  valueRender: {
-                    ...(value.valueRender ?? {}),
-                    jsonPath: value.valueRender?.jsonPath.replace(/\[\d*\]/, `[${index}]`),
-                  },
-                }))
-              )
-            : [];
-          console.log('🚀 ~ fetchData ~ newChilds:', newChilds);
-          setSliceRef((pre) => ({
-            ...pre,
-            childs: newChilds as GridItem[],
-            type: pre?.type || 'grid',
-          }));
-          // updateData(sliceRef.id!, { childs: newChilds });
-          return;
-        }
-      };
+      const { apiCall } = sliceRef.valueRender;
 
-      const updateTitleInText = (sliceRef: GridItem, result: any) => {
-        if (!sliceRef?.valueRender) return;
-        const { jsonPath } = sliceRef.valueRender;
-        if (!sliceRef?.value && !['text', 'button'].includes(sliceRef.value ?? '')) return;
-        const titile = JSONPath({ path: jsonPath, json: result });
-        setSliceRef((pre) => ({
-          ...pre,
-          dataSlice: { title: titile[0] },
-          type: pre?.type || 'grid',
+      try {
+        // Lấy dữ liệu từ API hoặc store
+        const result = await getDataFromApi(apiData, apiCall);
+
+        // Tạo các card từ dữ liệu API
+        const newCards = createCardsFromApi(sliceRef, result);
+
+        // console.log(`🚀 ~ fetchData ~ newCards: ${sliceRef.id}`, newCards);
+
+        // Cập nhật tiêu đề cho content
+        const title = updateTitleInText(sliceRef, result);
+        // Cập nhật sliceRef với các card mới
+        setSliceRef((prev) => ({
+          ...prev,
+          dataSlice: { title: _.isArray(title) ? title[0] : title },
+          childs: newCards as GridItem[],
+          type: prev?.type || 'grid',
         }));
-      };
-
-      if (sliceRef && 'valueRender' in sliceRef) {
-        if (!sliceRef.valueRender) return;
-        const { apiCall } = sliceRef.valueRender;
-        try {
-          // get data from api or store
-          const result = await getDataFromApi(apiCall);
-
-          //if parent have childs and api, create new childs from api
-          createChildsFromApi(sliceRef, result);
-
-          //if slice is text or button, update title
-          updateTitleInText(sliceRef, result);
-        } catch (error) {
-          console.error('Error fetching API data:', error);
-        }
+      } catch (error) {
+        console.error('Error fetching API data:', error);
       }
-      return null;
     };
+
     fetchData();
-  }, [addApiData]);
+  }, [addApiData, slice, apiData]);
 
   if (!sliceRef) return null;
   const styleDevice: string = getDeviceSize() as string;

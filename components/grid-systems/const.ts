@@ -22,6 +22,7 @@ interface GridItem {
   //   style_tablet: React.CSSProperties;
   //   style_mobile: React.CSSProperties;
   // };
+  dataSlice?: any; // Data to render in the component
   style_pc?: React.CSSProperties;
   style_laptop?: React.CSSProperties;
   style_tablet?: React.CSSProperties;
@@ -31,8 +32,10 @@ interface GridItem {
   valueRender?: ValueRender;
 }
 export interface ValueRender {
-  jsonPath: string;
-  apiCall: {
+  jsonPath?: string;
+  index?: number;
+  allowDynamicGenerate?: boolean;
+  apiCall?: {
     id: string;
     name: string;
     url: string;
