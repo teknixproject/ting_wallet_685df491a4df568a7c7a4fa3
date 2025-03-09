@@ -15,7 +15,6 @@ import SandPackUI from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
 export default function ClientWrapper(props: any) {
-
   // const { isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
   const { data } = layoutStore();
   const layout = data;
@@ -46,13 +45,13 @@ const RenderUIClient = (props: any) => {
     };
   }, [props.page]);
 
-  // if (isLoading) {
-  //   return <LoadingPage />;
-  // }
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <GridSystemContainer
-      // isLoading={isLoading}
+      isLoading={isLoading}
       {...props}
       page={selectedLayout || {}}
       deviceType={deviceType}
@@ -66,7 +65,7 @@ const PreviewUI = (props: any) => {
 
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '');
-  const isComponent = _.get(dataPreviewUI, 'data.typePreview') === 'page';
+  const isPage = _.get(dataPreviewUI, 'data.typePreview') === 'page';
   const layout = _.get(dataPreviewUI, 'data.previewData');
 
   useEffect(() => {
@@ -81,7 +80,7 @@ const PreviewUI = (props: any) => {
 
   return (
     <div className="component-preview-container">
-      {isComponent ? (
+      {isPage ? (
         <GridSystemContainer
           isLoading={isLoading}
           {...props}
