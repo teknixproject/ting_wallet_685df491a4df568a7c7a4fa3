@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import _ from 'lodash';
@@ -8,7 +7,6 @@ import { useEffect, useState } from 'react';
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import GridSystemContainer from '@/components/grid-systems';
 import { getDeviceType } from '@/lib/utils';
-import { layoutStore } from '@/stores';
 
 import LoadingPage from './loadingPage';
 import SandPackUI from './preview-ui';
@@ -16,9 +14,6 @@ import SandPackUI from './preview-ui';
 type DeviceType = 'mobile' | 'desktop';
 export default function ClientWrapper(props: any) {
   // const { isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
-  const { data } = layoutStore();
-  const layout = data;
-  const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
 
   const isPreviewUI = _.get(props, 'pathName') === 'preview-ui';
 
@@ -30,9 +25,11 @@ export default function ClientWrapper(props: any) {
 
 const RenderUIClient = (props: any) => {
   const { layout, isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
-
-  const [deviceType, setDeviceType] = useState(getDeviceType());
+  // const { data } = layoutStore();
+  // const layout = data;
+  const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedLayout = layout[deviceType] ?? layout ?? {};
+  console.log('🚀 ~ RenderUIClient ~ layout:', layout);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -45,9 +42,9 @@ const RenderUIClient = (props: any) => {
     };
   }, [props.page]);
 
-  // if (isLoading) {
-  //   return <LoadingPage />;
-  // }
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <GridSystemContainer

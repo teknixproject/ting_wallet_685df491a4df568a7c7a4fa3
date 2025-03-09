@@ -1,5 +1,5 @@
-import _ from "lodash";
-import { CSSProperties } from "react";
+import _ from 'lodash';
+import { CSSProperties } from 'react';
 
 interface DiscriptionCompoProps {
   data?: any;
@@ -7,10 +7,10 @@ interface DiscriptionCompoProps {
 }
 
 const DiscriptionCompo = ({ data, style }: DiscriptionCompoProps) => {
-  const title = _.get(data, "title", "Discription");
+  const title = _.get(data, 'title', 'Discription');
 
   const newStyle: CSSProperties = {
-    lineHeight: "170%",
+    lineHeight: '170%',
     ...style,
     padding: 0,
     paddingLeft: 0,
