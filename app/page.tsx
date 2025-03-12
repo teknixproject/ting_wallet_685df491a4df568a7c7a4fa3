@@ -1,17 +1,37 @@
 import { Fragment } from 'react';
 
 import ClientWrapper from '@/components/grid-systems/ClientWrapGridSystem';
+import Head from 'next/head';
+import _ from 'lodash';
+import { fetchMetadata } from './actions/server';
 
-export const dynamic = 'force-static';
-export const revalidate = 60;
-const pathName = 'home';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+const pageName = 'homepage';
 
 export default async function Home() {
-  const layoutId = pathName;
+  const layoutId = pageName;
+  const metadata = await fetchMetadata(pageName);
+  const formMetadata = _.get(metadata, 'data.form');
+  const iconUrl = _.get(formMetadata, 'icon.icon') || '/favicon.ico';
 
   return (
-    <Fragment>
-      <ClientWrapper layoutId={layoutId} pathName={pathName} />
-    </Fragment>
+    <>
+      <Head>
+        <link rel="icon" href={iconUrl} type="image/png" />
+        <link rel="preload" href={iconUrl} as="image" />
+        <link
+          rel="apple-touch-icon"
+          href={_.get(formMetadata, 'icon.apple') || '/apple-icon.png'}
+        />
+        <link
+          rel="shortcut icon"
+          href={_.get(formMetadata, 'icon.shortcut') || '/shortcut-icon.png'}
+        />
+      </Head>
+      <Fragment>
+        <ClientWrapper layoutId={layoutId} pathName={pageName} />
+      </Fragment>
+    </>
   );
 }

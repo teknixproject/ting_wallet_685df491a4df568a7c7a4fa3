@@ -1,4 +1,4 @@
-// "use client";
+'use client';
 
 import _ from 'lodash';
 import { useRef } from 'react';
