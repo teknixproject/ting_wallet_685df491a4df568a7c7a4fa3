@@ -44,7 +44,7 @@ export default async function Page({ params }: { params: Params }) {
 }
 
 export async function generateMetadata({ params }: { params: { uid: string } }): Promise<Metadata> {
-  const { uid } = await params; // Lấy slug từ URL (ví dụ: "about")
+  const { uid } = await params;
   const metadata = await fetchMetadata(uid);
   const formMetadata = _.get(metadata, 'data.form');
 
@@ -62,38 +62,60 @@ export async function generateMetadata({ params }: { params: { uid: string } }):
 
   return {
     title: {
-      default: formMetadata?.title?.default || 'TBK Foundation',
+      default: formMetadata?.title?.default || 'DYNAMIC PAGE',
       template: formMetadata?.title.template,
     },
-    description: formMetadata?.description || 'Default description for TBK Foundation.',
+    description: formMetadata?.description || 'Default dynamic page.',
+    keywords: formMetadata?.keywords,
+    authors: formMetadata?.authors?.map((author: any) => ({
+      name: author.name,
+      url: author.url,
+    })),
     openGraph: {
-      title: formMetadata?.openGraph?.title || 'TBK Foundation',
-      description:
-        formMetadata?.openGraph?.description || 'Default description for TBK Foundation.',
-      url: 'https://tbk.foundation/',
-      images: formMetadata?.openGraph?.images.map((image: any) => ({
+      title: formMetadata?.openGraph?.title || 'DYNAMIC PAGE',
+      description: formMetadata?.openGraph?.description || 'Default dynamic page.',
+      url: formMetadata?.openGraph?.url,
+      siteName: formMetadata?.openGraph?.siteName,
+      images: formMetadata?.openGraph?.images?.map((image: any) => ({
         url: image?.url,
         width: image?.width,
         height: image?.height,
+        alt: image?.alt,
+        secureUrl: image?.secure_url,
+        type: image?.type || 'image/jpeg',
       })),
       locale: formMetadata?.openGraph?.locale || 'en_US',
       type: formMetadata?.openGraph?.type || 'website',
+      modifiedTime: formMetadata?.openGraph?.updated_time,
     },
     twitter: {
-      card: formMetadata?.twitter?.card,
+      card: formMetadata?.twitter?.card || 'summary',
+      title: formMetadata?.twitter?.title,
+      description: formMetadata?.twitter?.description,
       images: formMetadata?.twitter?.images,
     },
     robots: {
       index: formMetadata?.robots?.index,
       follow: formMetadata?.robots?.follow,
       nocache: formMetadata?.robots?.nocache,
-      googleBot: formMetadata?.robots?.googleBot,
+      'max-snippet': formMetadata?.robots?.maxSnippet,
+      'max-video-preview': formMetadata?.robots?.maxVideoPreview,
+      'max-image-preview': formMetadata?.robots?.maxImagePreview,
+      googleBot: formMetadata?.robots?.googleBot
+        ? {
+            index: formMetadata?.robots?.googleBot?.index,
+            follow: formMetadata?.robots?.googleBot?.follow,
+            noimageindex: formMetadata?.robots?.googleBot?.noimageindex,
+          }
+        : undefined,
     },
     icons: {
       icon: iconConfig.icon || undefined,
       shortcut: iconConfig.shortcut || undefined,
       apple: iconConfig.apple || undefined,
     },
-    alternates: formMetadata?.alternates || {},
+    alternates: {
+      canonical: formMetadata?.alternates?.canonical || undefined,
+    },
   };
 }
