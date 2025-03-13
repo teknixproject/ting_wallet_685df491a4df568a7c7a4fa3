@@ -1,19 +1,38 @@
-import { create } from 'zustand';
+import { createStore } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 export type TApiData = {
   id: string;
+  idParent: string;
   data: any;
 };
-type TStore = {
+export type TApiCallData = {
   apiData: TApiData[];
 };
-type TActions = {
+export type TApiStoreActions = {
   addApiData: (data: TApiData) => void;
+  updateApiData: (id: string, data: any) => void;
   removeApiData: (id: string) => void;
 };
-export const apiCallStore = create<TStore & TActions>((set) => ({
+export const initApiCallStore = () => ({
   apiData: [],
-  addApiData: (data: TApiData) => set((state) => ({ apiData: [...state.apiData, data] })),
-  removeApiData: (id: string) =>
-    set((state) => ({ apiData: state.apiData.filter((item) => item.id !== id) })),
-}));
+});
+const defaultApiData = {
+  apiData: [],
+};
+export type TApiCallStore = TApiCallData & TApiStoreActions;
+export const createApiCallStore = (initState: TApiCallData = defaultApiData) => {
+  return createStore<TApiCallStore>()(
+    devtools((set) => ({
+      ...initState,
+      addApiData: (data: TApiData) => set((state) => ({ apiData: [...state.apiData, data] })),
+      updateApiData(id, data) {
+        set((state) => ({
+          apiData: state.apiData.map((item) => (item.id === id ? { ...item, data } : item)),
+        }));
+      },
+      removeApiData: (id: string) =>
+        set((state) => ({ apiData: state.apiData.filter((item) => item.id !== id) })),
+    }))
+  );
+};
