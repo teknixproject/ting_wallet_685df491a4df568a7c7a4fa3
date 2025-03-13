@@ -7,7 +7,7 @@ import { fetchMetadata } from './actions/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-const pageName = 'homepage';
+const pageName = 'home';
 
 export default async function Home() {
   const layoutId = pageName;
