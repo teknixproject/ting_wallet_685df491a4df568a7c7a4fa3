@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { fakeData } from '@/components/grid-systems/data';
+// import { fakeData } from '@/components/grid-systems/data';
 
 type TStore = {
   data: any;
@@ -31,7 +31,7 @@ const updateItem = (id: string, newData: any, source: any) => {
 };
 
 const initValue = {
-  data: fakeData,
+  data: null,
 };
 
 export const layoutStore = create<TStore & TActions>((set) => ({
