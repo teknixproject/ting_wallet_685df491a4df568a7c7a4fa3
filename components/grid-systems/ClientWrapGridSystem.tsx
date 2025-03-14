@@ -69,8 +69,6 @@ const PreviewUI = (props: any) => {
 
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '');
-  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
-
   const isPage = _.get(dataPreviewUI, 'data.typePreview') === 'page';
   const layout = _.get(dataPreviewUI, 'data.previewData');
 

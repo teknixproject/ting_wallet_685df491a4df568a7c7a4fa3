@@ -1,5 +1,5 @@
-import _ from "lodash";
-import { CSSProperties } from "react";
+import _ from 'lodash';
+import { CSSProperties } from 'react';
 
 interface TextProps {
   data?: any;
@@ -7,17 +7,14 @@ interface TextProps {
 }
 
 const Text = ({ data, style }: TextProps) => {
-  const title = _.get(data, "title", "Title Header");
+  const title = _.get(data, 'title', 'Text');
 
   const newStyle: CSSProperties = {
     ...style,
   };
 
   return (
-    <div
-      style={newStyle}
-      className="text-[#858585]"
-    >
+    <div style={newStyle} className="text-[#858585]">
       {title}
     </div>
   );

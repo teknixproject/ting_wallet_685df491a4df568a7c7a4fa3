@@ -1,3 +1,5 @@
+'use client';
+
 import {
   SandpackCodeEditor,
   SandpackLayout,
@@ -5,9 +7,64 @@ import {
   SandpackProvider,
 } from '@codesandbox/sandpack-react';
 import _ from 'lodash';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const iframe = previewRef.current?.querySelector('iframe');
+    if (!iframe) return;
+
+    const handleLoad = () => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) return;
+
+      const style = iframeDoc.createElement('style');
+      style.innerHTML = `
+        body {
+          margin: 0 !important;
+          padding: 0 !important;
+          min-height: 100vh !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+        }
+        
+        /* Nếu muốn căn giữa một container cụ thể */
+        .your-container {
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+      `;
+
+      iframeDoc.head.appendChild(style);
+
+      const observer = new MutationObserver(() => {
+        const body = iframeDoc.body;
+        if (body) {
+          body.style.display = 'flex';
+          body.style.justifyContent = 'center';
+          body.style.alignItems = 'center';
+        }
+      });
+
+      observer.observe(iframeDoc.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+
+      return () => observer.disconnect();
+    };
+
+    iframe.addEventListener('load', handleLoad);
+
+    return () => {
+      iframe.removeEventListener('load', handleLoad);
+    };
+  }, []);
+
   return (
     <SandpackProvider
       template="react-ts"
@@ -23,16 +80,19 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
           postcss: 'latest',
           autoprefixer: 'latest',
         },
-        environment: 'create-react-app', // Thay đổi từ 'node' sang 'create-react-app'
+        environment: 'create-react-app',
       }}
       files={{
         '/App.tsx': {
           code: `
             import PreviewComponent from "./PreviewComponent";
             import './tailwind.css';
-            
             export default function App() {
-              return <PreviewComponent />;
+              return <div className="w-full h-[100vh] flex items-center justify-between">
+               <div className="w-full flex items-center justify-center">
+                <PreviewComponent />
+               </div>
+              </div>;
             }
           `,
         },
@@ -110,20 +170,27 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
           'https://unpkg.com/@tailwindcss/typography@0.5.9/dist/typography.min.css',
         ],
         activeFile: '/App.tsx',
+        classes: {
+          'sp-wrapper': 'custom-wrapper',
+          'sp-layout': 'custom-layout',
+          'sp-tab-button': 'custom-tab',
+        },
       }}
     >
       <SandpackLayout>
         <SandpackCodeEditor
-          style={{ height: '90vh', width: '60%' }}
+          style={{ height: '90vh' }}
           showLineNumbers
           showInlineErrors
           closableTabs
         />
-        <SandpackPreview
-          showOpenInCodeSandbox={false}
-          showRefreshButton={true}
-          style={{ height: '90vh' }}
-        />
+        <div className="w-full" ref={previewRef}>
+          <SandpackPreview
+            showOpenInCodeSandbox={false}
+            showRefreshButton={true}
+            style={{ height: '90vh', backgroundColor: 'pink' }}
+          />
+        </div>
       </SandpackLayout>
     </SandpackProvider>
   );
