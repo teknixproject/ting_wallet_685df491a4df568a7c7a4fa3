@@ -88,7 +88,12 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
 
   const inlineStyles: React.CSSProperties = {
     ...(styleSlice || {}),
-    gridTemplateColumns: isGrid ? `repeat(${sliceRef?.columns}, 1fr)` : '',
+    gridTemplateColumns: isGrid
+      ? `repeat(${Math.min(
+          parseInt(sliceRef?.columns || '1'),
+          sliceRef?.childs?.length ?? 0
+        )}, 1fr)`
+      : '',
   };
 
   const content = SliceComponent ? (
@@ -98,6 +103,8 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />
     )
   );
+  if (!isButton) {
+  }
 
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <div className={`${sliceClasses}`} style={isButton ? {} : inlineStyles} id={sliceRef?.id}>

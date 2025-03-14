@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import GridSystemContainer from '@/components/grid-systems';
 import { getDeviceType } from '@/lib/utils';
+import { layoutStore } from '@/stores';
 
 import LoadingPage from './loadingPage';
 import SandPackUI from './preview-ui';
@@ -25,11 +26,16 @@ export default function ClientWrapper(props: any) {
 
 const RenderUIClient = (props: any) => {
   const { layout, isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
-  // const { data } = layoutStore();
+  console.log('🚀 ~ RenderUIClient ~ layout:', layout);
+  const { setData } = layoutStore();
+
+  useEffect(() => {
+    setData(layout);
+  }, [layout]);
+
   // const layout = data;
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedLayout = layout[deviceType] ?? layout ?? {};
-  console.log('🚀 ~ RenderUIClient ~ layout:', layout);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -48,7 +54,7 @@ const RenderUIClient = (props: any) => {
 
   return (
     <GridSystemContainer
-      // isLoading={isLoading}
+      isLoading={isLoading}
       {...props}
       page={selectedLayout || {}}
       deviceType={deviceType}
@@ -57,12 +63,15 @@ const RenderUIClient = (props: any) => {
 };
 
 const PreviewUI = (props: any) => {
+  const { setData } = layoutStore();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
 
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '');
-  const isComponent = _.get(dataPreviewUI, 'data.typePreview') === 'page';
+  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
+
+  const isPage = _.get(dataPreviewUI, 'data.typePreview') === 'page';
   const layout = _.get(dataPreviewUI, 'data.previewData');
 
   useEffect(() => {
@@ -71,13 +80,17 @@ const PreviewUI = (props: any) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    if (layout) setData(layout);
+  }, [layout]);
+
   if (isLoading) {
     return <LoadingPage />;
   }
 
   return (
     <div className="component-preview-container">
-      {isComponent ? (
+      {isPage ? (
         <GridSystemContainer
           isLoading={isLoading}
           {...props}

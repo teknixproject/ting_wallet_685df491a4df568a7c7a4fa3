@@ -31,8 +31,17 @@ interface GridItem {
   value?: string; // Value to render in the component
   valueRender?: ValueRender;
 }
+export type TValueFields = {
+  total: string;
+};
+export type TQueryConvert = {
+  page?: string;
+  limit?: string;
+  skip?: string;
+};
 export interface ValueRender {
   jsonPath?: string;
+  valueFields?: TValueFields;
   index?: number;
   allowDynamicGenerate?: boolean;
   apiCall?: {
@@ -40,6 +49,9 @@ export interface ValueRender {
     name: string;
     url: string;
     method: string;
+    body?: any;
+    headers?: any;
+    queryConvert?: TQueryConvert;
   };
 }
 

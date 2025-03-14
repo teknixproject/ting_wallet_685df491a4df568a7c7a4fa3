@@ -5,6 +5,7 @@ export const components = {
   banner_video: dynamic(() => import('./bannerVideo')),
   button: dynamic(() => import('./button')),
   description: dynamic(() => import('./discription')),
+  pagination: dynamic(() => import('./pagination')),
   icon: dynamic(() => import('./icon')),
   image: dynamic(() => import('./image')),
   link: dynamic(() => import('./link')),
