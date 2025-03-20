@@ -7,7 +7,8 @@ import { useEffect, useState } from 'react';
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import GridSystemContainer from '@/components/grid-systems';
 import { getDeviceType } from '@/lib/utils';
-import { layoutStore } from '@/stores';
+import { apiCallService } from '@/services/apiCall';
+import { apiResourceStore, layoutStore } from '@/stores';
 
 import LoadingPage from './loadingPage';
 import SandPackUI from './preview-ui';
@@ -25,13 +26,14 @@ export default function ClientWrapper(props: any) {
 }
 
 const RenderUIClient = (props: any) => {
+  console.log('🚀 ~ RenderUIClient ~ props:', props);
   const { layout, isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
   console.log('🚀 ~ RenderUIClient ~ layout:', layout);
   const { setData } = layoutStore();
 
   useEffect(() => {
-    setData(layout);
-  }, [layout]);
+    if (layout) setData(layout);
+  }, []);
 
   // const layout = data;
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
@@ -63,9 +65,13 @@ const RenderUIClient = (props: any) => {
 };
 
 const PreviewUI = (props: any) => {
+  console.log('🚀 ~ PreviewUI ~ props:', props);
   const { setData } = layoutStore();
+  const { addAndUpdateApiResource, apiResources } = apiResourceStore();
+  console.log('🚀 ~ PreviewUI ~ apiResources:', apiResources);
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
+  const uid = searchParams.get('uid');
 
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '');
@@ -80,7 +86,17 @@ const PreviewUI = (props: any) => {
 
   useEffect(() => {
     if (layout) setData(layout);
-  }, [layout]);
+    const getApiCall = async () => {
+      try {
+        const result = await apiCallService.get({ uid: uid ?? '', projectId: projectId ?? '' });
+        addAndUpdateApiResource({ uid: uid ?? '', apis: result?.data?.apis });
+        console.log('🚀 ~ getApiCall ~ result:', result);
+      } catch (error) {
+        console.log('🚀 ~ getApiCall ~ error:', error);
+      }
+    };
+    getApiCall();
+  }, [uid, projectId]);
 
   if (isLoading) {
     return <LoadingPage />;
