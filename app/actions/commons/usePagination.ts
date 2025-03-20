@@ -34,6 +34,8 @@ export const usePagination = () => {
   const { updateApiData, apiData } = useApiCallStore((state) => state);
 
   const updateData = async (pagination: any, pageValue: number) => {
+    if (!pagination?.valueRender?.apiCall?.url) return;
+
     const desktop = layout?.desktop;
     const dynamicGenarateDiv = findComponentHaveAPI(desktop, pagination.valueRender.apiCall);
     console.log('🚀 ~ updateData ~ dynamicGenarateDiv:', dynamicGenarateDiv);

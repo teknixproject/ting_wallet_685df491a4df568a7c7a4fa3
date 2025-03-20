@@ -30,7 +30,13 @@ interface GridItem {
   style?: string;
   value?: string; // Value to render in the component
   valueRender?: ValueRender;
+  dynamicGenerate?: TDynamicGenarate;
+  state?: DocumentType;
 }
+export type TDynamicGenarate = {
+  dataJsonPath?: string;
+  apiCall?: { id: string; name: string };
+};
 export type TValueFields = {
   total: string;
 };
