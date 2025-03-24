@@ -12,11 +12,11 @@ const fetcher = async (url: string) => {
 
 export function useConstructorDataAPI(documentId?: string, pageName?: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const prevComponentRef = useRef<string | null>(null); // Lưu component trước đó
+  const prevComponentRef = useRef<string | null>(null);
 
   const { data, error } = useSWR(
     pageName
-      ? `${API_URL}/api/layoutAndComponent?pId=${process.env.NEXT_PUBLIC_PROJECT_ID}&uid=${pageName}`
+      ? `${API_URL}/api/client/getLayout?pId=${process.env.NEXT_PUBLIC_PROJECT_ID}&uid=${pageName}`
       : null,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
@@ -27,29 +27,32 @@ export function useConstructorDataAPI(documentId?: string, pageName?: string) {
     return { layout: {}, component: {}, isLoading: false };
   }
 
-  if (!data) return { layout: {}, component: {}, isLoading: true };
-
-  // 🔥 Kiểm tra component string có hợp lệ không
-  const componentString = data?.componentConfig?.component?.trim();
-  if (!componentString || typeof componentString !== 'string') {
-    console.error('❌ Error: componentString is missing or invalid.');
+  if (!data) {
     return {
-      layout: _.get(data, 'layoutJson.layoutJson', {}),
+      headerLayout: {},
+      bodyLayout: {},
+      footerLayout: {},
       component: {},
-      isLoading: false,
+      isLoading: true,
     };
   }
 
-  // 🔥 Chỉ rebuild component nếu componentString thay đổi
-  if (componentString !== prevComponentRef.current) {
+  const componentString = data?.componentConfig?.component?.trim() || '';
+  const isValidComponent = typeof componentString === 'string' && componentString;
+
+  if (!isValidComponent) {
+    console.error('❌ Error: componentString is missing or invalid.');
+  } else if (componentString !== prevComponentRef.current) {
     console.log('🔄 Rebuilding component...');
     rebuilComponentMonaco(componentString);
     prevComponentRef.current = componentString;
   }
 
   return {
-    layout: _.get(data, 'layoutJson.layoutJson', {}),
-    component: componentString,
+    headerLayout: _.get(data, 'headerLayout.layoutJson', {}),
+    bodyLayout: _.get(data, 'bodyLayout.layoutJson', {}),
+    footerLayout: _.get(data, 'footerLayout.layoutJson', {}),
+    component: isValidComponent ? componentString : {},
     isLoading: false,
   };
 }

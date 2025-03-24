@@ -33,17 +33,22 @@ export default function ClientWrapper(props: any) {
 
 const RenderUIClient = (props: any) => {
   console.log('🚀 ~ RenderUIClient ~ props:', props);
-  const { layout, isLoading } = useConstructorDataAPI(props.documentId, props.pathName);
-  console.log('🚀 ~ RenderUIClient ~ layout:', layout);
+  const { bodyLayout, footerLayout, headerLayout, isLoading } = useConstructorDataAPI(
+    props.documentId,
+    props.pathName
+  );
+  console.log('🚀 ~ RenderUIClient ~ layout:', bodyLayout);
   const { setData } = layoutStore();
 
   useEffect(() => {
-    if (layout) setData(layout);
+    if (bodyLayout) setData(bodyLayout);
   }, []);
 
   // const layout = data;
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
-  const selectedLayout = layout[deviceType] ?? layout ?? {};
+  const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
+  const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
+  const selectedFooterLayout = footerLayout[deviceType] ?? footerLayout ?? {};
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -61,12 +66,29 @@ const RenderUIClient = (props: any) => {
   }
 
   return (
-    <GridSystemContainer
-      isLoading={isLoading}
-      {...props}
-      page={selectedLayout || {}}
-      deviceType={deviceType}
-    />
+    <>
+      {/* Header */}
+      <GridSystemContainer
+        isLoading={isLoading}
+        {...props}
+        page={selectedHeaderLayout || {}}
+        deviceType={deviceType}
+      />
+      {/* Body */}
+      <GridSystemContainer
+        isLoading={isLoading}
+        {...props}
+        page={selectedBodyLayout || {}}
+        deviceType={deviceType}
+      />
+      {/* Footer */}
+      <GridSystemContainer
+        isLoading={isLoading}
+        {...props}
+        page={selectedFooterLayout || {}}
+        deviceType={deviceType}
+      />
+    </>
   );
 };
 
