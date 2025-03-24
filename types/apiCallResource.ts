@@ -1,3 +1,5 @@
+import { TTypeVariable } from './variable';
+
 export enum METHODS {
   GET = 'GET',
   POST = 'POST',
@@ -5,7 +7,6 @@ export enum METHODS {
   DELETE = 'DELETE',
   PATCH = 'PATCH',
 }
-export type TTypeVariable = 'String' | 'Integer' | 'Float' | 'Boolean' | 'Date' | 'Object';
 export type TApiCallVariable = {
   key: string;
   value: string;
