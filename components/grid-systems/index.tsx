@@ -101,7 +101,7 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   }, [sliceRef, styleDevice]);
 
   const content = SliceComponent ? (
-    <SliceComponent style={styleSlice} data={data} />
+    <SliceComponent style={styleSlice} data={sliceRef} />
   ) : (
     sliceRef?.childs && (
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />

@@ -7,9 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CSSProperties, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { apiResourceStore } from '@/stores';
-import { actionsStore } from '@/stores/actions';
-import { stateManagementStore } from '@/stores/stateManagement';
+import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
 import { variableUtil } from '@/uitls';
 
 import { GridItem } from '../grid-systems/const';
@@ -40,7 +38,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
 
   const { findApiResourceValue } = apiResourceStore((state) => state);
   const { getActionsByComponentId } = actionsStore();
-  const { findVariable } = stateManagementStore();
+  const { findVariable, updateDocumentVariable } = stateManagementStore();
 
   const isButtonGradient = _.get(data, 'isBtnGradient', false);
 
@@ -115,6 +113,23 @@ const Button = ({ data, style }: ButtonCompoProps) => {
         })
       ).data;
       console.log('🚀 ~ handleActionClick ~ result:', result);
+
+      if (action?.data?.output?.variableName) {
+        const keyOutput = extractAllValuesFromTemplate(action?.data?.output?.variableName);
+        const variableInStore = findVariable({
+          type: 'appState',
+          name: keyOutput ?? '',
+        });
+
+        const dataStore = updateDocumentVariable({
+          type: 'appState',
+          dataUpdate: {
+            ...variableInStore,
+            value: result,
+          },
+        });
+        console.log('🚀 ~ handleActionClick ~ dataStore:', dataStore);
+      }
     }
   };
   const handleRouteClick = () => {
@@ -145,7 +160,12 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       </a>
     </Link>
   ) : (
-    <CsButton type="button" style={style} onClick={route ? handleRouteClick : handleActionClick}>
+    <CsButton
+      type="button"
+      style={style}
+      onClick={route ? handleRouteClick : handleActionClick}
+      className="cursor-pointer"
+    >
       {iconStart && <span className="icon-start">{iconStart}</span>}
       <span>{title}</span>
       {iconEnd && <span className="icon-end">{iconEnd}</span>}

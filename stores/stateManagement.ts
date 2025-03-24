@@ -13,7 +13,7 @@ export type TDocumentStateActions = {
   setDataTypeDocumentVariable: (variable: TDocumentStateSet) => void;
   setDocumentVariable: (data: TDocumentState) => void;
   findVariable: (data: TDocumentStateFind) => TVariable | undefined;
-  updateDocumentVariable: (data: TDocumentStateUpdate) => void;
+  updateDocumentVariable: (data: TDocumentStateUpdate) => TVariable[];
   resetState: () => void;
 };
 
@@ -41,7 +41,7 @@ export const stateManagementStore = create<TDocumentState & TDocumentStateAction
         const existed = data?.find((item) => item.key === name);
         return existed;
       },
-      updateDocumentVariable: ({ type, dataUpdate }) =>
+      updateDocumentVariable: ({ type, dataUpdate }) => {
         set((state) => {
           // Reuse findVariable to check if the item exists
           const existingItem = state.findVariable({
@@ -57,7 +57,9 @@ export const stateManagementStore = create<TDocumentState & TDocumentStateAction
               [type]: currentItems.map((item) => (item.key === dataUpdate.key ? dataUpdate : item)),
             };
           }
-        }),
+        });
+        return get()[type];
+      },
 
       resetState() {
         set(initValue);

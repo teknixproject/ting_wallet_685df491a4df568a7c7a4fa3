@@ -8,7 +8,7 @@ export type TActionApiCall = {
   apiId: string;
   apiName: string;
   variables: TActionVariable[];
-  output: string;
+  output: { variableName: string };
 };
 export type TActionsStateManagement = {
   id: string;
