@@ -22,28 +22,33 @@ const defaultApiResource = {
 };
 type TApiCallStore = TApiCallResource & TApiStoreActions;
 export const apiResourceStore = create<TApiCallStore>()(
-  devtools((set, get) => ({
-    ...defaultApiResource,
-    addAndUpdateApiResource: (data: TApiResourceValue) =>
-      set((state) => {
-        const existed = get().findApiResource(data.uid);
-        if (_.isEmpty(existed)) {
+  devtools(
+    (set, get) => ({
+      ...defaultApiResource,
+      addAndUpdateApiResource: (data: TApiResourceValue) =>
+        set((state) => {
+          const existed = get().findApiResource(data.uid);
+          if (_.isEmpty(existed)) {
+            return {
+              apiResources: [...state.apiResources, data],
+            };
+          }
           return {
-            apiResources: [...state.apiResources, data],
+            apiResources: state.apiResources?.map((item) => (item.uid === data.uid ? data : item)),
           };
-        }
-        return {
-          apiResources: state.apiResources?.map((item) => (item.uid === data.uid ? data : item)),
-        };
-      }),
-    findApiResource(uid) {
-      const apiResource = get().apiResources?.find((item) => item.uid === uid);
-      return apiResource;
-    },
-    findApiResourceValue(uid, apiId) {
-      const apiResource = get().apiResources.find((item) => item.uid === uid);
-      if (_.isEmpty(apiResource)) return undefined;
-      return apiResource?.apis?.find((item) => item.apiId === apiId);
-    },
-  }))
+        }),
+      findApiResource(uid) {
+        const apiResource = get().apiResources?.find((item) => item.uid === uid);
+        return apiResource;
+      },
+      findApiResourceValue(uid, apiId) {
+        const apiResource = get().apiResources.find((item) => item.uid === uid);
+        if (_.isEmpty(apiResource)) return undefined;
+        return apiResource?.apis?.find((item) => item.apiId === apiId);
+      },
+    }),
+    {
+      name: 'apiCallStore', // Tên của store trong Redux DevTools
+    }
+  )
 );
