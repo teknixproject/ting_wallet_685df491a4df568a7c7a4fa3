@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { CSSProperties } from 'styled-components';
 
-import { usePagination } from '@/app/actions/commons/usePagination';
+import { usePagination } from '@/hooks/usePagination';
 import { useApiCallStore } from '@/providers';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
