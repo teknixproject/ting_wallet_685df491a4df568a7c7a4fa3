@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -31,7 +30,7 @@ const componentHasAction = ['pagination', 'button', 'input_text'];
 const allowUpdateTitle = ['content'];
 type TRenderSlice = { slice: GridItem | null | undefined; idParent: string };
 
-const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
+export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   const { apiData } = useApiCallStore((state) => state);
   const { updateTitleInText } = dynamicGenarateUtil;
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
@@ -55,6 +54,7 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
         }));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, slice, updateTitleInText]);
 
   const data = useMemo(() => {
@@ -101,7 +101,12 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   }, [sliceRef, styleDevice]);
 
   const content = SliceComponent ? (
-    <SliceComponent style={styleSlice} data={sliceRef} />
+    <SliceComponent
+      id={_.get(sliceRef, 'id')}
+      style={styleSlice}
+      data={data}
+      childs={sliceRef?.childs}
+    />
   ) : (
     sliceRef?.childs && (
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />
@@ -202,7 +207,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
   const content = (
     <div className="mx-auto flex justify-center">
       {config?.childs ? (
-        <div className="w-full flex flex-col justify-center flex-wrap overflow-auto" id={config.id}>
+        <div className="w-full flex flex-col justify-center flex-wrap" id={config.id}>
           <RenderGrid items={config.childs} idParent={config.id!} slice={config} />
         </div>
       ) : (

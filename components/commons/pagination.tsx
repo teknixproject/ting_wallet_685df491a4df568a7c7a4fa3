@@ -65,6 +65,7 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
       }
     };
     getData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   // Generate page numbers with ellipsis
