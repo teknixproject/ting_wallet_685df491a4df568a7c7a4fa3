@@ -19,6 +19,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
     data,
     childs,
   });
+  console.log('🚀 ~ childs:', childs);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);

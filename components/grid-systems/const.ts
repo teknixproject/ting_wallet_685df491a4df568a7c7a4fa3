@@ -32,6 +32,7 @@ interface GridItem {
   valueRender?: ValueRender;
   dynamicGenerate?: TDynamicGenarate;
   state?: DocumentType;
+  action?: any;
 }
 export type TDynamicGenarate = {
   dataJsonPath?: string;

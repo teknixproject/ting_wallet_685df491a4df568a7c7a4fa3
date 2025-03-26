@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import _ from 'lodash';
-import React from 'react';
+
 import { RenderSlice } from '../grid-systems';
 
 interface NavigationProps {
@@ -11,6 +11,7 @@ interface NavigationProps {
 }
 
 const Navigation = ({ id, style, data, childs }: NavigationProps) => {
+  console.log('🚀 ~ Navigation ~ childs:', childs);
   const isChilds = !_.isEmpty(childs);
 
   return isChilds ? (
