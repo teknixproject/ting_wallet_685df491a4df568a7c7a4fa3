@@ -5,19 +5,24 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { GridItem } from '@/components/grid-systems/const';
 import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
 import {
-    TActionApiCall, TActionNavigate, TActions, TActionUpdateState, TActionVariable, TVariable
+  TActionApiCall,
+  TActionNavigate,
+  TActions,
+  TActionUpdateState,
+  TActionVariable,
+  TVariable,
 } from '@/types';
 import { variableUtil } from '@/uitls';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
-
+const NEXT_PUBLIC_DEFAULT_UID = process.env.NEXT_PUBLIC_DEFAULT_UID;
 export type TUseActions = {
   handleActionClick: () => Promise<void>;
 };
 
 export const useActions = (data?: GridItem): TUseActions => {
   const searchParam = useSearchParams();
-  const uid = searchParam.get('uid');
+  const uid = searchParam.get('uid') || NEXT_PUBLIC_DEFAULT_UID;
   const router = useRouter();
 
   const { findApiResourceValue } = apiResourceStore((state) => state);
@@ -72,7 +77,7 @@ export const useActions = (data?: GridItem): TUseActions => {
 
   const handleApiResponse = (result: any, outputConfig: { variableName?: string }) => {
     if (outputConfig?.variableName) {
-      const keyOutput = extractAllValuesFromTemplate(outputConfig.variableName);
+      const keyOutput = outputConfig.variableName;
       const variableInStore = findVariable({
         type: 'appState',
         name: keyOutput ?? '',
@@ -89,6 +94,7 @@ export const useActions = (data?: GridItem): TUseActions => {
   };
 
   const makeApiCall = async (apiCall: any, body: any): Promise<any> => {
+    console.log('🚀 ~ makeApiCall ~ apiCall:', apiCall);
     try {
       const response = await axios.request({
         method: apiCall?.method?.toUpperCase(),
@@ -124,7 +130,6 @@ export const useActions = (data?: GridItem): TUseActions => {
   };
 
   const handleWithUpdateStateManagement = async (action: TActions<TActionUpdateState>) => {
-    console.log('🚀 ~ handleWithUpdateStateManagement ~ action:', action);
     const update = action?.data?.update;
     if (_.isEmpty(update)) return;
     update?.forEach((item) => {
@@ -136,7 +141,6 @@ export const useActions = (data?: GridItem): TUseActions => {
           type: item.keyStore,
           name: key,
         });
-        console.log('🚀 ~ update?.forEach ~ keyInStore:', variableInStore);
 
         if (!variableInStore) return;
 
@@ -155,7 +159,6 @@ export const useActions = (data?: GridItem): TUseActions => {
         }
         // item.key = keyInStore?.key ?? '';
       }
-      console.log('🚀 ~ update?.forEach ~ variableInStore:', variableInStore);
 
       updateDocumentVariable({
         type: item.keyStore,
@@ -191,6 +194,7 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (!data) return;
 
     const action = getActionsByComponentId(data?.id ?? '');
+
     if (action) redirectAction(action);
   };
 

@@ -1,16 +1,19 @@
 'use client';
 
-import { getDeviceType } from '@/lib/utils';
 import { CSSProperties, useMemo } from 'react';
 
+import { getDeviceType } from '@/lib/utils';
+
+import { GridItem } from '../grid-systems/const';
+
 interface BackgroundCompoProps {
-  data?: { url?: string };
+  data?: GridItem;
   style?: CSSProperties;
 }
 
 const BackgroundCompo = ({ data, style }: BackgroundCompoProps) => {
   const defaultUrl = '/default-bg.png';
-  const url = data?.url || defaultUrl;
+  const url = data?.dataSlice.url || defaultUrl;
 
   const sizeScreen = getDeviceType();
   const isMobile = sizeScreen === 'mobile';

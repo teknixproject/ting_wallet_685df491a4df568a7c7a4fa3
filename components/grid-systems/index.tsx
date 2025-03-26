@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -8,7 +9,7 @@ import { io } from 'socket.io-client';
 import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
 import { componentRegistry } from '@/lib/slices';
-import { getDeviceSize } from '@/lib/utils';
+import { cn, getDeviceSize } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
 import { apiResourceStore } from '@/stores';
 import { dynamicGenarateUtil } from '@/uitls/dynamicGenarate';
@@ -34,7 +35,6 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   const { apiData } = useApiCallStore((state) => state);
   const { updateTitleInText } = dynamicGenarateUtil;
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
-  console.log('🚀 ~ sliceRef:', sliceRef);
 
   useEffect(() => {
     if (
@@ -107,8 +107,6 @@ const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />
     )
   );
-  if (!isButton) {
-  }
 
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <div className={`${sliceClasses}`} style={isButton ? {} : inlineStyles}>
@@ -186,7 +184,7 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   return <>{renderedChildren}</>;
 };
 
-const GridSystemContainer = ({ page, deviceType }: GridSystemProps) => {
+const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: GridSystemProps) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
 
   const config = layout || page;
@@ -235,12 +233,23 @@ const GridSystemContainer = ({ page, deviceType }: GridSystemProps) => {
   }, [deviceType]);
 
   if (!MonacoContainerRoot || typeof MonacoContainerRoot !== 'function') {
-    return <>{content}</>;
+    return <div>{content}</div>;
   }
 
   return (
-    <div className="overflow-hidden">
-      <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
+    <div
+      className={cn(
+        '',
+        isBody ? 'z-1 min-h-screen' : '',
+        isHeader ? 'z-3 sticky top-0' : '',
+        isFooter ? 'z-3' : ''
+      )}
+    >
+      <MonacoContainerRoot key={refreshKey}>
+        {content}
+
+        {isBody && <div className="h-screen bg-amber-50"></div>}
+      </MonacoContainerRoot>
     </div>
   );
 };

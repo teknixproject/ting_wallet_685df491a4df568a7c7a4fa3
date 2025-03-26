@@ -1,13 +1,14 @@
-import _ from 'lodash';
 import { CSSProperties } from 'react';
 
-interface DiscriptionCompoProps {
+import { useData } from '@/hooks';
+
+interface DescriptionProps {
   data?: any;
   style?: CSSProperties;
 }
 
-const DiscriptionCompo = ({ data, style }: DiscriptionCompoProps) => {
-  const title = _.get(data, 'title', 'Discription');
+const Description = ({ data, style }: DescriptionProps) => {
+  const { title } = useData({ layoutData: data, defaultTitle: 'Description' });
 
   const newStyle: CSSProperties = {
     lineHeight: '170%',
@@ -26,4 +27,4 @@ const DiscriptionCompo = ({ data, style }: DiscriptionCompoProps) => {
   );
 };
 
-export default DiscriptionCompo;
+export default Description;

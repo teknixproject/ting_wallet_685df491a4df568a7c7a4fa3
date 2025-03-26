@@ -1,41 +1,42 @@
-"use client";
+'use client';
 
-import { getDeviceType } from "@/lib/utils";
-import _ from "lodash";
-import { CSSProperties, useEffect, useState } from "react";
+import _ from 'lodash';
+import { CSSProperties, useEffect, useState } from 'react';
+
+import { getDeviceType } from '@/lib/utils';
+
+import { GridItem } from '../grid-systems/const';
 
 interface BannerVideoCompoProps {
-  data?: any;
+  data?: GridItem;
   style?: CSSProperties;
 }
 
 const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
-  const linkVideo = _.get(data, "url", "/assets/videos/intro.mov");
+  const linkVideo = _.get(data, 'dataSlice.url', '/assets/videos/intro.mov');
   const [isInView, setIsInView] = useState(false);
   const sizeScreen = getDeviceType();
-  const isMobile = sizeScreen === "mobile";
+  const isMobile = sizeScreen === 'mobile';
 
   const newStyle: CSSProperties | undefined = {
     ...style,
     inset: 0,
-    objectFit: "fill",
-    height: isMobile ? "100%" : "auto",
+    objectFit: 'fill',
+    height: isMobile ? '100%' : 'auto',
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      const rect = document
-        .getElementById("banner-video")
-        ?.getBoundingClientRect();
+      const rect = document.getElementById('banner-video')?.getBoundingClientRect();
       if (rect && rect.top < window.innerHeight && rect.bottom > 0) {
         setIsInView(true);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
     handleScroll();
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (

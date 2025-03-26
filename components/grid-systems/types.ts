@@ -6,6 +6,9 @@ export interface GridSystemProps extends Content.PageDocument, Content.PageDocum
   page?: GridItem;
   layoutId?: string;
   deviceType: string;
+  isHeader?: boolean;
+  isBody?: boolean;
+  isFooter?: boolean;
 }
 
 export type SliceItemsType =
