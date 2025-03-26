@@ -46,6 +46,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     if (!data) return;
     const action = getActionsByComponentId(data?.id ?? '');
     console.log('🚀 ~ useEffect ~ action:', action);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const handleActionClick = async () => {
@@ -153,11 +154,11 @@ const Button = ({ data, style }: ButtonCompoProps) => {
 
   return link ? (
     <Link href={link} passHref>
-      <a style={style} className="!text-16-500 rounded-full flex items-center gap-2 text-center">
+      <div style={style} className="!text-16-500 rounded-full flex items-center gap-2 text-center">
         {iconStart && <span className="icon-start">{iconStart}</span>}
         <span>{title}</span>
         {iconEnd && <span className="icon-end">{iconEnd}</span>}
-      </a>
+      </div>
     </Link>
   ) : (
     <CsButton

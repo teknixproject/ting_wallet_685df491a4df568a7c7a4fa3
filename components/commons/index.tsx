@@ -14,4 +14,6 @@ export const components = {
   title_header: dynamic(() => import('./titleHeader')),
   title_header_gradient: dynamic(() => import('./titleHeaderGradient')),
   input_text: dynamic(() => import('./inputText')),
+  navigation: dynamic(() => import('./navigation')),
+  dropdown: dynamic(() => import('./dropdown')),
 };
