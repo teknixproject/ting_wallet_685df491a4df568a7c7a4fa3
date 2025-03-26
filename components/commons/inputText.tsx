@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CSSProperties } from 'styled-components';
 
 import { stateManagementStore } from '@/stores/stateManagement';
@@ -10,7 +10,7 @@ import { GridItem } from '../grid-systems/const';
 type Props = { data: GridItem };
 
 const InputText: React.FC<Props> = ({ data }) => {
-  const title = _.get(data, 'dataSlice.title', 'Text');
+  const [title, setTitle] = useState(_.get(data, 'dataSlice.title', 'Text'));
   const style = _.get(data, 'dataSlice.style', {});
   const newStyle: CSSProperties = {
     ...style,
@@ -26,7 +26,7 @@ const InputText: React.FC<Props> = ({ data }) => {
   const variableName = _.get(data, 'dataSlice.variableName', '');
   console.log('🚀 ~ variableName:', variableName);
 
-  const { findVariable, updateDocumentVariable } = stateManagementStore();
+  const { findVariable, updateDocumentVariable, componentState } = stateManagementStore();
   const variableChange = findVariable({ type: 'componentState', name: variableName });
   const { extractAllValuesFromTemplate } = variableUtil;
   console.log('🚀 ~ variableChange:', variableChange);
@@ -36,6 +36,12 @@ const InputText: React.FC<Props> = ({ data }) => {
       dataUpdate: { key, value },
     });
   }, 300);
+
+  useEffect(() => {
+    if (!variableName) return;
+
+    setTitle(findVariable({ type: 'componentState', name: variableName })?.value ?? 'Text');
+  }, [componentState]);
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!variableName) return;
     const key = extractAllValuesFromTemplate(variableName);
