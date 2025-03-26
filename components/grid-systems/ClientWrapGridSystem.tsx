@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
@@ -32,19 +33,26 @@ export default function ClientWrapper(props: any) {
 }
 
 const RenderUIClient = (props: any) => {
-  console.log('🚀 ~ RenderUIClient ~ props:', props);
+  //#region store
+  const { setData } = layoutStore();
+  const { addAndUpdateApiResource, apiResources } = apiResourceStore();
+  const { setDataTypeDocumentVariable } = stateManagementStore();
+  const { setActions } = actionsStore();
+
   const { bodyLayout, footerLayout, headerLayout, isLoading } = useConstructorDataAPI(
     props.documentId,
     props.pathName
   );
-  console.log('🚀 ~ RenderUIClient ~ layout:', bodyLayout);
-  const { setData } = layoutStore();
 
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
   }, []);
 
-  // const layout = data;
+  // #region hooks
+  const searchParams = useSearchParams();
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+  const uid = searchParams.get('uid') || 'home';
+
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
@@ -61,18 +69,80 @@ const RenderUIClient = (props: any) => {
     };
   }, [props.page]);
 
+  const getStates = async () => {
+    const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
+    try {
+      await Promise.all(
+        list.map(async (type: TTypeSelectState) => {
+          const result = await stateManagerService.getData(
+            type === 'globalState'
+              ? {
+                  projectId: projectId ?? '',
+                  type,
+                }
+              : {
+                  uid: uid ?? '',
+                  projectId: projectId ?? '',
+                  type,
+                }
+          );
+          if (_.isEmpty(result?.data)) return;
+          const { state } = result?.data;
+          if (_.isEmpty(state)) return;
+
+          if (state) {
+            setDataTypeDocumentVariable({
+              type,
+              dataUpdate: state,
+            });
+          }
+        })
+      );
+    } catch (error) {
+      console.log('🚀 ~ getStates ~ error:', error);
+    }
+  };
+
+  const getActions = async () => {
+    try {
+      const result = await actionService.getData({
+        projectId: projectId ?? '',
+        uid: uid ?? '',
+      });
+      if (_.isEmpty(result?.data?.data)) return;
+      setActions(result.data.data);
+    } catch (error) {
+      console.log('🚀 ~ getStates ~ error:', error);
+    }
+  };
+  const getApiCall = async () => {
+    try {
+      const result = await apiCallService.get({ uid: uid ?? '', projectId: projectId ?? '' });
+      addAndUpdateApiResource({ uid: uid ?? '', apis: result?.data?.apis });
+    } catch (error) {
+      console.log('🚀 ~ getApiCall ~ error:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStates();
+    getApiCall();
+    getActions();
+  }, [uid, projectId]);
+
   if (isLoading) {
     return <LoadingPage />;
   }
 
   return (
-    <>
+    <div className="relative">
       {/* Header */}
       <GridSystemContainer
         isLoading={isLoading}
         {...props}
         page={selectedHeaderLayout || {}}
         deviceType={deviceType}
+        isHeader
       />
       {/* Body */}
       <GridSystemContainer
@@ -80,6 +150,7 @@ const RenderUIClient = (props: any) => {
         {...props}
         page={selectedBodyLayout || {}}
         deviceType={deviceType}
+        isBody
       />
       {/* Footer */}
       <GridSystemContainer
@@ -87,18 +158,17 @@ const RenderUIClient = (props: any) => {
         {...props}
         page={selectedFooterLayout || {}}
         deviceType={deviceType}
+        isFooter
       />
-    </>
+    </div>
   );
 };
 
 const PreviewUI = (props: any) => {
-  console.log('🚀 ~ PreviewUI ~ props:', props);
   //#region store
   const { setData } = layoutStore();
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
   const { setDataTypeDocumentVariable } = stateManagementStore();
-  console.log('🚀 ~ PreviewUI ~ apiResources:', apiResources);
   const { setActions } = actionsStore();
 
   // #region hooks
@@ -169,7 +239,6 @@ const PreviewUI = (props: any) => {
     try {
       const result = await apiCallService.get({ uid: uid ?? '', projectId: projectId ?? '' });
       addAndUpdateApiResource({ uid: uid ?? '', apis: result?.data?.apis });
-      console.log('🚀 ~ getApiCall ~ result:', result);
     } catch (error) {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }

@@ -1,29 +1,29 @@
-import { getDeviceType } from "@/lib/utils";
-import _ from "lodash";
-import { CSSProperties } from "react";
+import { CSSProperties } from 'react';
+
+import { useData } from '@/hooks';
+import { getDeviceType } from '@/lib/utils';
+
+import { GridItem } from '../grid-systems/const';
 
 interface TitleHeaderProps {
-  data?: any;
+  data: GridItem;
   style?: CSSProperties;
 }
 
 const TitleHeader = ({ data, style }: TitleHeaderProps) => {
   const deviceType = getDeviceType();
-  const isMobile = deviceType === "mobile";
+  const isMobile = deviceType === 'mobile';
 
-  const title = _.get(data, "title", "Title Header");
+  const { title } = useData({ layoutData: data });
 
   const newStyle = {
-    letterSpacing: isMobile ? "0.1px" : "",
-    lineHeight: "170%",
+    letterSpacing: isMobile ? '0.1px' : '',
+    lineHeight: '170%',
     ...style,
   };
 
   return (
-    <h2
-      style={newStyle}
-      className="heading-1 flex items-center gap-3 max-lg:inline"
-    >
+    <h2 style={newStyle} className="heading-1 flex items-center gap-3 max-lg:inline">
       {title}
     </h2>
   );

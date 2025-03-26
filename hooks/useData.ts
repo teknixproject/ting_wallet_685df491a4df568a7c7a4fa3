@@ -8,8 +8,13 @@ import { stateManagementStore } from '@/stores';
 import { TTypeSelectState } from '@/types';
 import { variableUtil } from '@/uitls';
 
-export const useData = (layoutData: GridItem) => {
-  const [title, setTitle] = useState<string>(_.get(layoutData, 'dataSlice.title', 'Text'));
+type Props = {
+  layoutData: GridItem;
+  defaultTitle?: string;
+};
+export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
+  const [title, setTitle] = useState<string>(layoutData?.dataSlice?.title || defaultTitle);
+  console.log('🚀 ~ useData ~ title:', title);
   const [variableName, setVariableName] = useState<string>(
     _.get(layoutData, 'dataSlice.variableName', '')
   );
@@ -18,7 +23,6 @@ export const useData = (layoutData: GridItem) => {
   );
 
   const { findVariable, appState, componentState, globalState } = stateManagementStore();
-  console.log('🚀 ~ Text ~ appState:', appState);
 
   const { extractAllValuesFromTemplate } = variableUtil;
 

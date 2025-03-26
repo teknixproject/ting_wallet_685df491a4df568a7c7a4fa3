@@ -4,7 +4,7 @@ export const components = {
   background: dynamic(() => import('./background')),
   banner_video: dynamic(() => import('./bannerVideo')),
   button: dynamic(() => import('./button')),
-  description: dynamic(() => import('./discription')),
+  description: dynamic(() => import('./description')),
   pagination: dynamic(() => import('./pagination')),
   icon: dynamic(() => import('./icon')),
   image: dynamic(() => import('./image')),
@@ -16,4 +16,5 @@ export const components = {
   input_text: dynamic(() => import('./inputText')),
   navigation: dynamic(() => import('./navigation')),
   dropdown: dynamic(() => import('./dropdown')),
+  default: dynamic(() => import('./text')),
 };
