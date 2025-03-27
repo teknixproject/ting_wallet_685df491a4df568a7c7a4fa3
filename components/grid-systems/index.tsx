@@ -57,6 +57,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, slice, updateTitleInText]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = useMemo(() => {
     const key = sliceRef?.id?.split('$')[0];
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
@@ -104,7 +105,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
     <SliceComponent
       id={_.get(sliceRef, 'id')}
       style={styleSlice}
-      data={data}
+      data={sliceRef}
       childs={sliceRef?.childs}
     />
   ) : (

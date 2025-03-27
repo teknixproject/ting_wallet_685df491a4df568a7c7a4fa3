@@ -165,6 +165,10 @@ const RenderUIClient = (props: any) => {
 };
 
 const PreviewUI = (props: any) => {
+  const searchParams = useSearchParams();
+  const uid = searchParams.get('uid');
+  const projectId = searchParams.get('projectId');
+
   //#region store
   const { setData } = layoutStore();
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
@@ -172,15 +176,20 @@ const PreviewUI = (props: any) => {
   const { setActions } = actionsStore();
 
   // #region hooks
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
   const [deviceType, setDeviceType] = useState(getDeviceType());
-  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '');
+  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid);
 
   // #region state
-  const uid = searchParams.get('uid');
-  const isPage = _.get(dataPreviewUI, 'data.typePreview') === 'page';
-  const layout = _.get(dataPreviewUI, 'data.previewData');
+
+  const isPage = _.get(dataPreviewUI, 'typePreview') === 'page';
+
+  const headerLayout = _.get(dataPreviewUI, 'headerLayout');
+  const bodyLayout = _.get(dataPreviewUI, 'bodyLayout');
+  const footerLayout = _.get(dataPreviewUI, 'footerLayout');
+
+  const selectedHeaderLayout = !_.isEmpty(headerLayout) ? headerLayout[deviceType] : {};
+  const selectedBodyLayout = !_.isEmpty(bodyLayout) ? bodyLayout[deviceType] : {};
+  const selectedFooterLayout = !_.isEmpty(footerLayout) ? footerLayout[deviceType] : {};
 
   //#region function
   useEffect(() => {
@@ -245,7 +254,7 @@ const PreviewUI = (props: any) => {
   };
 
   useEffect(() => {
-    if (layout) setData(layout);
+    if (bodyLayout) setData(bodyLayout);
 
     getStates();
     getApiCall();
@@ -260,12 +269,37 @@ const PreviewUI = (props: any) => {
   return (
     <div className="component-preview-container">
       {isPage ? (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={layout[deviceType] || {}}
-          deviceType={deviceType}
-        />
+        <div className="relative">
+          {!_.isEmpty(selectedHeaderLayout) && (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedHeaderLayout || {}}
+              deviceType={deviceType}
+              isHeader
+            />
+          )}
+
+          {!_.isEmpty(selectedBodyLayout) && (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedBodyLayout || {}}
+              deviceType={deviceType}
+              isBody
+            />
+          )}
+
+          {!_.isEmpty(selectedFooterLayout) && (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedFooterLayout || {}}
+              deviceType={deviceType}
+              isFooter
+            />
+          )}
+        </div>
       ) : (
         <SandPackUI dataPreviewUI={dataPreviewUI} />
       )}

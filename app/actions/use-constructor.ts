@@ -78,11 +78,11 @@ export async function rebuilComponentMonaco(componentString: string) {
   }
 }
 
-export function usePreviewUI(projectId?: string) {
+export function usePreviewUI(projectId?: string, uid?: string | null) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const { data: dataPreviewUI } = useSWR(
-    projectId ? `${API_URL}/api/preview-ui?projectId=${projectId}` : null,
+    projectId ? `${API_URL}/api/preview-ui?projectId=${projectId}&uid=${uid}` : null,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
   );
