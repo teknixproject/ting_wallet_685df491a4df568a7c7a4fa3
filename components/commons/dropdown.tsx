@@ -1,10 +1,11 @@
 'use client';
 
+import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useState } from 'react';
 
 interface DropdownProps {
   id: string;
-  style?: string;
+  style?: any;
   data?: any;
   childs?: any[];
 }
@@ -13,12 +14,13 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
-  console.log('Dropdown', {
-    id,
-    style,
-    data,
-    childs,
-  });
+  const buttonSelectedClass = style?.dropdownStyles?.buttonSelected
+    ? style.dropdownStyles.buttonSelected.toString()
+    : '';
+  const menuClass = style?.dropdownStyles?.menu ? style.dropdownStyles.menu.toString() : '';
+  const buttonChildClass = style?.dropdownStyles?.button
+    ? style.dropdownStyles.button.toString()
+    : '';
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -40,13 +42,17 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
         return (
           <button
             onClick={() => handleItemClick(child)}
-            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+            className={`w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors ${buttonChildClass}`}
           >
             {child.name || 'Unnamed Button'}
           </button>
         );
       case 'text':
-        return <div className="px-4 py-2 text-gray-700">{child.name || 'Unnamed Text'}</div>;
+        return (
+          <div className={`px-4 py-2 text-gray-700 ${buttonChildClass}`}>
+            {child.name || 'Unnamed Text'}
+          </div>
+        );
       case 'dropdown':
         return (
           <Dropdown
@@ -62,17 +68,24 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
   };
 
   return (
-    <div className="relative inline-block">
+    <div className={`relative inline-block ${style}`}>
       <button
         onClick={handleToggle}
-        className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 ${style}`}
+        className={`
+        transition-colors flex items-center gap-2 focus:bg-[##ffffff47] ${buttonSelectedClass}`}
       >
         {selectedItem || data?.name || 'Dropdown'}
-        <span>{isOpen ? '▲' : '▼'}</span>
+        <span>
+          {isOpen ? (
+            <Icon icon="iconamoon:arrow-up-2" width="24" height="24" />
+          ) : (
+            <Icon icon="iconamoon:arrow-down-2" width="24" height="24" />
+          )}
+        </span>
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+        <div className={`absolute left-0 mt-2 ${menuClass} z-10`}>
           {childs.length > 0 ? (
             childs.map((item: any, index: number) => (
               <div key={item?.id || index}>{renderChild(item)}</div>
