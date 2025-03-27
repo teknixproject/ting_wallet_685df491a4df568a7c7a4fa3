@@ -90,6 +90,7 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
 
     setTotalPages(totalValue);
     // Add totalPages logic here if needed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, data, findApiData]);
 
   return (

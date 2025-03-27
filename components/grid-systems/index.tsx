@@ -65,14 +65,14 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
 
   const styleDevice: string = getDeviceSize() as string;
 
-  const key = sliceRef?.id?.split('$')[0];
+  // const key = sliceRef?.id?.split('$')[0];
 
   const SliceComponent = useMemo(() => {
     const key = sliceRef?.id?.split('$')[0];
     return componentRegistry[key as keyof typeof componentRegistry];
   }, [sliceRef?.id]);
 
-  const isButton = key === 'button';
+  // const isButton = key === 'button';
 
   const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef?.style;
 
@@ -115,11 +115,12 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   );
 
   return sliceClasses || Object.keys(inlineStyles).length ? (
-    <div className={`${sliceClasses}`} style={isButton ? {} : inlineStyles}>
+    <div className={`${sliceClasses}`} style={inlineStyles}>
       {content}
     </div>
   ) : null;
 };
+
 export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   const { apiData, addApiData } = useApiCallStore((state) => state);
   const [childs, setChilds] = useState<GridItem[]>(slice?.childs || []);
