@@ -194,7 +194,9 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (!data) return;
 
     const action = getActionsByComponentId(data?.id ?? '');
-
+    if (data?.action?.pageId) {
+      router.push(data?.action?.pageId);
+    }
     if (action) redirectAction(action);
   };
 

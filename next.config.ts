@@ -1,16 +1,24 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
   async headers() {
     return [
       {
-        source: "/:all*(svg|jpg|png)",
+        source: '/:all*(svg|jpg|png)',
         locale: false,
         headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=9999999999, must-revalidate",
+            key: 'Cache-Control',
+            value: 'public, max-age=9999999999, must-revalidate',
           },
         ],
       },

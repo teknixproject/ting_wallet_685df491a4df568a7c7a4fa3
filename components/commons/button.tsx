@@ -66,7 +66,10 @@ const Button = ({ data, style }: ButtonCompoProps) => {
 
   return link ? (
     <Link href={link} passHref>
-      <div style={newStyle} className="!text-16-500 rounded-full flex items-center gap-2 text-center">
+      <div
+        style={newStyle}
+        className="!text-16-500 rounded-full flex items-center gap-2 text-center"
+      >
         {iconStart && <span className="icon-start">{iconStart}</span>}
         <span>{title}</span>
         {iconEnd && <span className="icon-end">{iconEnd}</span>}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -55,7 +54,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
         }));
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, slice, updateTitleInText]);
 
   const data = useMemo(() => {
