@@ -30,7 +30,7 @@ const Image = ({ data, style }: ImageProps) => {
       style={{ width: '100%', height: '100%' }}
       className="relative overflow-hidden flex items-center justify-center"
     >
-      <img style={newStyle} src={url} alt="Image" className="w-full h-auto object-cover" />
+      <img style={newStyle} src={url} alt="Image" className="w-full h-full object-cover" />
       {isBg && (
         <div
           className="absolute inset-0 pointer-events-none"
