@@ -115,7 +115,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   );
 
   return sliceClasses || Object.keys(inlineStyles).length ? (
-    <div className={`${sliceClasses}`} style={inlineStyles}>
+    <div className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `} style={inlineStyles}>
       {content}
     </div>
   ) : null;

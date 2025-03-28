@@ -133,7 +133,7 @@ export const GapGrid = (row_span_number: number) => {
 export const BREAKPOINTS = {
   mobile: {
     title: 'Mobile',
-    style: 'style',
+    style: 'style_mobile',
     minWidth: 0,
     maxWidth: 479,
     type: 'mobile',
