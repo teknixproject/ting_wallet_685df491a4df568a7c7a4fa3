@@ -49,6 +49,8 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     maxWidth: '',
     width: '100%',
     height: '100%',
+    background: '',
+    backgroundColor: '',
   };
   if (isButtonGradient) {
     return (
