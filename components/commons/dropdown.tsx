@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
+import _ from 'lodash';
 
 interface DropdownProps {
   id: string;
@@ -13,7 +14,6 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs = [] }) => {
-  console.log('🚀 ~ style:', style);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -21,11 +21,9 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
     ? style.dropdownStyles.buttonSelected.toString()
     : '';
   const menuClass = style?.dropdownStyles?.menu ? style.dropdownStyles.menu.toString() : '';
-  console.log('🚀 ~ menuClass:', menuClass);
   const buttonChildClass = style?.dropdownStyles?.button
     ? style.dropdownStyles.button.toString()
     : '';
-  console.log('🚀 ~ buttonSelectedClass:', { buttonSelectedClass, menuClass, buttonChildClass });
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -49,13 +47,13 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
             onClick={() => handleItemClick(child)}
             className={`w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors ${buttonChildClass}`}
           >
-            {child.name || 'Unnamed Button'}
+            {_.get(child, 'dataSlice.title') || 'Unnamed Button'}
           </button>
         );
       case 'text':
         return (
           <div className={`px-4 py-2 text-gray-700 ${buttonChildClass}`}>
-            {child.name || 'Unnamed Text'}
+            {_.get(child, 'dataSlice.title') || 'Unnamed Text'}
           </div>
         );
       case 'dropdown':
