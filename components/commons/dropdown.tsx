@@ -1,7 +1,9 @@
 'use client';
 
-import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useState } from 'react';
+
+import { cn } from '@/lib/utils';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 interface DropdownProps {
   id: string;
@@ -11,6 +13,7 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs = [] }) => {
+  console.log('🚀 ~ style:', style);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -18,9 +21,11 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
     ? style.dropdownStyles.buttonSelected.toString()
     : '';
   const menuClass = style?.dropdownStyles?.menu ? style.dropdownStyles.menu.toString() : '';
+  console.log('🚀 ~ menuClass:', menuClass);
   const buttonChildClass = style?.dropdownStyles?.button
     ? style.dropdownStyles.button.toString()
     : '';
+  console.log('🚀 ~ buttonSelectedClass:', { buttonSelectedClass, menuClass, buttonChildClass });
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -68,7 +73,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
   };
 
   return (
-    <div className={`relative inline-block ${style}`}>
+    <div className={cn(`relative inline-block`, menuClass)}>
       <button
         onClick={handleToggle}
         className={`
@@ -85,7 +90,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
       </button>
 
       {isOpen && (
-        <div className={`absolute left-0 mt-2 ${menuClass} z-10`}>
+        <div className={cn('absolute left-0 mt-2 z-10', menuClass)}>
           {childs.length > 0 ? (
             childs.map((item: any, index: number) => (
               <div key={item?.id || index}>{renderChild(item)}</div>
