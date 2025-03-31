@@ -22,10 +22,10 @@ import { GridSystemProps, RenderGripProps } from './types';
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const allowUpdateTitle = ['content'];
 type TRenderSlice = { slice: GridItem | null | undefined; idParent: string };
+const { updateTitleInText } = dynamicGenarateUtil;
 
 export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   const { apiData } = useApiCallStore((state) => state);
-  const { updateTitleInText } = dynamicGenarateUtil;
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
 
   useEffect(() => {
@@ -160,16 +160,7 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    apiCallId,
-    uid,
-    idParent,
-    slice,
-    findApiResourceValue,
-    addApiData,
-    getDataFromApi,
-    createCardsFromApi,
-  ]);
+  }, [apiCallId, uid, idParent, slice]);
 
   // Memoize the rendered children to avoid unnecessary re-renders
   const renderedChildren = useMemo(() => {

@@ -81,7 +81,7 @@ const RenderUIClient = (props: any) => {
                   type,
                 }
               : {
-                  uid: uid ?? '',
+                  uid: uid ?? 'home',
                   projectId: projectId ?? '',
                   type,
                 }
@@ -125,6 +125,8 @@ const RenderUIClient = (props: any) => {
   };
 
   useEffect(() => {
+    if (!projectId) return;
+
     getStates();
     getApiCall();
     getActions();
