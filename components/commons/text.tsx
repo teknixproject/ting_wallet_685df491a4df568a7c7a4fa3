@@ -5,6 +5,7 @@ import { useData } from '@/hooks';
 import { GridItem } from '@/types/gridItem';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { convertStyle } from '@/lib/utils';
 
 interface TextProps {
   data: GridItem;
@@ -22,7 +23,7 @@ const Text = ({ data, style }: TextProps) => {
   }, [data]);
 
   const content = (
-    <div style={newStyle} className="text-[#858585]">
+    <div style={convertStyle(newStyle)} className="text-[#858585]">
       {_.isObject(title) ? JSON.stringify(title) : title}
     </div>
   );

@@ -11,6 +11,7 @@ import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { convertStyle } from '@/lib/utils';
 
 interface StylesProps {
   style?: {
@@ -75,7 +76,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   const content = link ? (
     <Link href={link} passHref>
       <div
-        style={newStyle}
+        style={convertStyle(newStyle)}
         className="!text-16-500 rounded-full flex items-center gap-2 text-center"
       >
         {iconStart && <span className="icon-start">{iconStart}</span>}
@@ -86,7 +87,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   ) : (
     <CsButton
       type="button"
-      style={newStyle}
+      style={convertStyle(newStyle)}
       onClick={route ? handleRouteClick : handleActionClick}
       className="cursor-pointer"
     >

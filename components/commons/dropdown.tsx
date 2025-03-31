@@ -1,20 +1,26 @@
 'use client';
 
-import _ from 'lodash';
 import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
+import _ from 'lodash';
 
 interface DropdownProps {
   id: string;
   style?: any;
   data?: any;
   childs?: any[];
+  menuClassDropdow?: any;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs = [] }) => {
-  console.log('🚀 ~ style:', style);
+const Dropdown: React.FC<DropdownProps> = ({
+  id,
+  style = '',
+  data = {},
+  childs = [],
+  menuClassDropdow,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -22,11 +28,9 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
     ? style.dropdownStyles.buttonSelected.toString()
     : '';
   const menuClass = style?.dropdownStyles?.menu ? style.dropdownStyles.menu.toString() : '';
-  console.log('🚀 ~ childs:', childs);
   const buttonChildClass = style?.dropdownStyles?.button
     ? style.dropdownStyles.button.toString()
     : '';
-  console.log('🚀 ~ buttonSelectedClass:', { buttonSelectedClass, menuClass, buttonChildClass });
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -66,6 +70,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
             style={child.style || ''}
             data={child || {}}
             childs={child.childs || []}
+            menuClassDropdow={menuClass}
           />
         );
       default:
@@ -74,7 +79,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
   };
 
   return (
-    <div className={cn(`relative inline-block`, menuClass)}>
+    <div className={cn(`relative inline-block`, menuClassDropdow)}>
       <button
         onClick={handleToggle}
         className={`

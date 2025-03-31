@@ -27,3 +27,26 @@ export function getDeviceSize() {
   }
   return BREAKPOINTS.laptop.style; // Giá trị mặc định nếu window không tồn tại (SSR)
 }
+
+export const defaultStyle: React.CSSProperties = {
+  background: '',
+  backgroundColor: '',
+  paddingBottom: '',
+  paddingTop: '',
+  paddingLeft: '',
+  paddingRight: '',
+  marginTop: '',
+  marginBottom: '',
+  marginRight: '',
+  marginLeft: '',
+  border: '',
+  borderColor: '',
+  width: '100%',
+};
+
+export const convertStyle = (style: any) => {
+  return {
+    ...style,
+    ...defaultStyle,
+  };
+};
