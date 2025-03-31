@@ -2,16 +2,11 @@ import axios from 'axios';
 import _ from 'lodash';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { GridItem } from '@/components/grid-systems/const';
 import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
 import {
-  TActionApiCall,
-  TActionNavigate,
-  TActions,
-  TActionUpdateState,
-  TActionVariable,
-  TVariable,
+    TActionApiCall, TActionNavigate, TActions, TActionUpdateState, TActionVariable, TVariable
 } from '@/types';
+import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;

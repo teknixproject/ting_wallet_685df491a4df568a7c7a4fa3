@@ -10,7 +10,7 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export function useConstructorDataAPI(documentId?: string, pageName?: string) {
+export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const prevComponentRef = useRef<string | null>(null);
 
