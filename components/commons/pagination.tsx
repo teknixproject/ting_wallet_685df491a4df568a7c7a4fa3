@@ -8,9 +8,9 @@ import { CSSProperties } from 'styled-components';
 
 import { usePagination } from '@/hooks/usePagination';
 import { useApiCallStore } from '@/providers';
+import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
-import { GridItem } from '../grid-systems/const';
 import Loading from './loading';
 
 type TProps = {
@@ -65,7 +65,7 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
       }
     };
     getData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   // Generate page numbers with ellipsis
@@ -90,7 +90,7 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
 
     setTotalPages(totalValue);
     // Add totalPages logic here if needed
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, data, findApiData]);
 
   return (

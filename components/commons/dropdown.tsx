@@ -1,10 +1,10 @@
 'use client';
 
+import _ from 'lodash';
 import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import _ from 'lodash';
 
 interface DropdownProps {
   id: string;

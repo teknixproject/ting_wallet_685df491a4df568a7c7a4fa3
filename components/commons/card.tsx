@@ -5,9 +5,9 @@ import { CSSProperties } from 'styled-components';
 
 import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
+import { GridItem } from '@/types/gridItem';
 
 import { RenderSlice } from '../grid-systems';
-import { GridItem } from '../grid-systems/const';
 
 interface CardProps {
   data: GridItem;

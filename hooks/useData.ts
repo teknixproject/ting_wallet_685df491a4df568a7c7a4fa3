@@ -3,9 +3,9 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { GridItem } from '@/components/grid-systems/const';
 import { stateManagementStore } from '@/stores';
 import { TTypeSelectState } from '@/types';
+import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 
 type Props = {

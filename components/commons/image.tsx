@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { CSSProperties } from 'react';
 
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface ImageProps {
   data?: GridItem;

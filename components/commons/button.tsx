@@ -3,12 +3,14 @@
 import _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CSSProperties } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
+import { GridItem } from '@/types/gridItem';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
-import { GridItem } from '../grid-systems/const';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface StylesProps {
   style?: {
@@ -33,6 +35,10 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   const { handleActionClick } = useActions(data);
 
   const isButtonGradient = _.get(data, 'isBtnGradient', false);
+
+  const tooltip = useMemo(() => {
+    return data?.tooltip;
+  }, [data]);
 
   const handleRouteClick = () => {
     if (route) {
@@ -66,7 +72,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     );
   }
 
-  return link ? (
+  const content = link ? (
     <Link href={link} passHref>
       <div
         style={newStyle}
@@ -88,6 +94,23 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       <span>{title}</span>
       {iconEnd && <span className="icon-end">{iconEnd}</span>}
     </CsButton>
+  );
+
+  if (_.isEmpty(tooltip?.title)) return content;
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div style={newStyle} className="text-[#858585]">
+            {content}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent style={tooltip?.style}>
+          <p>{tooltip?.title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

@@ -3,8 +3,7 @@
 import { CSSProperties, useMemo } from 'react';
 
 import { getDeviceType } from '@/lib/utils';
-
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface BackgroundCompoProps {
   data?: GridItem;

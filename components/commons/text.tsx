@@ -1,9 +1,10 @@
 import _ from 'lodash';
-import { CSSProperties } from 'react';
+import { CSSProperties, useMemo } from 'react';
 
 import { useData } from '@/hooks';
+import { GridItem } from '@/types/gridItem';
 
-import { GridItem } from '../grid-systems/const';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface TextProps {
   data: GridItem;
@@ -16,10 +17,25 @@ const Text = ({ data, style }: TextProps) => {
     ...style,
   };
 
-  return (
+  const tooltip = useMemo(() => {
+    return data.tooltip;
+  }, [data]);
+
+  const content = (
     <div style={newStyle} className="text-[#858585]">
       {_.isObject(title) ? JSON.stringify(title) : title}
     </div>
+  );
+  if (_.isEmpty(tooltip?.title)) return content;
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent style={tooltip?.style}>
+          <p>{tooltip?.title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
