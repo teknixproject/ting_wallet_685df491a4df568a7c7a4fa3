@@ -1,10 +1,10 @@
 'use client';
 
+import _ from 'lodash';
 import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import _ from 'lodash';
 
 interface DropdownProps {
   id: string;
@@ -14,6 +14,7 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs = [] }) => {
+  console.log('🚀 ~ style:', style);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -21,9 +22,11 @@ const Dropdown: React.FC<DropdownProps> = ({ id, style = '', data = {}, childs =
     ? style.dropdownStyles.buttonSelected.toString()
     : '';
   const menuClass = style?.dropdownStyles?.menu ? style.dropdownStyles.menu.toString() : '';
+  console.log('🚀 ~ childs:', childs);
   const buttonChildClass = style?.dropdownStyles?.button
     ? style.dropdownStyles.button.toString()
     : '';
+  console.log('🚀 ~ buttonSelectedClass:', { buttonSelectedClass, menuClass, buttonChildClass });
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);

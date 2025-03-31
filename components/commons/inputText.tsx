@@ -5,9 +5,8 @@ import { CSSProperties } from 'styled-components';
 
 import { useData } from '@/hooks';
 import { stateManagementStore } from '@/stores/stateManagement';
+import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
-
-import { GridItem } from '../grid-systems/const';
 
 type Props = { data: GridItem };
 

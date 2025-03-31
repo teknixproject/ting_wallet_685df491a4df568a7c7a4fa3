@@ -4,8 +4,7 @@ import _ from 'lodash';
 import { CSSProperties, useEffect, useState } from 'react';
 
 import { getDeviceType } from '@/lib/utils';
-
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface BannerVideoCompoProps {
   data?: GridItem;

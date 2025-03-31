@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { CSSProperties } from 'react';
 
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface IconCompoProps {
   data?: GridItem;
@@ -12,7 +12,7 @@ const IconCompo = ({ data }: IconCompoProps) => {
   const url = _.get(data, 'dataSlice.url');
 
   return url ? (
-    <img src={url} alt="Image" className="w-full h-auto" />
+    <img src={url} alt="Image" className="w-full h-full" />
   ) : (
     <img src="/default-icon.png" alt="default-icon" />
   );

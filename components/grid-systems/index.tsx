@@ -11,18 +11,11 @@ import { componentRegistry } from '@/lib/slices';
 import { cn, getDeviceSize } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
 import { apiResourceStore } from '@/stores';
+import { GridItem } from '@/types/gridItem';
 import { dynamicGenarateUtil } from '@/uitls/dynamicGenarate';
 
 import NotFound from './404';
-import {
-  GapGrid,
-  GridItem,
-  GridRow,
-  mapAlineItem,
-  mapJustifyContent,
-  SpanCol,
-  SpanRow,
-} from './const';
+import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } from './const';
 import LoadingPage from './loadingPage';
 import { GridSystemProps, RenderGripProps } from './types';
 
@@ -100,6 +93,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
       gridTemplateColumns: sliceRef.type === 'grid' ? `repeat(${sliceRef.columns}, 1fr)` : '',
     };
   }, [sliceRef, styleDevice]);
+  console.log('🚀 ~ inlineStyles ~ inlineStyles:', inlineStyles);
 
   const content = SliceComponent ? (
     <SliceComponent

@@ -2,8 +2,7 @@ import { CSSProperties } from 'react';
 
 import { useData } from '@/hooks';
 import { getDeviceType } from '@/lib/utils';
-
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface TitleHeaderProps {
   data: GridItem;

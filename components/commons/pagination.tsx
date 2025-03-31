@@ -8,9 +8,9 @@ import { CSSProperties } from 'styled-components';
 
 import { usePagination } from '@/hooks/usePagination';
 import { useApiCallStore } from '@/providers';
+import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
-import { GridItem } from '../grid-systems/const';
 import Loading from './Loading';
 
 type TProps = {

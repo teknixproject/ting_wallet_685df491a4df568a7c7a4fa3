@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Link from 'next/link';
 import { CSSProperties } from 'react';
 
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface LinkCompoProps {
   data?: GridItem;
