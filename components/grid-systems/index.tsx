@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
 import { componentRegistry } from '@/lib/slices';
-import { cn, getDeviceSize } from '@/lib/utils';
+import { cn, convertStyle, getDeviceSize } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
 import { apiResourceStore } from '@/stores';
 import { GridItem } from '@/types/gridItem';
@@ -18,6 +18,7 @@ import NotFound from './404';
 import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } from './const';
 import LoadingPage from './loadingPage';
 import { GridSystemProps, RenderGripProps } from './types';
+import { CsContainerRenderSlice } from './styles';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const allowUpdateTitle = ['content'];
@@ -98,7 +99,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   const content = SliceComponent ? (
     <SliceComponent
       id={_.get(sliceRef, 'id')}
-      style={styleSlice}
+      style={convertStyle(styleSlice)}
       data={sliceRef}
       childs={sliceRef?.childs}
     />
@@ -109,9 +110,12 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice }) => {
   );
 
   return sliceClasses || Object.keys(inlineStyles).length ? (
-    <div className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `} style={inlineStyles}>
+    <CsContainerRenderSlice
+      className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `}
+      style={inlineStyles}
+    >
       {content}
-    </div>
+    </CsContainerRenderSlice>
   ) : null;
 };
 

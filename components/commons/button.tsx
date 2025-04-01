@@ -122,39 +122,38 @@ const flexCenter = {
 };
 
 const CsButton = styled.button<StylesProps>`
+  box-sizing: border-box;
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
           .map(([key, value]) => `${key}: ${value};`)
           .join('\n')
-      : ''}
-
-  &:hover {
+      : ''}/* &:hover {
     ${(props) =>
-      props.style?.hover
-        ? Object.entries(props.style.hover)
-            .map(([key, value]) => `${key}: ${value} !important;`)
-            .join('\n')
-        : ''}
+    props.style?.hover
+      ? Object.entries(props.style.hover)
+          .map(([key, value]) => `${key}: ${value} !important;`)
+          .join('\n')
+      : ''}
   }
 
   &::before {
     ${(props) =>
-      props.style?.before
-        ? Object.entries(props.style.before)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join('\n')
-        : ''}
+    props.style?.before
+      ? Object.entries(props.style.before)
+          .map(([key, value]) => `${key}: ${value};`)
+          .join('\n')
+      : ''}
   }
 
   &::after {
     ${(props) =>
-      props.style?.after
-        ? Object.entries(props.style.after)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join('\n')
-        : ''}
-  }
+    props.style?.after
+      ? Object.entries(props.style.after)
+          .map(([key, value]) => `${key}: ${value};`)
+          .join('\n')
+      : ''}
+  } */
 `;
 
 export default Button;
