@@ -7,11 +7,11 @@ import { CSSProperties, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
+import { convertStyle } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import { convertStyle } from '@/lib/utils';
 
 interface StylesProps {
   style?: {
@@ -120,40 +120,14 @@ const flexCenter = {
   'align-items': 'center',
   'justify-content': 'center',
 };
-
 const CsButton = styled.button<StylesProps>`
   box-sizing: border-box;
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
-          .map(([key, value]) => `${key}: ${value};`)
-          .join('\n')
-      : ''}/* &:hover {
-    ${(props) =>
-    props.style?.hover
-      ? Object.entries(props.style.hover)
-          .map(([key, value]) => `${key}: ${value} !important;`)
+          .map(([key, value]) => `${key}: ${value}`)
           .join('\n')
       : ''}
-  }
-
-  &::before {
-    ${(props) =>
-    props.style?.before
-      ? Object.entries(props.style.before)
-          .map(([key, value]) => `${key}: ${value};`)
-          .join('\n')
-      : ''}
-  }
-
-  &::after {
-    ${(props) =>
-    props.style?.after
-      ? Object.entries(props.style.after)
-          .map(([key, value]) => `${key}: ${value};`)
-          .join('\n')
-      : ''}
-  } */
 `;
 
 export default Button;
