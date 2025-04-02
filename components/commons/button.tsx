@@ -125,11 +125,7 @@ const CsButton = styled.button<StylesProps>`
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
-<<<<<<< HEAD
-          .map(([key, value]) => `${key}: ${value};`)
-=======
           .map(([key, value]) => `${key}: ${value}`)
->>>>>>> khoi
           .join('\n')
       : ''}
 `;
