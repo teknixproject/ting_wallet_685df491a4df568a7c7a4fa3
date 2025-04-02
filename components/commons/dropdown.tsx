@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import _ from 'lodash';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import _ from 'lodash';
 
 interface DropdownProps {
   id: string;
@@ -22,7 +24,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  
+  const router = useRouter();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -53,9 +55,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   const handleItemClick = (item: any) => {
-    if (item?.value === 'button' && item?.action?.type === 'navigate') {
-      console.log(`Navigating to page: ${item.action.pageId}`);
-    }
+    if (item?.action?.pageId) router.push(`/${item.action.pageId}`);
     setSelectedItem(item?.name || null);
     setIsOpen(false);
   };

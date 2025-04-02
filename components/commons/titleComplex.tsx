@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CSSProperties } from 'react';
 import styled from 'styled-components';
 
-import { GridItem } from '../grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 interface TitleComplexCompoProps {
   data?: GridItem;
