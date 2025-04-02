@@ -128,32 +128,7 @@ const CsButton = styled.button<StylesProps>`
       ? Object.entries(flexCenter)
           .map(([key, value]) => `${key}: ${value};`)
           .join('\n')
-      : ''}/* &:hover {
-    ${(props) =>
-    props.style?.hover
-      ? Object.entries(props.style.hover)
-          .map(([key, value]) => `${key}: ${value} !important;`)
-          .join('\n')
       : ''}
-  }
-
-  &::before {
-    ${(props) =>
-    props.style?.before
-      ? Object.entries(props.style.before)
-          .map(([key, value]) => `${key}: ${value};`)
-          .join('\n')
-      : ''}
-  }
-
-  &::after {
-    ${(props) =>
-    props.style?.after
-      ? Object.entries(props.style.after)
-          .map(([key, value]) => `${key}: ${value};`)
-          .join('\n')
-      : ''}
-  } */
 `;
 
 export default Button;

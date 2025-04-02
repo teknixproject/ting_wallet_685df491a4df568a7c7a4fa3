@@ -14,7 +14,7 @@ const flexCenter = {
   'justify-content': 'center',
 };
 
-export const CsContainerRenderSlice = styled.button<StylesProps>`
+export const CsContainerRenderSlice = styled.div<StylesProps>`
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
