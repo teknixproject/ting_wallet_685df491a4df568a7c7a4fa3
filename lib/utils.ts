@@ -42,6 +42,11 @@ export const defaultStyle: React.CSSProperties = {
   border: '',
   borderColor: '',
   width: '100%',
+  position: "initial",
+  top: "",
+  right: "",
+  left: "",
+  bottom: ""
 };
 
 export const convertStyle = (style: any) => {

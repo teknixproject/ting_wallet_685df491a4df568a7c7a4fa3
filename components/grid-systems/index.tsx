@@ -244,7 +244,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
       <MonacoContainerRoot key={refreshKey}>
         {content}
 
-        {isBody && <div className="h-screen bg-amber-50"></div>}
+        {/* {isBody && <div className="h-screen bg-amber-50"></div>} */}
       </MonacoContainerRoot>
     </div>
   );
