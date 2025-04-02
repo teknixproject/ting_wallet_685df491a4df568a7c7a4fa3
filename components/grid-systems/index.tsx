@@ -17,8 +17,8 @@ import { dynamicGenarateUtil } from '@/uitls/dynamicGenarate';
 import NotFound from './404';
 import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } from './const';
 import LoadingPage from './loadingPage';
-import { GridSystemProps, RenderGripProps } from './types';
 import { CsContainerRenderSlice } from './styles';
+import { GridSystemProps, RenderGripProps } from './types';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const allowUpdateTitle = ['content'];
@@ -241,11 +241,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
         isFooter ? 'z-3' : ''
       )}
     >
-      <MonacoContainerRoot key={refreshKey}>
-        {content}
-
-        {isBody && <div className="h-screen bg-amber-50"></div>}
-      </MonacoContainerRoot>
+      <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
     </div>
   );
 };

@@ -27,7 +27,9 @@ const CollapsibleDemo: React.FC<TProps> = ({ data, style }) => {
       style={style}
     >
       <div className="flex items-center justify-between space-x-4 px-4">
-        <h4 className="text-sm font-semibold">{title}</h4>
+        <h4 className="text-sm font-semibold" style={style}>
+          {title}
+        </h4>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="sm" className="w-9 p-0  cursor-pointer">
             <ChevronsUpDown className="h-4 w-4" />
@@ -37,8 +39,8 @@ const CollapsibleDemo: React.FC<TProps> = ({ data, style }) => {
       </div>
       <CollapsibleContent className="space-y-2">
         {collapse?.childs?.map((child, index) => (
-          <div key={index} className="w-full">
-            <div className="rounded-md px-4 py-3 font-mono text-sm" style={collapse.styleChild}>
+          <div key={index} className="w-full flex flex-col gap-1">
+            <div className="rounded-md font-mono text-sm" style={collapse.styleChild}>
               {child?.value}
             </div>
           </div>
