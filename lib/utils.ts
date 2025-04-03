@@ -66,7 +66,7 @@ export const setActive = ({
   cleanedPath?: string | undefined;
 }) => {
   if (isMenu) {
-    return cleanedPath === _.get(data, 'action.pageId');
+    return cleanedPath?.includes(_.get(data, 'action.pageId'));
   }
   return false;
 };

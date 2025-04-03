@@ -21,6 +21,7 @@ import { CsContainerRenderSlice } from './styles';
 import { GridSystemProps, RenderGripProps } from './types';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
+const componentHasMenu = ['dropdown'];
 const allowUpdateTitle = ['content'];
 type TRenderSlice = { slice: GridItem | null | undefined; idParent: string; isMenu?: boolean };
 const { updateTitleInText } = dynamicGenarateUtil;
@@ -53,9 +54,8 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, slice, updateTitleInText]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const key = sliceRef?.id?.split('$')[0];
   const data = useMemo(() => {
-    const key = sliceRef?.id?.split('$')[0];
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
   }, [sliceRef]);
 
@@ -110,12 +110,14 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />
     )
   );
-
+  const isMemuConvert = isMenu || componentHasMenu.includes(key || '');
+  console.log('🚀 ~ isMemuConvert:', { isMemuConvert, key });
+  const isActive = setActive({ isMenu: isMemuConvert, data, cleanedPath: pathname });
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <CsContainerRenderSlice
       className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `}
       style={inlineStyles}
-      isActive={setActive({ isMenu, data, cleanedPath })}
+      isActive={isActive}
     >
       {content}
     </CsContainerRenderSlice>

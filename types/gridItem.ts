@@ -32,7 +32,7 @@ interface GridItem {
   valueRender?: ValueRender;
   dynamicGenerate?: TDynamicGenarate;
   state?: DocumentType;
-
+  name?: string;
   action?: any;
 
   collapse?: TCollapse;

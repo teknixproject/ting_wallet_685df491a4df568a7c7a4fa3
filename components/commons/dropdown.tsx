@@ -2,10 +2,11 @@
 'use client';
 
 import _ from 'lodash';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
+import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 interface DropdownProps {
@@ -25,11 +26,18 @@ const Dropdown: React.FC<DropdownProps> = ({
   ...props
 }) => {
   console.log('🚀Dropdown ~ data:', data);
+  const pathname = usePathname();
+  const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const router = useRouter();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const dropdownItems: { label: string; value: string }[] = data?.childs?.map((item: GridItem) => ({
+    label: item?.dataSlice?.title,
+    value: item?.action?.pageId,
+  }));
 
   const buttonSelectedClass = style?.dropdownStyles?.buttonSelected
     ? style.dropdownStyles.buttonSelected.toString()
@@ -54,6 +62,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (!pathname) return;
+    const label = dropdownItems?.find((item) => pathname.includes(item.value))?.label || 'Home';
+    setSelectedItem(label);
+  }, [pathname]);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -105,6 +119,8 @@ const Dropdown: React.FC<DropdownProps> = ({
         onClick={handleToggle}
         type="button"
         className={`cursor-pointer transition-all flex items-center gap-2 focus:bg-[##ffffff47] ${buttonSelectedClass}`}
+        // style={styleHasActive}
+        // style={styleHasActive}
         style={style}
       >
         {selectedItem || data?.name || 'Dropdown'}
@@ -116,7 +132,6 @@ const Dropdown: React.FC<DropdownProps> = ({
           )}
         </span>
       </button>
-
       {isOpen && (
         <div
           className={cn('absolute left-0 mt-2 z-10 rounded-xl min-w-40', menuClass, {
