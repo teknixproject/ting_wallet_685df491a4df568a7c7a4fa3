@@ -22,6 +22,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   childs = [],
   menuClassDropdow,
 }) => {
+  console.log('🚀Dropdown ~ data:', data);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const router = useRouter();
@@ -35,6 +36,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   const buttonChildClass = style?.dropdownStyles?.button
     ? style.dropdownStyles.button.toString()
     : '';
+
+  const styleChild: React.CSSProperties = data?.dropdown?.styleChild || {};
 
   // Lắng nghe sự kiện click bên ngoài dropdown
   useEffect(() => {
@@ -68,14 +71,14 @@ const Dropdown: React.FC<DropdownProps> = ({
         return (
           <button
             onClick={() => handleItemClick(child)}
-            className={`w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors ${buttonChildClass}`}
+            className={`cursor-pointer w-full text-left px-4 py-2 rounded-xl  hover:bg-gray-100 transition-colors ${buttonChildClass}`}
           >
             {_.get(child, 'dataSlice.title') || 'Unnamed Button'}
           </button>
         );
       case 'text':
         return (
-          <div className={`px-4 py-2 text-gray-700 ${buttonChildClass}`}>
+          <div className={`px-4 py-2  rounded-lg ${buttonChildClass}`}>
             {_.get(child, 'dataSlice.title') || 'Unnamed Text'}
           </div>
         );
@@ -98,7 +101,9 @@ const Dropdown: React.FC<DropdownProps> = ({
     <div ref={dropdownRef} className={cn(`relative inline-block`, menuClassDropdow)}>
       <button
         onClick={handleToggle}
-        className={`transition-colors flex items-center gap-2 focus:bg-[##ffffff47] ${buttonSelectedClass}`}
+        type="button"
+        className={`cursor-pointer transition-all flex items-center gap-2 focus:bg-[##ffffff47] ${buttonSelectedClass}`}
+        style={style}
       >
         {selectedItem || data?.name || 'Dropdown'}
         <span>
@@ -111,10 +116,23 @@ const Dropdown: React.FC<DropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className={cn('absolute left-0 mt-2 z-10', menuClass)}>
+        <div
+          className={cn('absolute left-0 mt-2 z-10 rounded-xl min-w-40', menuClass, {
+            'bg-white': !styleChild?.backgroundColor,
+            'text-gray-700': !styleChild?.color,
+            'p-2':
+              !styleChild?.paddingTop &&
+              !styleChild?.paddingRight &&
+              !styleChild?.paddingBottom &&
+              !styleChild?.paddingLeft,
+          })}
+          style={styleChild}
+        >
           {childs.length > 0 ? (
             childs.map((item: any, index: number) => (
-              <div key={item?.id || index}>{renderChild(item)}</div>
+              <div key={item?.id || index} className="cursor-pointer">
+                {renderChild(item)}
+              </div>
             ))
           ) : (
             <div className="px-4 py-2 text-gray-500">No items</div>
