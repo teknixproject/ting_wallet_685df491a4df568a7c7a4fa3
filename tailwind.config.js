@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-// import { tailwindConfigSafeList } from './app/configTailwind';
+import { tailwindConfigSafeList } from './app/configTailwind';
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,7 +8,7 @@ module.exports = {
     './src/**/*.{js,ts,jsx,tsx,mdx}',
     '',
   ],
-  // safeList: [...tailwindConfigSafeList],
+  safeList: [...tailwindConfigSafeList],
   theme: {
     extend: {},
   },

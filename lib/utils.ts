@@ -42,6 +42,11 @@ export const defaultStyle: React.CSSProperties = {
   border: '',
   borderColor: '',
   width: '100%',
+  position: 'initial',
+  top: '',
+  right: '',
+  left: '',
+  bottom: '',
 };
 
 export const convertStyle = (style: any) => {
@@ -49,4 +54,19 @@ export const convertStyle = (style: any) => {
     ...style,
     ...defaultStyle,
   };
+};
+
+export const setActive = ({
+  isMenu,
+  data,
+  cleanedPath,
+}: {
+  data: any;
+  isMenu?: boolean;
+  cleanedPath?: string | undefined;
+}) => {
+  if (isMenu) {
+    return cleanedPath === _.get(data, 'action.pageId');
+  }
+  return false;
 };

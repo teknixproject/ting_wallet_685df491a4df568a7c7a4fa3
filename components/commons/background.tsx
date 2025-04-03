@@ -2,8 +2,8 @@
 
 import { CSSProperties, useMemo } from 'react';
 
-import { getDeviceType } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
+import _ from 'lodash';
 
 interface BackgroundCompoProps {
   data?: GridItem;
@@ -14,21 +14,18 @@ const BackgroundCompo = ({ data, style }: BackgroundCompoProps) => {
   const defaultUrl = '/default-bg.png';
   const url = data?.dataSlice.url || defaultUrl;
 
-  const sizeScreen = getDeviceType();
-  const isMobile = sizeScreen === 'mobile';
-
   const computedStyle: CSSProperties = useMemo(
     () => ({
       ...style,
       inset: 0,
-      objectFit: 'cover',
-      height: isMobile ? '100%' : 'auto',
+      objectFit: _.get(style, 'objectFit') || 'fill',
+      height: '100%',
     }),
-    [style, isMobile]
+    [style]
   );
 
   return (
-    <div id="background-compo">
+    <div id="background-compo" style={computedStyle}>
       {url ? (
         url.match(/\.(jpeg|jpg|gif|png|svg|webp)$/i) ? (
           <img style={computedStyle} src={url} alt="Preview" className="w-full" />

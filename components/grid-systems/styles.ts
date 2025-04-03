@@ -6,6 +6,7 @@ interface StylesProps {
     hover?: CSSProperties;
     [key: string]: any;
   };
+  isActive?: boolean;
 }
 
 const flexCenter = {
@@ -18,6 +19,13 @@ export const CsContainerRenderSlice = styled.div<StylesProps>`
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
+          .map(([key, value]) => `${key}: ${value};`)
+          .join('\n')
+      : ''}
+
+  ${(props) =>
+    props.isActive && props.style?.hover
+      ? Object.entries(props.style.hover)
           .map(([key, value]) => `${key}: ${value};`)
           .join('\n')
       : ''}
