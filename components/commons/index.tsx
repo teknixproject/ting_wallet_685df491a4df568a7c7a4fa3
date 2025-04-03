@@ -16,6 +16,6 @@ export const components = {
   input_text: dynamic(() => import('./InputText')),
   default: dynamic(() => import('./Text')),
   navigation: dynamic(() => import('./Navigation')),
-  dropdown: dynamic(() => import('./Dropdown')),
+  dropdown: dynamic(() => import('./dropdown')),
   collapse: dynamic(() => import('./collapse')),
 };
