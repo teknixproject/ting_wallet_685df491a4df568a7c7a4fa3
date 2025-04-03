@@ -240,7 +240,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
       className={cn(
         '',
         isBody ? 'z-1 min-h-screen' : '',
-        isHeader ? 'z-3 sticky top-0' : '',
+        isHeader ? 'z-3 fixed w-full top-0' : '',
         isFooter ? 'z-3' : ''
       )}
     >
