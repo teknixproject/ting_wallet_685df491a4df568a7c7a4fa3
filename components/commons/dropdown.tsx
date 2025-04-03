@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import _ from 'lodash';
@@ -21,6 +22,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   data = {},
   childs = [],
   menuClassDropdow,
+  ...props
 }) => {
   console.log('🚀Dropdown ~ data:', data);
   const [isOpen, setIsOpen] = useState(false);

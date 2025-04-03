@@ -17,7 +17,7 @@ const Navigation = ({ id, style, data, childs }: NavigationProps) => {
   return isChilds ? (
     <>
       {_.map(childs, (child, index) => (
-        <RenderSlice slice={child} key={index} idParent={id} />
+        <RenderSlice slice={child} key={index} idParent={id} isMenu={true} />
       ))}
     </>
   ) : (
