@@ -6,7 +6,7 @@ interface StylesProps {
     hover?: CSSProperties;
     [key: string]: any;
   };
-  isActive?: boolean;
+  'is-active'?: string;
 }
 
 const flexCenter = {
@@ -24,7 +24,7 @@ export const CsContainerRenderSlice = styled.div<StylesProps>`
       : ''}
 
   ${(props) =>
-    props.isActive && props.style?.hover
+    props['is-active'] === 'true' && props.style?.hover
       ? Object.entries(props.style.hover)
           .map(([key, value]) => `${key}: ${value};`)
           .join('\n')

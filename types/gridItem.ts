@@ -42,8 +42,8 @@ interface GridItem {
 }
 
 export type TInputText = {
-  startIcon?: string;
-  endIcon?: string;
+  prefixIcon?: string;
+  suffixIcon?: string;
 };
 export type TDropdown = {
   styleChild: React.CSSProperties;

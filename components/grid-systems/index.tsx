@@ -28,7 +28,6 @@ const { updateTitleInText } = dynamicGenarateUtil;
 
 export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const pathname = usePathname();
-  const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const { apiData } = useApiCallStore((state) => state);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
 
@@ -117,7 +116,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     <CsContainerRenderSlice
       className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `}
       style={inlineStyles}
-      isActive={isActive}
+      is-active={!!isActive == true ? 'true' : 'false'}
     >
       {content}
     </CsContainerRenderSlice>

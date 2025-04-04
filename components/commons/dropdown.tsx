@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -30,6 +31,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const { title } = useData({ layoutData: data, defaultTitle: 'Dropdown' });
   const router = useRouter();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,7 +67,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   useEffect(() => {
     if (!pathname) return;
-    const label = dropdownItems?.find((item) => pathname.includes(item.value))?.label || 'Home';
+    const label = dropdownItems?.find((item) => pathname.includes(item.value))?.label || title;
     setSelectedItem(label);
   }, [pathname]);
 
@@ -119,8 +121,6 @@ const Dropdown: React.FC<DropdownProps> = ({
         onClick={handleToggle}
         type="button"
         className={`cursor-pointer transition-all flex items-center gap-2 focus:bg-[##ffffff47] ${buttonSelectedClass}`}
-        // style={styleHasActive}
-        // style={styleHasActive}
         style={style}
       >
         {selectedItem || data?.name || 'Dropdown'}

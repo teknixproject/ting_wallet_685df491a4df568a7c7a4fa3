@@ -29,11 +29,11 @@ const InputText: React.FC<Props> = ({ data }) => {
   };
   const variableName = _.get(data, 'dataSlice.variableName', '');
 
-  const startIcon = useMemo(() => {
-    return data?.inputText?.startIcon || 'hugeicons:refresh';
+  const prefixIcon = useMemo(() => {
+    return data?.inputText?.prefixIcon;
   }, [data?.inputText]);
-  const endIcon = useMemo(() => {
-    return data?.inputText?.startIcon || 'hugeicons:baseball';
+  const suffixIcon = useMemo(() => {
+    return data?.inputText?.suffixIcon;
   }, [data?.inputText]);
 
   const { findVariable, updateDocumentVariable, componentState } = stateManagementStore();
@@ -54,9 +54,9 @@ const InputText: React.FC<Props> = ({ data }) => {
   };
   return (
     <div className="w-full flex items-center gap-1">
-      {startIcon && (
+      {prefixIcon && (
         <div className="">
-          <Icon icon={startIcon} width="24" height="24" />
+          <Icon icon={prefixIcon} width="24" height="24" />
         </div>
       )}
       <input
@@ -64,9 +64,9 @@ const InputText: React.FC<Props> = ({ data }) => {
         style={newStyle}
         onChange={handleInputChange}
       />
-      {endIcon && (
+      {suffixIcon && (
         <div className="">
-          <Icon icon={endIcon} width="24" height="24" />
+          <Icon icon={suffixIcon} width="24" height="24" />
         </div>
       )}
     </div>
