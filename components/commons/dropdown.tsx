@@ -134,15 +134,19 @@ const Dropdown: React.FC<DropdownProps> = ({
       </button>
       {isOpen && (
         <div
-          className={cn('absolute left-0 mt-2 z-10 rounded-xl min-w-40', menuClass, {
-            'bg-white': !styleChild?.backgroundColor,
-            'text-gray-700': !styleChild?.color,
-            'p-2':
-              !styleChild?.paddingTop &&
-              !styleChild?.paddingRight &&
-              !styleChild?.paddingBottom &&
-              !styleChild?.paddingLeft,
-          })}
+          className={cn(
+            'absolute left-0 mt-2 z-10 rounded-xl min-w-40 w-fit text-nowrap',
+            menuClass,
+            {
+              'bg-white': !styleChild?.backgroundColor,
+              'text-gray-700': !styleChild?.color,
+              'p-2':
+                !styleChild?.paddingTop &&
+                !styleChild?.paddingRight &&
+                !styleChild?.paddingBottom &&
+                !styleChild?.paddingLeft,
+            }
+          )}
           style={styleChild}
         >
           {childs.length > 0 ? (
