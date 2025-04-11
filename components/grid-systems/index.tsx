@@ -91,11 +91,10 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     if (!sliceRef) return {};
     const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef.style;
     return {
-      ...styleSlice,
       gridTemplateColumns: sliceRef.type === 'grid' ? `repeat(${sliceRef.columns}, 1fr)` : '',
+      ...styleSlice,
     };
   }, [sliceRef, styleDevice]);
-  console.log('🚀 ~ inlineStyles ~ inlineStyles:', inlineStyles);
 
   const content = SliceComponent ? (
     <SliceComponent
@@ -110,7 +109,6 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     )
   );
   const isMemuConvert = isMenu || componentHasMenu.includes(key || '');
-  console.log('🚀 ~ isMemuConvert:', { isMemuConvert, key });
   const isActive = setActive({ isMenu: isMemuConvert, data, cleanedPath: pathname });
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <CsContainerRenderSlice
