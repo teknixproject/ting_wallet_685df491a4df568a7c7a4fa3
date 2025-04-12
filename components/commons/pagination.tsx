@@ -11,7 +11,7 @@ import { useApiCallStore } from '@/providers';
 import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
-import Loading from './Loading';
+import Loading from './loading';
 
 type TProps = {
   data?: GridItem;
