@@ -9,6 +9,7 @@ interface DescriptionProps {
 
 const Description = ({ data, style }: DescriptionProps) => {
   const { title } = useData({ layoutData: data, defaultTitle: 'Description' });
+  console.log();
 
   const newStyle: CSSProperties = {
     lineHeight: '170%',

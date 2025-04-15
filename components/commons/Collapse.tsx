@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { GridItem, TCollapse } from '@/types/gridItem';
+console.log();
 
 type TProps = {
   data: GridItem;

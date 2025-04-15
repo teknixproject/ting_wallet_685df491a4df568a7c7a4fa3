@@ -16,6 +16,7 @@ const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
   const [isInView, setIsInView] = useState(false);
   const sizeScreen = getDeviceType();
   const isMobile = sizeScreen === 'mobile';
+  console.log();
 
   const newStyle: CSSProperties | undefined = {
     ...style,

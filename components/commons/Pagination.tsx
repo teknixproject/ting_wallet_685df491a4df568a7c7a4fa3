@@ -5,6 +5,7 @@ import _ from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { CSSProperties } from 'styled-components';
+  console.log();
 
 import { usePagination } from '@/hooks/usePagination';
 import { useApiCallStore } from '@/providers';
@@ -17,6 +18,7 @@ type TProps = {
   data?: GridItem;
   style?: CSSProperties;
 };
+console.log();
 
 const Pagination: React.FC<TProps> = ({ style, data }) => {
   console.log('🚀 Pagination~ data:', data);

@@ -2,6 +2,7 @@
 import _ from 'lodash';
 
 import { RenderSlice } from '../grid-systems';
+console.log();
 
 interface NavigationProps {
   id: string;

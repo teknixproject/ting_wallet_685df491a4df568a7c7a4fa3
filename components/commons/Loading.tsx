@@ -3,6 +3,7 @@ import React from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 type Props = object;
+console.log();
 
 const Loading: React.FC<Props> = ({}) => {
   return (

@@ -17,6 +17,8 @@ const Text = ({ data, style }: TextProps) => {
   const { title } = useData({ layoutData: data });
   const titles = _.get(data, 'dataSlice.titles', {});
 
+  console.log();
+
   const newStyle: CSSProperties = {
     ...style,
   };

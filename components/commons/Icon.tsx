@@ -7,6 +7,7 @@ interface IconCompoProps {
   data?: GridItem;
   style?: CSSProperties;
 }
+console.log();
 
 const IconCompo = ({ data }: IconCompoProps) => {
   const url = _.get(data, 'dataSlice.url');

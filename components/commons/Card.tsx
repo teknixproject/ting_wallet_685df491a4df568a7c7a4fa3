@@ -13,6 +13,7 @@ interface CardProps {
   data: GridItem;
   style?: CSSProperties;
 }
+console.log();
 
 const Card: React.FC<CardProps> = ({ data, style }) => {
   const childs = _.get(data, 'childs', []);

@@ -7,6 +7,7 @@ interface ImageProps {
   data?: GridItem;
   style?: CSSProperties;
 }
+console.log();
 
 const Image = ({ data, style }: ImageProps) => {
   const url = _.get(data, 'dataSlice.url', '/default-bg.png');

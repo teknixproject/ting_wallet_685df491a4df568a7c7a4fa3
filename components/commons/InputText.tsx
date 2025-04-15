@@ -9,6 +9,7 @@ import { stateManagementStore } from '@/stores/stateManagement';
 import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 import { Icon } from '@iconify/react/dist/iconify.js';
+console.log();
 
 type Props = { data: GridItem };
 

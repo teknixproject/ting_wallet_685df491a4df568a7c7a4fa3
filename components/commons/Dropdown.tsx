@@ -17,6 +17,7 @@ interface DropdownProps {
   childs?: any[];
   menuClassDropdow?: any;
 }
+console.log();
 
 const Dropdown: React.FC<DropdownProps> = ({
   id,
