@@ -12,7 +12,7 @@ import { useApiCallStore } from '@/providers';
 import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
-import Loading from './loading';
+import Loading from './Loading';
 
 type TProps = {
   data?: GridItem;
@@ -21,7 +21,6 @@ type TProps = {
 console.log();
 
 const Pagination: React.FC<TProps> = ({ style, data }) => {
-  console.log('🚀 Pagination~ data:', data);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1000);
   const { apiData, findApiData } = useApiCallStore((state) => state);

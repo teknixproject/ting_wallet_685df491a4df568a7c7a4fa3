@@ -8,7 +8,6 @@ interface LinkCompoProps {
   data?: GridItem;
   style?: CSSProperties;
 }
-console.log();
 
 const LinkCompo = ({ data, style }: LinkCompoProps) => {
   const title = _.get(data, 'dataSlice.title', 'LinkCompo');

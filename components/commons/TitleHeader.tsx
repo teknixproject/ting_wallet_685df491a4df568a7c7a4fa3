@@ -8,7 +8,6 @@ interface TitleHeaderProps {
   data: GridItem;
   style?: CSSProperties;
 }
-console.log();
 
 const TitleHeader = ({ data, style }: TitleHeaderProps) => {
   const deviceType = getDeviceType();

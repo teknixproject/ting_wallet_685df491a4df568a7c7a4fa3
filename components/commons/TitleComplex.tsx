@@ -8,7 +8,6 @@ interface TitleComplexCompoProps {
   data?: GridItem;
   style?: CSSProperties;
 }
-console.log();
 
 const TitleComplexCompo = ({ data, style }: TitleComplexCompoProps) => {
   const titles = _.get(data, 'dataSlice.titles', {});

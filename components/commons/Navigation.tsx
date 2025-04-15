@@ -2,7 +2,6 @@
 import _ from 'lodash';
 
 import { RenderSlice } from '../grid-systems';
-console.log();
 
 interface NavigationProps {
   id: string;
@@ -12,7 +11,6 @@ interface NavigationProps {
 }
 
 const Navigation = ({ id, style, data, childs }: NavigationProps) => {
-  console.log('🚀 ~ Navigation ~ childs:', childs);
   const isChilds = !_.isEmpty(childs);
 
   return isChilds ? (

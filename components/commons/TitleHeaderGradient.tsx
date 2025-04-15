@@ -8,7 +8,6 @@ const TitleHeaderGradient = ({ data, style }: { data?: any; style?: CSSPropertie
   const isMobile = deviceType === 'mobile';
 
   const { title } = useData({ layoutData: data, defaultTitle: 'Title Header Gradient' });
-  console.log();
 
   const newStyle = {
     letterSpacing: isMobile ? '0.1px' : '',

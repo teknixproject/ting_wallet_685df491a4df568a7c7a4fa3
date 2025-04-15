@@ -13,7 +13,6 @@ interface BackgroundCompoProps {
 const BackgroundCompo = ({ data, style }: BackgroundCompoProps) => {
   const defaultUrl = '/default-bg.png';
   const url = data?.dataSlice.url || defaultUrl;
-  console.log();
 
   const computedStyle: CSSProperties = useMemo(
     () => ({

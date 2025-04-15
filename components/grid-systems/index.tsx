@@ -39,9 +39,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     ) {
       const { apiCall } = sliceRef.dynamicGenerate || {};
       const valueJson = apiData.find((item) => item.id === apiCall?.id);
-      // Cập nhật tiêu đề cho content
       const title = updateTitleInText(sliceRef, valueJson?.data);
-      // Cập nhật sliceRef với các card mới
       if (title !== sliceRef?.dataSlice?.title) {
         setSliceRef((prev) => ({
           ...prev,
@@ -56,18 +54,16 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const key = sliceRef?.id?.split('$')[0];
   const data = useMemo(() => {
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sliceRef]);
 
   const styleDevice: string = getDeviceSize() as string;
-
-  // const key = sliceRef?.id?.split('$')[0];
 
   const SliceComponent = useMemo(() => {
     const key = sliceRef?.id?.split('$')[0];
     return componentRegistry[key as keyof typeof componentRegistry];
   }, [sliceRef?.id]);
 
-  // const isButton = key === 'button';
 
   const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef?.style;
 

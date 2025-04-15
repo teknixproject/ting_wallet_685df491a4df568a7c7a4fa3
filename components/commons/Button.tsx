@@ -12,7 +12,6 @@ import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-console.log();
 
 interface StylesProps {
   style?: {
