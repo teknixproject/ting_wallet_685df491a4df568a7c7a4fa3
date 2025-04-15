@@ -96,7 +96,7 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
             }
           `,
         },
-        '/PreviewComponent.tsx': _.get(dataPreviewUI, 'data.previewData', ''),
+        '/PreviewComponent.tsx': _.get(dataPreviewUI, 'previewData', ''),
         '/tailwind.css': {
           code: `
             @tailwind base;
