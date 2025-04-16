@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React, { ChangeEvent, useMemo } from 'react';
 import { CSSProperties } from 'styled-components';
 
-import { useData } from '@/hooks';
+// import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { GridItem } from '@/types/gridItem';
@@ -13,7 +13,7 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 type Props = { data: GridItem };
 
 const InputText: React.FC<Props> = ({ data }) => {
-  const { title } = useData({ layoutData: data });
+  // const { title } = useData({ layoutData: data });
   const style = _.get(data, 'dataSlice.style', {});
   const newStyle: CSSProperties = {
     ...style,

@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import { CSSProperties, useMemo } from 'react';
+import styled from 'styled-components';
 
 import { useData } from '@/hooks';
 import { GridItem } from '@/types/gridItem';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { convertStyle } from '@/lib/utils';
-import styled from 'styled-components';
 
 interface TextProps {
   data: GridItem;

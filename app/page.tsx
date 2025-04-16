@@ -1,10 +1,10 @@
 import { Fragment } from 'react';
+import { Metadata } from 'next';
+import _ from 'lodash';
+import Head from 'next/head';
 
 import ClientWrapper from '@/components/grid-systems/ClientWrapGridSystem';
-import Head from 'next/head';
-import _ from 'lodash';
 import { fetchMetadata } from './actions/server';
-import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

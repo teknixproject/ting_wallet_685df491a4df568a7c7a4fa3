@@ -15,7 +15,6 @@ type TProps = {
   style?: CSSProperties;
 };
 const CollapsibleDemo: React.FC<TProps> = ({ data, style }) => {
-  console.log('🚀 ~ style:', style);
   const collapse: TCollapse | undefined = React.useMemo(() => data?.collapse || undefined, [data]);
   const { title } = useData({ layoutData: data, defaultTitle: 'Collapsible' });
   const [isOpen, setIsOpen] = React.useState(false);

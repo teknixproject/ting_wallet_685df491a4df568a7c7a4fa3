@@ -26,7 +26,6 @@ const Dropdown: React.FC<DropdownProps> = ({
   menuClassDropdow,
   ...props
 }) => {
-  console.log('🚀Dropdown ~ data:', data);
   const pathname = usePathname();
   const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
@@ -70,6 +69,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (!pathname) return;
     const label = dropdownItems?.find((item) => pathname.includes(item.value))?.label || title;
     setSelectedItem(label);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleToggle = () => {
