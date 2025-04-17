@@ -21,7 +21,6 @@ const NEXT_PUBLIC_DEFAULT_UID = process.env.NEXT_PUBLIC_DEFAULT_UID;
 
 export type TUseActions = {
   handleAction: (triggerType: TTriggerValue) => Promise<void>;
-  executeAction: (action: TAction) => Promise<void>;
 };
 
 export const useActions = (data?: GridItem): TUseActions => {
@@ -74,15 +73,28 @@ export const useActions = (data?: GridItem): TUseActions => {
     result: any,
     outputConfig: { variableName?: string; jsonPath?: string }
   ) => {
+    console.log('🚀 ~ useActions ~ outputConfig:', outputConfig);
     if (!outputConfig?.variableName) return;
 
-    const keyOutput = outputConfig.variableName;
-    const variableInStore = findVariable({
-      type: 'appState',
-      name: keyOutput,
-    });
-
-    if (!variableInStore) return;
+    const variableName = extractAllValuesFromTemplate(outputConfig.variableName as string);
+    // let variableInStore = {};
+    // if (isUseVariable(outputConfig.variableName)) {
+    //   console.log('🚀 ~ useActions ~ variableName:', variableName);
+    //   variableInStore =
+    //     findVariable({
+    //       type: 'appState',
+    //       name: variableName,
+    //     }) || {};
+    //   console.log('🚀 ~ useActions ~ variableInStore:', variableInStore);
+    // } else {
+    //   const keyOutput = outputConfig.variableName;
+    //   variableInStore =
+    //     findVariable({
+    //       type: 'appState',
+    //       name: keyOutput,
+    //     }) || {};
+    // }
+    // if (_.isEmpty(variableInStore)) return;
 
     let value = result;
     if (outputConfig.jsonPath) {
@@ -92,11 +104,12 @@ export const useActions = (data?: GridItem): TUseActions => {
         console.error('Failed to extract value with jsonPath:', error);
       }
     }
+    console.log('🚀 ~ useActions ~ value:', value);
 
     updateDocumentVariable({
       type: 'appState',
       dataUpdate: {
-        ...variableInStore,
+        key: variableName,
         value,
       },
     });
@@ -122,6 +135,7 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (!apiCall) return;
 
     const variables = convertActionVariables(action?.data?.variables ?? []);
+    console.log('🚀 ~ handleApiCallAction ~ variables:', variables);
     const newBody = convertApiCallBody(apiCall?.body, variables);
     const result = await makeApiCall(apiCall, newBody);
 
@@ -234,6 +248,5 @@ export const useActions = (data?: GridItem): TUseActions => {
 
   return {
     handleAction,
-    executeAction,
   };
 };
