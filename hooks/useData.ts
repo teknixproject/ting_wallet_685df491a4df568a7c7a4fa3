@@ -14,7 +14,6 @@ type Props = {
 };
 export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   const [title, setTitle] = useState<string>(layoutData?.dataSlice?.title || defaultTitle);
-  console.log('🚀 ~ useData ~ title:', title);
   const [variableName, setVariableName] = useState<string>(
     _.get(layoutData, 'dataSlice.variableName', '')
   );
@@ -33,7 +32,6 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
         type: typeStore,
         name: key ?? '',
       });
-      console.log('🚀 ~ useEffect ~ valueInStore:', valueInStore);
       setTitle(valueInStore?.value ?? 'Text');
     }
   }, [variableName, typeStore, appState, componentState, globalState]);
