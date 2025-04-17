@@ -1,3 +1,5 @@
+import { TTriggerActions } from './actions';
+
 interface GridItem {
   id?: string; // Optional slice ID for identifying slices
   columns?: string; // Number of columns (for grid layout)
@@ -34,7 +36,7 @@ interface GridItem {
   state?: DocumentType;
   name?: string;
   action?: any;
-
+  actions?: TTriggerActions;
   collapse?: TCollapse;
   tooltip?: TTooltip;
   dropdown?: TDropdown;
