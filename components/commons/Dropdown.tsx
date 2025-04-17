@@ -29,6 +29,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const pathname = usePathname();
   const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
+  console.log('🚀 ~ isOpen:', isOpen);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const { title } = useData({ layoutData: data, defaultTitle: 'Dropdown' });
   const router = useRouter();
@@ -72,6 +73,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, [pathname]);
 
   const handleToggle = () => {
+    console.log('🚀 ~ handleToggle ~ isOpen:', isOpen);
     setIsOpen((prev) => !prev);
   };
 
