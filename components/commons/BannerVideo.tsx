@@ -5,11 +5,29 @@ import { CSSProperties, useEffect, useState } from 'react';
 
 import { getDeviceType } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
+import styled, { css } from 'styled-components';
 
 interface BannerVideoCompoProps {
   data?: GridItem;
   style?: CSSProperties;
 }
+
+interface StylesProps {
+  style?: {
+    hover?: CSSProperties;
+    [key: string]: any;
+  };
+  styledComponentCss?: string;
+}
+
+const Container = styled.video<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
+`;
 
 const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
   const linkVideo = _.get(data, 'dataSlice.url', '/assets/videos/intro.mov');
@@ -41,7 +59,7 @@ const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
   return (
     <div id="banner-video">
       {isInView ? (
-        <video
+        <Container
           autoPlay
           loop
           muted
@@ -49,12 +67,13 @@ const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
           className="w-full aspect-video"
           style={newStyle}
           preload="metadata"
+          styledComponentCss={data?.styledComponentCss}
         >
           <source src={`${linkVideo}.webm`} type="video/webm" />
           <source src={linkVideo} type="video/mp4" />
-        </video>
+        </Container>
       ) : (
-        <video
+        <Container
           style={newStyle}
           autoPlay
           loop
@@ -63,10 +82,11 @@ const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
           className="w-full aspect-video max-sm:h-full"
           src={linkVideo}
           preload="metadata"
+          styledComponentCss={data?.styledComponentCss}
         >
           <source src={`${linkVideo}.webm`} type="video/webm" />
           <source src={linkVideo} type="video/mp4" />
-        </video>
+        </Container>
       )}
     </div>
   );

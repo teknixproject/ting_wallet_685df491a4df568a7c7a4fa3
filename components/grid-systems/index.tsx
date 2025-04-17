@@ -107,11 +107,6 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const isMemuConvert = isMenu || componentHasMenu.includes(key || '');
   const isActive = setActive({ isMenu: isMemuConvert, data, cleanedPath: pathname });
 
-  console.log('inlineStyles', {
-    inlineStyles,
-    slice,
-  });
-
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <CsContainerRenderSlice
       className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `}
@@ -202,7 +197,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
   }, [refreshKey]); // ✅
 
   const content = (
-    <div className="mx-auto flex justify-center">
+    <div className="mx-auto flex justify-center h-full w-full">
       {config?.childs ? (
         <div
           className="w-full flex flex-col justify-center flex-wrap"
@@ -217,7 +212,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
     </div>
   );
 
-  console.log('config', config);
+  console.log('config22222', _.get(config, [styleDevice]) as React.CSSProperties);
 
   useEffect(() => {
     const socket = io(CONFIGS.SOCKET_URL, {
