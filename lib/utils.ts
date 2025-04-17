@@ -41,7 +41,6 @@ export const defaultStyle: React.CSSProperties = {
   marginLeft: '',
   border: '',
   borderColor: '',
-  width: '100%',
   position: 'initial',
   top: '',
   right: '',

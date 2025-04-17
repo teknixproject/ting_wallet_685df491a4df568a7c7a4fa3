@@ -21,6 +21,9 @@ const Text = ({ data, style }: TextProps) => {
     ...style,
   };
 
+  console.log('newStyle', newStyle);
+  
+
   const tooltip = useMemo(() => {
     return data.tooltip;
   }, [data]);

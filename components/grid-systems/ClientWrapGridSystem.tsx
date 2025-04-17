@@ -185,6 +185,7 @@ const PreviewUI = (props: any) => {
   const searchParams = useSearchParams();
   const uid = searchParams.get('uid');
   const projectId = searchParams.get('projectId');
+  const sectionName = searchParams.get('sectionName');
 
   //#region store
   const { setData } = layoutStore();
@@ -195,7 +196,7 @@ const PreviewUI = (props: any) => {
 
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
-  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid);
+  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName);
 
   // #region state
 
