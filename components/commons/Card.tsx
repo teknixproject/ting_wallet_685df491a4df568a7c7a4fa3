@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Image from 'next/image';
 import React from 'react';
-import { CSSProperties } from 'styled-components';
+import styled, { css, CSSProperties } from 'styled-components';
 
 import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -35,7 +35,11 @@ const Card: React.FC<CardProps> = ({ data, style }) => {
     : title;
 
   return (
-    <div className="bg-gray-950 p-5" style={newStyle}>
+    <Container
+      className="bg-gray-950 p-5"
+      style={newStyle}
+      styledComponentCss={data?.styledComponentCss}
+    >
       <div
         className={cn(`p-[2px] size-52 bg-gray-700 rounded-md shadow-lg relative flex items-end`)}
       >
@@ -47,8 +51,25 @@ const Card: React.FC<CardProps> = ({ data, style }) => {
         />
         <div className="z-1 text-center text-white">{content}</div>
       </div>
-    </div>
+    </Container>
   );
 };
+
+interface StylesProps {
+  style?: {
+    hover?: CSSProperties;
+    [key: string]: any;
+  };
+  styledComponentCss?: string;
+}
+
+const Container = styled.div<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
+`;
 
 export default Card;

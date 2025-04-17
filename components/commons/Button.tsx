@@ -4,7 +4,7 @@ import _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CSSProperties, useMemo } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
 import { convertStyle } from '@/lib/utils';
@@ -12,13 +12,6 @@ import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-
-interface StylesProps {
-  style?: {
-    hover?: CSSProperties;
-    [key: string]: any;
-  };
-}
 
 interface ButtonCompoProps {
   data?: GridItem;
@@ -75,14 +68,15 @@ const Button = ({ data, style }: ButtonCompoProps) => {
 
   const content = link ? (
     <Link href={link} passHref>
-      <div
+      <Container
         style={convertStyle(newStyle)}
         className="!text-16-500 rounded-full flex items-center gap-2 text-center"
+        styledComponentCss={data?.styledComponentCss}
       >
         {iconStart && <span className="icon-start">{iconStart}</span>}
         <span>{title}</span>
         {iconEnd && <span className="icon-end">{iconEnd}</span>}
-      </div>
+      </Container>
     </Link>
   ) : (
     <CsButton
@@ -90,6 +84,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       style={convertStyle(newStyle)}
       onClick={route ? handleRouteClick : handleActionClick}
       className="cursor-pointer"
+      styledComponentCss={data?.styledComponentCss}
     >
       {iconStart && <span className="icon-start">{iconStart}</span>}
       <span>{title}</span>
@@ -121,12 +116,35 @@ const flexCenter = {
   'justify-content': 'center',
 };
 const CsButton = styled.button<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
   box-sizing: border-box;
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
           .map(([key, value]) => `${key}: ${value}`)
           .join('\n')
+      : ''}
+`;
+
+interface StylesProps {
+  style?: {
+    hover?: CSSProperties;
+    [key: string]: any;
+  };
+  styledComponentCss?: string;
+}
+
+const Container = styled.div<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
       : ''}
 `;
 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import _ from 'lodash';
 import React, { ChangeEvent, useMemo } from 'react';
-import { CSSProperties } from 'styled-components';
+import styled, { css, CSSProperties } from 'styled-components';
 
 // import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -59,10 +59,11 @@ const InputText: React.FC<Props> = ({ data }) => {
           <Icon icon={prefixIcon} width="24" height="24" />
         </div>
       )}
-      <input
+      <CsInput
         className={cn('w-full h-full outline-none')}
         style={newStyle}
         onChange={handleInputChange}
+        styledComponentCss={data?.styledComponentCss}
       />
       {suffixIcon && (
         <div className="">
@@ -72,4 +73,22 @@ const InputText: React.FC<Props> = ({ data }) => {
     </div>
   );
 };
+
+interface StylesProps {
+  style?: {
+    hover?: CSSProperties;
+    [key: string]: any;
+  };
+  styledComponentCss?: string;
+}
+
+const CsInput = styled.input<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
+`;
+
 export default InputText;

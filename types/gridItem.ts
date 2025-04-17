@@ -41,6 +41,7 @@ interface GridItem {
   tooltip?: TTooltip;
   dropdown?: TDropdown;
   inputText?: TInputText;
+  styledComponentCss?: string;
 }
 
 export type TInputText = {

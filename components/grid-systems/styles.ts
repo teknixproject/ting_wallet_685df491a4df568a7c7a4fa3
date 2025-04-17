@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import styled, { CSSProperties } from 'styled-components';
+import styled, { css, CSSProperties } from 'styled-components';
 
 interface StylesProps {
   style?: {
@@ -7,6 +7,7 @@ interface StylesProps {
     [key: string]: any;
   };
   'is-active'?: string;
+  styledComponentCss?: string;
 }
 
 const flexCenter = {
@@ -16,6 +17,12 @@ const flexCenter = {
 };
 
 export const CsContainerRenderSlice = styled.div<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
   ${(props) =>
     _.get(props, 'style.after')
       ? Object.entries(flexCenter)
