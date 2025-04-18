@@ -27,11 +27,10 @@ const Dropdown: React.FC<DropdownProps> = ({
   ...props
 }) => {
   const pathname = usePathname();
-  const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+  // const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
-  console.log('🚀 ~ isOpen:', isOpen);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const { title } = useData({ layoutData: data, defaultTitle: 'Dropdown' });
+  const { title } = useData({ layoutData: data, defaultTitle: '' });
   const router = useRouter();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -66,14 +65,19 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!pathname) return;
-    const label = dropdownItems?.find((item) => pathname.includes(item.value))?.label || title;
-    setSelectedItem(label);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    if (!pathname && childs.length > 0) {
+      setSelectedItem(childs[0]?.dataSlice?.title || '');
+    } else {
+      const label =
+        dropdownItems?.find((item) => pathname.includes(item.value))?.label ||
+        childs[0]?.dataSlice?.title ||
+        title;
+      setSelectedItem(label);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, childs]);
 
   const handleToggle = () => {
-    console.log('🚀 ~ handleToggle ~ isOpen:', isOpen);
     setIsOpen((prev) => !prev);
   };
 
