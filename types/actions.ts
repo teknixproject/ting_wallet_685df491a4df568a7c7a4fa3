@@ -49,9 +49,7 @@ export type TActionUpdateState = {
 };
 
 // Navigation action
-export type TActionNavigate = {
-  url: string;
-};
+export type TActionNavigate = { isExternal: boolean; isNewTab: boolean; url: string };
 
 export type TConditional = {
   isMultiple?: boolean;
@@ -60,6 +58,7 @@ export type TConditional = {
   false?: TAction<TConditionalChild>;
 };
 export type TConditionalChild = {
+  equal: boolean;
   firstValue: string;
   secondValue: string;
   operator: TOperatorCompare;

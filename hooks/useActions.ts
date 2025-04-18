@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import _ from 'lodash';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { apiResourceStore, stateManagementStore } from '@/stores';
 import {
@@ -9,9 +11,10 @@ import {
   TActionNavigate,
   TActionUpdateState,
   TActionVariable,
+  TConditional,
+  TConditionalChild,
   TTriggerActions,
   TTriggerValue,
-  TVariable,
 } from '@/types';
 import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
@@ -28,94 +31,81 @@ export const useActions = (data?: GridItem): TUseActions => {
   const uid = searchParam.get('uid') || NEXT_PUBLIC_DEFAULT_UID;
   const router = useRouter();
 
+  // State management
+  const apiResponsesRef = useRef<Record<string, any>>({});
+  const [triggerName, setTriggerName] = useState<TTriggerValue>('onClick');
+
+  // Store hooks
   const { findApiResourceValue } = apiResourceStore((state) => state);
   const { findVariable, updateDocumentVariable } = stateManagementStore();
 
+  // Memoized actions from data
+  const actions = useMemo(() => _.get(data, 'actions') as TTriggerActions, [data]);
+
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   //#region Action Handlers
-  const convertActionVariables = (actionVariables: TActionVariable[]): Record<string, any> => {
-    const variables: Record<string, any> = {};
-    if (_.isEmpty(actionVariables)) return variables;
+  const convertActionVariables = useCallback(
+    (actionVariables: TActionVariable[]): Record<string, any> => {
+      if (_.isEmpty(actionVariables)) return {};
 
-    actionVariables.forEach((variable) => {
-      if (isUseVariable(variable.value)) {
-        const key = extractAllValuesFromTemplate(variable.value);
-        const valueInStore = findVariable({
-          type: variable.store,
-          name: key ?? '',
-        });
-        variables[variable.key] = valueInStore?.value;
-      } else {
-        variables[variable.key] = variable.value;
-      }
-    });
+      return actionVariables.reduce((acc, variable) => {
+        acc[variable.key] = isUseVariable(variable.value)
+          ? findVariable({
+              type: variable.store,
+              name: extractAllValuesFromTemplate(variable.value) ?? '',
+            })?.value
+          : variable.value;
+        return acc;
+      }, {} as Record<string, any>);
+    },
+    [findVariable]
+  );
 
-    return variables;
-  };
-
-  const convertApiCallBody = (body: any, variables: Record<string, any>): any => {
+  const convertApiCallBody = useCallback((body: any, variables: Record<string, any>): any => {
     if (typeof body === 'string') return body;
     if (typeof body !== 'object') return body;
 
     return Object.entries(body).reduce((acc, [key, value]) => {
-      if (isUseVariable(value)) {
-        const variableName = extractAllValuesFromTemplate(value as string);
-        if (variableName) {
-          acc[key] = variables[variableName];
-          return acc;
-        }
-      }
-      acc[key] = value;
+      acc[key] = isUseVariable(value)
+        ? variables[extractAllValuesFromTemplate(value as string) ?? key]
+        : value;
       return acc;
     }, {} as Record<string, any>);
-  };
+  }, []);
 
-  const handleApiResponse = (
-    result: any,
-    outputConfig: { variableName?: string; jsonPath?: string }
-  ) => {
-    console.log('🚀 ~ useActions ~ outputConfig:', outputConfig);
-    if (!outputConfig?.variableName) return;
+  const handleApiResponse = useCallback(
+    (result: any, outputConfig: { variableName?: string; jsonPath?: string }) => {
+      if (!outputConfig?.variableName) return;
 
-    const variableName = extractAllValuesFromTemplate(outputConfig.variableName as string);
-    // let variableInStore = {};
-    // if (isUseVariable(outputConfig.variableName)) {
-    //   console.log('🚀 ~ useActions ~ variableName:', variableName);
-    //   variableInStore =
-    //     findVariable({
-    //       type: 'appState',
-    //       name: variableName,
-    //     }) || {};
-    //   console.log('🚀 ~ useActions ~ variableInStore:', variableInStore);
-    // } else {
-    //   const keyOutput = outputConfig.variableName;
-    //   variableInStore =
-    //     findVariable({
-    //       type: 'appState',
-    //       name: keyOutput,
-    //     }) || {};
-    // }
-    // if (_.isEmpty(variableInStore)) return;
+      const variableName = extractAllValuesFromTemplate(outputConfig.variableName as string);
+      const value = outputConfig.jsonPath ? _.get(result, outputConfig.jsonPath, result) : result;
 
-    let value = result;
-    if (outputConfig.jsonPath) {
-      try {
-        value = _.get(result, outputConfig.jsonPath, result);
-      } catch (error) {
-        console.error('Failed to extract value with jsonPath:', error);
-      }
-    }
-    console.log('🚀 ~ useActions ~ value:', value);
+      updateDocumentVariable({
+        type: 'appState',
+        dataUpdate: { key: variableName, value },
+      });
+    },
+    [updateDocumentVariable]
+  );
 
-    updateDocumentVariable({
-      type: 'appState',
-      dataUpdate: {
-        key: variableName,
-        value,
-      },
-    });
-  };
+  const makeApiCall = async (
+    apiCall: any,
+    body: any,
+    outputVariable: { variableName?: string; jsonPath?: string }
+  ): Promise<any> => {
+    const keyOutput = isUseVariable(outputVariable.variableName)
+      ? extractAllValuesFromTemplate(outputVariable.variableName as string)
+      : outputVariable.variableName || '';
 
-  const makeApiCall = async (apiCall: any, body: any): Promise<any> => {
     try {
       const response = await axios.request({
         method: apiCall?.method?.toUpperCase(),
@@ -123,10 +113,14 @@ export const useActions = (data?: GridItem): TUseActions => {
         headers: apiCall?.headers || { 'Content-Type': 'application/json' },
         data: body,
       });
+
+      // await setApiResponses((prev) => ({ ...prev, [keyOutput]: 'success' }));
+      apiResponsesRef.current[keyOutput] = 'success';
       return response.data;
     } catch (error) {
-      console.error('API call failed:', error);
-      throw error;
+      console.log('API call failed:', error);
+      apiResponsesRef.current[keyOutput] = 'error';
+      return error;
     }
   };
 
@@ -135,14 +129,13 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (!apiCall) return;
 
     const variables = convertActionVariables(action?.data?.variables ?? []);
-    console.log('🚀 ~ handleApiCallAction ~ variables:', variables);
     const newBody = convertApiCallBody(apiCall?.body, variables);
-    const result = await makeApiCall(apiCall, newBody);
+    const result = await makeApiCall(apiCall, newBody, action?.data?.output ?? {});
 
     handleApiResponse(result, action?.data?.output ?? {});
 
-    if (action.success) {
-      await executeActionById(action.success);
+    if (result && action?.next) {
+      await executeActionFCType(getActionById(action.next));
     }
   };
 
@@ -151,54 +144,87 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (_.isEmpty(updates)) return;
 
     for (const item of updates || []) {
-      let variableInStore: TVariable | undefined;
-      let valueInStore;
+      if (!isUseVariable(item.key)) continue;
 
-      if (isUseVariable(item.key)) {
-        const key = extractAllValuesFromTemplate(item.key);
-        variableInStore = findVariable({
-          type: item.keyStore,
-          name: key,
-        });
+      const key = extractAllValuesFromTemplate(item.key);
+      const variableInStore = findVariable({ type: item.keyStore, name: key });
+      if (!variableInStore) continue;
 
-        if (!variableInStore) continue;
-
-        if (isUseVariable(item.value)) {
-          const valueKey = extractAllValuesFromTemplate(item.value);
-          valueInStore = findVariable({
+      variableInStore.value = isUseVariable(item.value)
+        ? findVariable({
             type: item.valueStore,
-            name: valueKey,
-          });
-          variableInStore.value = valueInStore?.value ?? '';
-        } else {
-          variableInStore.value = item.value ?? '';
-        }
+            name: extractAllValuesFromTemplate(item.value) ?? '',
+          })?.value ?? ''
+        : item.value ?? '';
 
-        await updateDocumentVariable({
-          type: item.keyStore,
-          dataUpdate: variableInStore,
-        });
-      }
+      await updateDocumentVariable({ type: item.keyStore, dataUpdate: variableInStore });
     }
 
-    if (action.success) {
-      await executeActionById(action.success);
+    if (action?.next) {
+      await executeActionFCType(getActionById(action.next));
     }
   };
 
-  const handleNavigateAction = (action: TAction<TActionNavigate>): void => {
-    if (action?.data?.url) {
-      router.push(action.data.url);
+  const handleNavigateAction = async (action: TAction<TActionNavigate>): Promise<void> => {
+    const { url, isExternal, isNewTab } = action?.data || {};
+    console.log(`🚀 ~ handleNavigateAction ~ { url, isExternal, isNewTab }:`, {
+      url,
+      isExternal,
+      isNewTab,
+    });
+    if (!url) return;
+
+    if (isNewTab) {
+      window.open(url, '_blank');
+    } else if (isExternal) {
+      window.location.href = url;
+    } else {
+      router.push(url);
+    }
+
+    if (action?.next) {
+      await executeActionFCType(getActionById(action.next));
     }
   };
   //#endregion
 
   //#region Action Execution
-  const executeActionById = async (actionId: string): Promise<void> => {
-    // You'll need to implement a way to get the action by ID
-    // This is a placeholder - replace with your actual implementation
-    const action = {} as TAction; // Replace with actual action lookup
-    await executeAction(action);
+  const evaluateCondition = (condition: TConditionalChild): boolean => {
+    console.log('🚀 ~ evaluateCondition ~ condition:', condition);
+
+    const { firstValue, secondValue, operator } = condition;
+    const firstVal = isUseVariable(firstValue)
+      ? findVariable({ type: 'appState', name: extractAllValuesFromTemplate(firstValue) ?? '' })
+          ?.value
+      : apiResponsesRef.current[firstValue];
+
+    const secondVal = isUseVariable(secondValue)
+      ? findVariable({ type: 'appState', name: extractAllValuesFromTemplate(secondValue) ?? '' })
+          ?.value
+      : secondValue;
+
+    if (firstVal === undefined || secondVal === undefined) return false;
+
+    switch (operator) {
+      case 'equal':
+        return firstVal == secondVal;
+      case 'notEqual':
+        return firstVal !== secondVal;
+      case 'greaterThan':
+        return Number(firstVal) > Number(secondVal);
+      case 'lessThan':
+        return Number(firstVal) < Number(secondVal);
+      case 'greaterThanOrEqual':
+        return Number(firstVal) >= Number(secondVal);
+      case 'lessThanOrEqual':
+        return Number(firstVal) <= Number(secondVal);
+      default:
+        return false;
+    }
+  };
+
+  const getActionById = (id: string): TAction | undefined => {
+    return actions[triggerName]?.[id];
   };
 
   const executeAction = async (action: TAction): Promise<void> => {
@@ -207,46 +233,88 @@ export const useActions = (data?: GridItem): TUseActions => {
     try {
       switch (action.type) {
         case 'navigate':
-          handleNavigateAction(action as TAction<TActionNavigate>);
-          break;
+          return handleNavigateAction(action as TAction<TActionNavigate>);
         case 'apiCall':
-          await handleApiCallAction(action as TAction<TActionApiCall>);
-          break;
+          return handleApiCallAction(action as TAction<TActionApiCall>);
         case 'updateStateManagement':
-          await handleUpdateStateAction(action as TAction<TActionUpdateState>);
-          break;
+          return handleUpdateStateAction(action as TAction<TActionUpdateState>);
         default:
           console.warn(`Unknown action type: ${action.type}`);
       }
     } catch (error) {
       console.error(`Error executing action ${action.id}:`, error);
-      if (action.error) {
-        await executeActionById(action.error);
+    }
+  };
+  const executeActionFCType = async (action?: TAction): Promise<void> => {
+    if (!action?.fcType) return;
+
+    switch (action.fcType) {
+      case 'action':
+        await executeAction(action);
+        break;
+      case 'conditional':
+        await executeConditional(action as TAction<TConditional>);
+        break;
+      default:
+        console.warn(`Unknown fcType: ${action.fcType}`);
+    }
+  };
+  const executeConditional = async (action: TAction<TConditional>): Promise<void> => {
+    const conditions = action?.data?.conditions || [];
+    if (_.isEmpty(conditions)) return;
+
+    for (const condition of conditions) {
+      const conditionChild = getActionById(condition) as TAction<TConditionalChild>;
+      if (!conditionChild?.data) continue;
+
+      console.log('API RESPONSE', apiResponsesRef);
+
+      const isConditionMet = evaluateCondition(conditionChild.data);
+      console.log('🚀 ~ executeConditional ~ isConditionMet:', isConditionMet);
+      console.log(
+        '🚀 ~ executeConditional ~ conditionChild.data.equal:',
+        conditionChild.data.equal
+      );
+      if (isConditionMet) {
+        if (conditionChild.next) {
+          await executeActionFCType(getActionById(conditionChild.next));
+        }
+        return; // Exit after first matching condition
       }
     }
   };
 
   const executeTriggerActions = async (
-    actions: TTriggerActions,
+    triggerActions: TTriggerActions,
     triggerType: TTriggerValue
   ): Promise<void> => {
-    const triggerActions = actions[triggerType];
-    if (!triggerActions) return;
+    const actionsToExecute = triggerActions[triggerType];
+    if (!actionsToExecute) return;
 
-    for (const actionId in triggerActions) {
-      if (Object.prototype.hasOwnProperty.call(triggerActions, actionId)) {
-        await executeAction(triggerActions[actionId]);
-      }
+    // Find and execute the root action (parentId === null)
+    const rootAction = Object.values(actionsToExecute).find((action) => !action.parentId);
+    console.log('🚀 ~ useActions ~ rootAction:', rootAction);
+    if (rootAction) {
+      await executeActionFCType(rootAction);
     }
   };
-  //#endregion
 
-  const handleAction = async (triggerType: TTriggerValue): Promise<void> => {
-    if (!data?.actions) return;
-    await executeTriggerActions(data.actions, triggerType);
-  };
+  const handleAction = useCallback(
+    async (triggerType: TTriggerValue): Promise<void> => {
+      if (!data?.actions) return;
+      setTriggerName(triggerType);
+      await executeTriggerActions(data.actions, triggerType);
+    },
+    [data?.actions, executeTriggerActions]
+  );
 
-  return {
-    handleAction,
-  };
+  useEffect(() => {
+    if (mounted.current && !_.isEmpty(actions) && 'onPageLoad' in actions) {
+      console.log("🚀 ~ useEffect ~ 'onPageLoad' in actions:", 'onPageLoad' in actions);
+
+      handleAction('onPageLoad');
+    }
+  }, [mounted.current]);
+
+  return { handleAction };
 };

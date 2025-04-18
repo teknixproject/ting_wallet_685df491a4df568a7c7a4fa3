@@ -195,7 +195,6 @@ const PreviewUI = (props: any) => {
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid);
-  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
 
   // #region state
   const state = _.get(dataPreviewUI, 'state');
@@ -272,7 +271,7 @@ const PreviewUI = (props: any) => {
   };
 
   const setStateFormDataPreview = () => {
-    if (state) {
+    if (!_.isEmpty(state)) {
       ['appState', 'globalState', 'componentState'].forEach((type) => {
         setDataTypeDocumentVariable({
           type: type as TTypeSelect,
@@ -290,7 +289,7 @@ const PreviewUI = (props: any) => {
     getApiCall();
     getActions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, projectId]);
+  }, [uid, projectId, bodyLayout]);
 
   //#region render
   if (isLoading) {

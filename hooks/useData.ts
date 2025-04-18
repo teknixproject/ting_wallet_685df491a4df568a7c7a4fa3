@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+import { JSONPath } from 'jsonpath-plus';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -10,10 +10,13 @@ import { variableUtil } from '@/uitls';
 
 type Props = {
   layoutData: GridItem;
-  defaultTitle?: string;
+  defaultTitle?: string | Record<string, any>;
 };
+
 export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
-  const [title, setTitle] = useState<string>(layoutData?.dataSlice?.title || defaultTitle);
+  const [title, setTitle] = useState<string | Record<string, any>>(
+    _.get(layoutData, 'dataSlice.title', defaultTitle)
+  );
   const [variableName, setVariableName] = useState<string>(
     _.get(layoutData, 'dataSlice.variableName', '')
   );
@@ -23,19 +26,42 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
 
   const { findVariable, appState, componentState, globalState } = stateManagementStore();
 
+  // useEffect(() => {
+  //   const newTitle = _.get(layoutData, 'dataSlice.title', defaultTitle);
+  //   setTitle(newTitle);
+  //   setVariableName(_.get(layoutData, 'dataSlice.variableName', ''));
+  //   setTypeStore(_.get(layoutData, 'dataSlice.typeStore', 'appState'));
+  // }, [layoutData, defaultTitle]);
+
   const { extractAllValuesFromTemplate } = variableUtil;
 
   useEffect(() => {
     if (variableName && typeStore) {
       const key = extractAllValuesFromTemplate(variableName);
-      const valueInStore = findVariable({
-        type: typeStore,
-        name: key ?? '',
-      });
-      console.log('🚀 ~ useEffect ~ valueInStore:', valueInStore);
-      setTitle(valueInStore?.value ?? 'Text');
+      if (key) {
+        const valueInStore = findVariable({
+          type: typeStore,
+          name: key,
+        });
+        if (valueInStore !== undefined) {
+          const jsonPath = _.get(layoutData, 'dataSlice.jsonPath', '');
+          if (jsonPath) {
+            const valueJsonPath = JSONPath({ path: jsonPath!, json: valueInStore.value });
+            setTitle(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
+          } else setTitle(valueInStore.value ?? defaultTitle);
+        }
+      }
     }
-  }, [variableName, typeStore, appState, componentState, globalState]);
+  }, [
+    variableName,
+    typeStore,
+    appState,
+    componentState,
+    globalState,
+    findVariable,
+    extractAllValuesFromTemplate,
+    defaultTitle,
+  ]);
 
   return {
     title,
