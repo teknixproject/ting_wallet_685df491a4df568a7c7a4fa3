@@ -28,9 +28,12 @@ const Text = ({ data, style }: TextProps) => {
   const content = !_.isEmpty(titles) ? (
     <TextComplex data={titles} style={style} />
   ) : (
-    <div style={convertStyle(newStyle)} className="text-[#858585]">
+    <CsText
+      style={convertStyle(newStyle)}
+      styledComponentCss={data?.styledComponentCss}
+    >
       {_.isObject(title) ? JSON.stringify(title) : title}
-    </div>
+    </CsText>
   );
 
   if (_.isEmpty(tooltip?.title)) return content;
@@ -101,6 +104,15 @@ interface StylesProps {
 }
 
 const Container = styled.div<StylesProps>`
+  ${(props) =>
+    props.styledComponentCss
+      ? css`
+          ${props.styledComponentCss}
+        `
+      : ''}
+`;
+
+const CsText = styled.div<StylesProps>`
   ${(props) =>
     props.styledComponentCss
       ? css`
