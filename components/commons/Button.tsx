@@ -87,7 +87,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       styledComponentCss={data?.styledComponentCss}
     >
       {iconStart && <span className="icon-start">{iconStart}</span>}
-      <span>{title}</span>
+      <>{title}</>
       {iconEnd && <span className="icon-end">{iconEnd}</span>}
     </CsButton>
   );

@@ -198,23 +198,25 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
   }, [refreshKey]); // ✅
 
   const content = (
-    <CsContainerRenderSlice
-      className="mx-auto flex justify-center h-full w-full"
-      style={_.get(config, 'style') as any}
-      styledComponentCss={config?.styledComponentCss}
+    <
+      // CsContainerRenderSlice
+      // className="mx-auto flex justify-center h-full w-full"
+      // style={_.get(config, 'style') as any}
+      // styledComponentCss={config?.styledComponentCss}
     >
       {config?.childs ? (
-        <div
+        <CsContainerRenderSlice
           className="w-full flex flex-col justify-center flex-wrap"
           id={config.id}
           style={_.get(config, [styleDevice]) as React.CSSProperties}
+          styledComponentCss={config?.styledComponentCss}
         >
           <RenderGrid items={config.childs} idParent={config.id!} slice={config} />
-        </div>
+        </CsContainerRenderSlice>
       ) : (
         <NotFound />
       )}
-    </CsContainerRenderSlice>
+    </>
   );
 
   useEffect(() => {
