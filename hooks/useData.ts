@@ -32,6 +32,7 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
         type: typeStore,
         name: key ?? '',
       });
+      console.log('🚀 ~ useEffect ~ valueInStore:', valueInStore);
       setTitle(valueInStore?.value ?? 'Text');
     }
   }, [variableName, typeStore, appState, componentState, globalState]);

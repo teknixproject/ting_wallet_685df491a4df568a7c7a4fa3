@@ -1,6 +1,7 @@
 'use client';
 
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -12,9 +13,7 @@ import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
-import { TTypeSelectState } from '@/types';
-
-import dynamic from 'next/dynamic';
+import { TTypeSelect, TTypeSelectState } from '@/types';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -199,7 +198,7 @@ const PreviewUI = (props: any) => {
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName);
 
   // #region state
-
+  const state = _.get(dataPreviewUI, 'state');
   const isPage = _.get(dataPreviewUI, 'typePreview') === 'page';
 
   const headerLayout = _.get(dataPreviewUI, 'headerLayout');
@@ -217,39 +216,39 @@ const PreviewUI = (props: any) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getStates = async () => {
-    const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
-    try {
-      await Promise.all(
-        list.map(async (type: TTypeSelectState) => {
-          const result = await stateManagerService.getData(
-            type === 'globalState'
-              ? {
-                  projectId: projectId ?? '',
-                  type,
-                }
-              : {
-                  uid: uid ?? '',
-                  projectId: projectId ?? '',
-                  type,
-                }
-          );
-          if (_.isEmpty(result?.data)) return;
-          const { state } = result?.data;
-          if (_.isEmpty(state)) return;
+  // const getStates = async () => {
+  //   const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
+  //   try {
+  //     await Promise.all(
+  //       list.map(async (type: TTypeSelectState) => {
+  //         const result = await stateManagerService.getData(
+  //           type === 'globalState'
+  //             ? {
+  //                 projectId: projectId ?? '',
+  //                 type,
+  //               }
+  //             : {
+  //                 uid: uid ?? '',
+  //                 projectId: projectId ?? '',
+  //                 type,
+  //               }
+  //         );
+  //         if (_.isEmpty(result?.data)) return;
+  //         const { state } = result?.data;
+  //         if (_.isEmpty(state)) return;
 
-          if (state) {
-            setDataTypeDocumentVariable({
-              type,
-              dataUpdate: state,
-            });
-          }
-        })
-      );
-    } catch (error) {
-      console.log('🚀 ~ getStates ~ error:', error);
-    }
-  };
+  //         if (state) {
+  //           setDataTypeDocumentVariable({
+  //             type,
+  //             dataUpdate: state,
+  //           });
+  //         }
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.log('🚀 ~ getStates ~ error:', error);
+  //   }
+  // };
 
   const getActions = async () => {
     try {
@@ -272,10 +271,22 @@ const PreviewUI = (props: any) => {
     }
   };
 
+  const setStateFormDataPreview = () => {
+    if (state) {
+      ['appState', 'globalState', 'componentState'].forEach((type) => {
+        setDataTypeDocumentVariable({
+          type: type as TTypeSelect,
+          dataUpdate: state[type],
+        });
+      });
+    }
+  };
+
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
 
-    getStates();
+    // getStates();
+    setStateFormDataPreview();
     getApiCall();
     getActions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
