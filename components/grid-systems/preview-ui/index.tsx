@@ -9,6 +9,8 @@ import {
 import _ from 'lodash';
 import React, { useEffect, useRef } from 'react';
 
+// import {useData} from "../../../hooks"
+
 const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -16,52 +18,63 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
     const iframe = previewRef.current?.querySelector('iframe');
     if (!iframe) return;
 
-    const handleLoad = () => {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) return;
+    // const handleLoad = () => {
+    //   const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    //   if (!iframeDoc) return;
 
-      const style = iframeDoc.createElement('style');
-      style.innerHTML = `
-        body {
-          margin: 0 !important;
-          padding: 0 !important;
-          min-height: 100vh !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: center !important;
-        }
-        
-        /* Nếu muốn căn giữa một container cụ thể */
-        .your-container {
-          width: 100%;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-      `;
+    //   const style = iframeDoc.createElement('style');
+    //   style.innerHTML = `
+    //     body {
+    //       margin: 0 !important;
+    //       padding: 0 !important;
+    //       min-height: 100vh !important;
+    //       display: flex !important;
+    //       justify-content: center !important;
+    //       align-items: center !important;
+    //     }
 
-      iframeDoc.head.appendChild(style);
+    //     /* Nếu muốn căn giữa một container cụ thể */
+    //     .your-container {
+    //       width: 100%;
+    //       max-width: 1200px;
+    //       margin: 0 auto;
+    //     }
+    //   `;
 
-      const observer = new MutationObserver(() => {
-        const body = iframeDoc.body;
-        if (body) {
-          body.style.display = 'flex';
-          body.style.justifyContent = 'center';
-          body.style.alignItems = 'center';
-        }
-      });
+    //   iframeDoc.head.appendChild(style);
 
-      observer.observe(iframeDoc.documentElement, {
-        childList: true,
-        subtree: true,
-      });
+    //   const observer = new MutationObserver(() => {
+    //     const body = iframeDoc.body;
+    //     if (body) {
+    //       body.style.display = 'flex';
+    //       body.style.justifyContent = 'center';
+    //       body.style.alignItems = 'center';
+    //     }
+    //   });
 
-      return () => observer.disconnect();
+    //   observer.observe(iframeDoc.documentElement, {
+    //     childList: true,
+    //     subtree: true,
+    //   });
+
+    //   return () => observer.disconnect();
+    // };
+
+    // iframe.addEventListener('load', handleLoad);
+
+    // return () => {
+    //   iframe.removeEventListener('load', handleLoad);
+    // };
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== 'http://expected-origin.com') return; // Thay bằng origin của iframe
+      console.log('Message from iframe:', event.data);
     };
 
-    iframe.addEventListener('load', handleLoad);
+    window.addEventListener('message', handleMessage);
 
     return () => {
-      iframe.removeEventListener('load', handleLoad);
+      window.removeEventListener('message', handleMessage);
     };
   }, []);
 
@@ -79,6 +92,8 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
           tailwindcss: 'latest',
           postcss: 'latest',
           autoprefixer: 'latest',
+          'styled-components': '^5.3.11', // Thêm styled-components
+          '@types/styled-components': '^5.1.26', // Thêm @types/styled-components nếu dùng TypeScript
         },
         environment: 'create-react-app',
       }}
@@ -125,6 +140,8 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
                 tailwindcss: 'latest',
                 postcss: 'latest',
                 autoprefixer: 'latest',
+                'styled-components': '^5.3.11', // Thêm styled-components
+                '@types/styled-components': '^5.1.26', // Thêm @types/styled-components nếu dùng TypeScript
               },
               browserslist: {
                 production: ['>0.2%', 'not dead', 'not op_mini all'],
