@@ -272,7 +272,7 @@ const PreviewUI = (props: any) => {
   };
 
   const setStateFormDataPreview = () => {
-    if (state) {
+    if (!_.isEmpty(state)) {
       ['appState', 'globalState', 'componentState'].forEach((type) => {
         setDataTypeDocumentVariable({
           type: type as TTypeSelect,
@@ -290,7 +290,7 @@ const PreviewUI = (props: any) => {
     getApiCall();
     getActions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, projectId]);
+  }, [uid, projectId, bodyLayout]);
 
   //#region render
   if (isLoading) {

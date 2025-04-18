@@ -3,10 +3,10 @@ import { CSSProperties, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { useData } from '@/hooks';
+import { convertStyle } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { convertStyle } from '@/lib/utils';
 
 interface TextProps {
   data: GridItem;
