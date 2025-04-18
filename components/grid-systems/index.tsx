@@ -212,8 +212,6 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
     </div>
   );
 
-  console.log('config22222', _.get(config, [styleDevice]) as React.CSSProperties);
-
   useEffect(() => {
     const socket = io(CONFIGS.SOCKET_URL, {
       withCredentials: true,
