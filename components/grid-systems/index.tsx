@@ -198,12 +198,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
   }, [refreshKey]); // ✅
 
   const content = (
-    <
-      // CsContainerRenderSlice
-      // className="mx-auto flex justify-center h-full w-full"
-      // style={_.get(config, 'style') as any}
-      // styledComponentCss={config?.styledComponentCss}
-    >
+    <>
       {config?.childs ? (
         <CsContainerRenderSlice
           className="w-full flex flex-col justify-center flex-wrap"
