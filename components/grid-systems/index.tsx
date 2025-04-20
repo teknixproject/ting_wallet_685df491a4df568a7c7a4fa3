@@ -52,6 +52,8 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   }, [apiData, slice, updateTitleInText]);
 
   const key = sliceRef?.id?.split('$')[0];
+  const isButton = key === 'button';
+
   const data = useMemo(() => {
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,9 +62,8 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const styleDevice: string = getDeviceSize() as string;
 
   const SliceComponent = useMemo(() => {
-    const key = sliceRef?.id?.split('$')[0];
     return componentRegistry[key as keyof typeof componentRegistry];
-  }, [sliceRef?.id]);
+  }, [key]);
 
   const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef?.style;
 
@@ -94,7 +95,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const content = SliceComponent ? (
     <SliceComponent
       id={_.get(sliceRef, 'id')}
-      style={convertStyle(styleSlice)}
+      style={isButton ? styleSlice : convertStyle(styleSlice)}
       data={sliceRef}
       childs={sliceRef?.childs}
     />
@@ -110,9 +111,9 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   return sliceClasses || Object.keys(inlineStyles).length ? (
     <CsContainerRenderSlice
       className={`${sliceClasses} ${_.get(styleSlice, 'className', '')} `}
-      style={inlineStyles}
+      style={!isButton ? inlineStyles : {}}
       is-active={!!isActive == true ? 'true' : 'false'}
-      styledComponentCss={sliceRef?.styledComponentCss}
+      styledComponentCss={!isButton ? sliceRef?.styledComponentCss : ''}
     >
       {content}
     </CsContainerRenderSlice>

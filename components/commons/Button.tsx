@@ -7,7 +7,6 @@ import { CSSProperties, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
-import { convertStyle } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
@@ -39,19 +38,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       router.push(route);
     }
   };
-  const newStyle: CSSProperties = {
-    ...style,
-    position: 'initial',
-    transform: '',
-    margin: 0,
-    padding: 0,
-    maxHeight: '',
-    maxWidth: '',
-    width: '100%',
-    height: '100%',
-    background: '',
-    backgroundColor: '',
-  };
+
   if (isButtonGradient) {
     return (
       <button
@@ -69,7 +56,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   const content = link ? (
     <Link href={link} passHref>
       <Container
-        style={convertStyle(newStyle)}
+        style={style}
         className="!text-16-500 rounded-full flex items-center gap-2 text-center"
         styledComponentCss={data?.styledComponentCss}
       >
@@ -81,7 +68,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   ) : (
     <CsButton
       type="button"
-      style={convertStyle(newStyle)}
+      style={style}
       onClick={() => (route ? handleRouteClick() : handleAction('onClick'))}
       className="cursor-pointer"
       styledComponentCss={data?.styledComponentCss}
@@ -98,7 +85,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div style={newStyle} className="text-[#858585]">
+          <div style={style} className="text-[#858585]">
             {content}
           </div>
         </TooltipTrigger>
