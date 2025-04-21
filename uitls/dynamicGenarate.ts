@@ -4,24 +4,28 @@ import _ from 'lodash';
 
 import { TApiData } from '@/stores';
 import { TApiCallValue } from '@/types';
-
-import { GridItem } from '../components/grid-systems/const';
+import { GridItem } from '@/types/gridItem';
 
 const allowTypeGenerate = ['flex', 'grid'];
 // Hàm lấy dữ liệu từ API hoặc store
 const getDataFromApi = async (apiData: TApiData[], idParent: string, apiCall: TApiCallValue) => {
-  const existingApiData = apiData.find((item: any) => item.id === apiCall?.apiId);
-  if (!_.isEmpty(existingApiData)) return existingApiData.data;
+  try {
+    const existingApiData = apiData.find((item: any) => item.id === apiCall?.apiId);
+    if (!_.isEmpty(existingApiData)) return existingApiData.data;
 
-  const response = await axios.request({
-    url: apiCall?.url,
-    method: apiCall?.method.toLowerCase(),
-    params: apiCall?.query,
-    headers: apiCall?.headers,
-  });
-  const data = response.data;
+    const response = await axios.request({
+      url: apiCall?.url,
+      method: apiCall?.method.toLowerCase(),
+      params: apiCall?.query,
+      headers: apiCall?.headers,
+    });
+    const data = response.data;
 
-  return data;
+    return data;
+  } catch (error) {
+    console.log('🚀 ~ getDataFromApi ~ error:', error);
+    return null;
+  }
 };
 
 // Hàm cập nhật jsonPath theo index của card
@@ -29,10 +33,15 @@ const updateJsonPath = (jsonPath: string, index: number) => {
   return _.replace(jsonPath, /\[\d*\]/, `[${index}]`);
 };
 
-const updateJsonPathForChild = (slice: GridItem, index: number) => {
+const updateJsonPathForChild = (slice: GridItem, index: number, source: any) => {
+  const jsonPath = updateJsonPath(slice.dynamicGenerate?.dataJsonPath ?? '', index);
+  const title = JSONPath({ path: jsonPath!, json: source })[0];
   const updateSlide: GridItem = {
     ...slice,
     id: `${slice.id}_${index}`,
+    dataSlice: {
+      title,
+    },
     dynamicGenerate: {
       ...slice?.dynamicGenerate,
       dataJsonPath: updateJsonPath(slice.dynamicGenerate?.dataJsonPath ?? '', index),
@@ -42,7 +51,7 @@ const updateJsonPathForChild = (slice: GridItem, index: number) => {
 
   if (!childs?.length) return updateSlide;
 
-  const updateChilds = childs.map((child) => updateJsonPathForChild(child, index));
+  const updateChilds = childs.map((child) => updateJsonPathForChild(child, index, source));
   updateSlide.childs = updateChilds;
 
   return updateSlide;
@@ -71,7 +80,9 @@ const createCardsFromApi = (sliceRef: GridItem, apiData: any, jsonPath: string) 
         // },
       };
       if (newChild?.childs?.length) {
-        newChild.childs = newChild.childs.map((child) => updateJsonPathForChild(child, index));
+        newChild.childs = newChild.childs.map((child) =>
+          updateJsonPathForChild(child, index, apiData)
+        );
       }
 
       return newChild;

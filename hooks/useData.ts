@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { stateManagementStore } from '@/stores';
 import { TTypeSelectState } from '@/types';
-import { GridItem } from '@/types/gridItem';
+import { GridItem, TDynamicGenerate } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 
 type Props = {
@@ -23,7 +23,9 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   const [typeStore, setTypeStore] = useState<TTypeSelectState>(
     _.get(layoutData, 'dataSlice.typeStore', 'appState')
   );
-
+  const [dynamicGenerateData, setDynamicGenerateData] = useState<TDynamicGenerate>(
+    _.get(layoutData, 'dynamicGenerateData', {})
+  );
   const { findVariable, appState, componentState, globalState } = stateManagementStore();
 
   // useEffect(() => {
@@ -33,6 +35,10 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   //   setTypeStore(_.get(layoutData, 'dataSlice.typeStore', 'appState'));
   // }, [layoutData, defaultTitle]);
 
+  useEffect(() => {
+    if (dynamicGenerateData) {
+    }
+  }, [dynamicGenerateData]);
   const { extractAllValuesFromTemplate } = variableUtil;
 
   useEffect(() => {
