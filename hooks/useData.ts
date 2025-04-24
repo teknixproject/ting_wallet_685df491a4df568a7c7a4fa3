@@ -67,6 +67,7 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
     findVariable,
     extractAllValuesFromTemplate,
     defaultTitle,
+    layoutData,
   ]);
 
   return {
