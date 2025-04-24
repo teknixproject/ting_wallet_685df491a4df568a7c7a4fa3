@@ -125,6 +125,8 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   const { apiData, addApiData } = useApiCallStore((state) => state);
   const [childs, setChilds] = useState<GridItem[]>(slice?.childs || []);
   const [isLoading, setIsLoading] = useState(false);
+  const pathname = usePathname();
+  console.log('🚀 ~ pathname:', pathname.slice(1));
 
   const searchParams = useSearchParams();
   const uid = searchParams.get('uid');
@@ -141,7 +143,9 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 
       try {
         const { apiCall, dataJsonPath } = slice.dynamicGenerate ?? {};
-        const apiResource = findApiResourceValue(uid ?? '', apiCall?.id ?? '');
+        console.log('🚀 ~ fetchData ~ apiCall:', apiCall);
+        const apiResource = findApiResourceValue(apiCall?.id || '');
+        console.log('🚀 ~ fetchData ~ apiResource:', apiResource);
 
         if (!apiResource) {
           setIsLoading(false);

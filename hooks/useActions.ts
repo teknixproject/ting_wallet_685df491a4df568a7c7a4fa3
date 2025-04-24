@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import _ from 'lodash';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { apiResourceStore, stateManagementStore } from '@/stores';
@@ -20,15 +20,14 @@ import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
-const NEXT_PUBLIC_DEFAULT_UID = process.env.NEXT_PUBLIC_DEFAULT_UID;
 
 export type TUseActions = {
   handleAction: (triggerType: TTriggerValue) => Promise<void>;
 };
 
 export const useActions = (data?: GridItem): TUseActions => {
-  const searchParam = useSearchParams();
-  const uid = searchParam.get('uid') || NEXT_PUBLIC_DEFAULT_UID;
+  const pathname = usePathname();
+  console.log('🚀 ~ useActions ~ pathname:', pathname);
   const router = useRouter();
 
   // State management
@@ -125,7 +124,9 @@ export const useActions = (data?: GridItem): TUseActions => {
   };
 
   const handleApiCallAction = async (action: TAction<TActionApiCall>): Promise<void> => {
-    const apiCall = findApiResourceValue(uid ?? '', action?.data?.apiId ?? '');
+    const apiCall = findApiResourceValue(action?.data?.apiId ?? '');
+    console.log('🚀 ~ handleApiCallAction ~ apiCall:', apiCall);
+
     if (!apiCall) return;
 
     const variables = convertActionVariables(action?.data?.variables ?? []);

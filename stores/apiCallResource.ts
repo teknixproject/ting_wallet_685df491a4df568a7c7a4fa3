@@ -1,24 +1,21 @@
-import _ from 'lodash';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { TApiCallValue } from '@/types';
 
 export type TApiResourceValue = {
-  uid: string;
   apis: TApiCallValue[];
 };
 export type TApiCallResource = {
-  apiResources: TApiResourceValue[];
+  apiResources: Record<string, TApiCallValue>;
 };
 type TApiStoreActions = {
   addAndUpdateApiResource: (data: TApiResourceValue) => void;
-  findApiResource: (uid: string) => TApiResourceValue | undefined;
-  findApiResourceValue: (uid: string, apiId: string) => TApiCallValue | undefined;
+  findApiResourceValue: (apiId: string) => TApiCallValue | undefined;
 };
 
-const defaultApiResource = {
-  apiResources: [],
+const defaultApiResource: TApiCallResource = {
+  apiResources: {},
 };
 type TApiCallStore = TApiCallResource & TApiStoreActions;
 export const apiResourceStore = create<TApiCallStore>()(
@@ -27,28 +24,23 @@ export const apiResourceStore = create<TApiCallStore>()(
       ...defaultApiResource,
       addAndUpdateApiResource: (data: TApiResourceValue) =>
         set((state) => {
-          const existed = get().findApiResource(data.uid);
-          if (_.isEmpty(existed)) {
-            return {
-              apiResources: [...state.apiResources, data],
-            };
-          }
           return {
-            apiResources: state.apiResources?.map((item) => (item.uid === data.uid ? data : item)),
+            apiResources: {
+              ...state.apiResources,
+              ...data.apis.reduce((arr, item) => {
+                return { ...arr, [item.apiId]: item };
+              }, {}),
+            },
           };
         }),
-      findApiResource(uid) {
-        const apiResource = get().apiResources?.find((item) => item.uid === uid);
+
+      findApiResourceValue(apiId) {
+        const apiResource = get().apiResources[apiId];
         return apiResource;
-      },
-      findApiResourceValue(uid, apiId) {
-        const apiResource = get().apiResources.find((item) => item.uid === uid);
-        if (_.isEmpty(apiResource)) return undefined;
-        return apiResource?.apis?.find((item) => item.apiId === apiId);
       },
     }),
     {
-      name: 'apiCallStore', // Tên của store trong Redux DevTools
+      name: 'apiCallStorePP', // Tên của store trong Redux DevTools
     }
   )
 );

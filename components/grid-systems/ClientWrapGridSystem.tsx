@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
@@ -57,9 +57,11 @@ const RenderUIClient = (props: any) => {
   }, []);
 
   // #region hooks
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const uid = searchParams.get('uid') || 'home';
+  const uid =
+    searchParams.get('uid') || pathname.slice(1) || process.env.NEXT_PUBLIC_DEFAULT_UID || '';
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
@@ -85,12 +87,12 @@ const RenderUIClient = (props: any) => {
           const result = await stateManagerService.getData(
             type === 'globalState'
               ? {
-                  projectId: projectId ?? '',
+                  projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
                   type,
                 }
               : {
                   uid: uid ?? 'home',
-                  projectId: projectId ?? '',
+                  projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
                   type,
                 }
           );
@@ -114,8 +116,8 @@ const RenderUIClient = (props: any) => {
   const getActions = async () => {
     try {
       const result = await actionService.getData({
-        projectId: projectId ?? '',
-        uid: uid ?? '',
+        uid: uid,
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
       if (_.isEmpty(result?.data?.data)) return;
       setActions(result.data.data);
@@ -125,8 +127,11 @@ const RenderUIClient = (props: any) => {
   };
   const getApiCall = async () => {
     try {
-      const result = await apiCallService.get({ uid: uid ?? '', projectId: projectId ?? '' });
-      addAndUpdateApiResource({ uid: uid ?? '', apis: result?.data?.apis });
+      const result = await apiCallService.get({
+        uid: uid,
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+      });
+      addAndUpdateApiResource({ apis: result?.data?.apis });
     } catch (error) {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }
@@ -181,8 +186,9 @@ const RenderUIClient = (props: any) => {
 };
 
 const PreviewUI = (props: any) => {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const uid = searchParams.get('uid');
+  const uid = searchParams.get('uid') || pathname.slice(1) || process.env.NEXT_PUBLIC_DEFAULT_UID;
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
 
@@ -253,8 +259,8 @@ const PreviewUI = (props: any) => {
   const getActions = async () => {
     try {
       const result = await actionService.getData({
-        projectId: projectId ?? '',
-        uid: uid ?? '',
+        uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
       if (_.isEmpty(result?.data?.data)) return;
       setActions(result.data.data);
@@ -264,8 +270,11 @@ const PreviewUI = (props: any) => {
   };
   const getApiCall = async () => {
     try {
-      const result = await apiCallService.get({ uid: uid ?? '', projectId: projectId ?? '' });
-      addAndUpdateApiResource({ uid: uid ?? '', apis: result?.data?.apis });
+      const result = await apiCallService.get({
+        uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+      });
+      addAndUpdateApiResource({ apis: result?.data?.apis });
     } catch (error) {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }
