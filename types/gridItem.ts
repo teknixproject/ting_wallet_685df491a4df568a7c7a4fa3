@@ -32,7 +32,7 @@ interface GridItem {
   style?: string;
   value?: string; // Value to render in the component
   valueRender?: ValueRender;
-  dynamicGenerate?: TDynamicGenarate;
+  dynamicGenerate?: TDynamicGenerate;
   state?: DocumentType;
   name?: string;
   action?: any;
@@ -59,7 +59,7 @@ export type TCollapse = {
   styleChild: React.CSSProperties;
   childs: { value: string }[];
 };
-export type TDynamicGenarate = {
+export type TDynamicGenerate = {
   dataJsonPath?: string;
   apiCall?: { id: string; name: string };
 };

@@ -25,7 +25,7 @@ const componentHasMenu = ['dropdown'];
 const allowUpdateTitle = ['content'];
 type TRenderSlice = { slice: GridItem | null | undefined; idParent: string; isMenu?: boolean };
 const { updateTitleInText } = dynamicGenarateUtil;
-
+//#region Render Slice
 export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const pathname = usePathname();
   const { apiData } = useApiCallStore((state) => state);
@@ -120,6 +120,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   ) : null;
 };
 
+//#region Render Grid
 export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   const { apiData, addApiData } = useApiCallStore((state) => state);
   const [childs, setChilds] = useState<GridItem[]>(slice?.childs || []);
@@ -144,10 +145,12 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 
         if (!apiResource) {
           setIsLoading(false);
+
           return;
         }
 
         const result = await getDataFromApi(apiData, idParent, apiResource);
+        console.log('🚀 ~ fetchData ~ result:', result);
 
         if (!_.isEmpty(result)) {
           addApiData({ id: apiCall?.id ?? '', data: result, idParent });
@@ -155,6 +158,7 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 
         // Create new childs from API data
         const newCards = createCardsFromApi(slice, result, dataJsonPath ?? '');
+        console.log('🚀 ~ fetchData ~ newCards:', newCards);
         setChilds(newCards as GridItem[]);
       } catch (error) {
         console.error('Error fetching API data:', error);
@@ -181,6 +185,7 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   return <>{renderedChildren}</>;
 };
 
+//#region Grid System
 const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: GridSystemProps) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
 
