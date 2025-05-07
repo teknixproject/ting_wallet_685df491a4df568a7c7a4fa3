@@ -61,7 +61,9 @@ const RenderUIClient = (props: any) => {
   const searchParams = useSearchParams();
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
   const uid =
-    searchParams.get('uid') || pathname.slice(1) || process.env.NEXT_PUBLIC_DEFAULT_UID || '';
+    searchParams.get('uid') || pathname.slice(1) !== 'preview-ui'
+      ? pathname.slice(1)
+      : process.env.NEXT_PUBLIC_DEFAULT_UID;
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
@@ -188,7 +190,10 @@ const RenderUIClient = (props: any) => {
 const PreviewUI = (props: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const uid = searchParams.get('uid') || pathname.slice(1) || process.env.NEXT_PUBLIC_DEFAULT_UID;
+  const uid =
+    searchParams.get('uid') || pathname.slice(1) !== 'preview-ui'
+      ? pathname.slice(1)
+      : process.env.NEXT_PUBLIC_DEFAULT_UID;
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
 
