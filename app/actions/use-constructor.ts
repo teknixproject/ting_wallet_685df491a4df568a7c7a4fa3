@@ -90,7 +90,7 @@ export function usePreviewUI(projectId?: string, uid?: string | null, sectionNam
   if (!dataPreviewUI) return { data: {}, isLoading: true };
 
   return {
-    dataPreviewUI,
+    dataPreviewUI: dataPreviewUI?.data,
     isLoading: false,
   };
 }
