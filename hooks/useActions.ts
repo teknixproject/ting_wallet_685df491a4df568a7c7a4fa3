@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { apiResourceStore, stateManagementStore } from '@/stores';
+import { stateManagementStore } from '@/stores';
 import {
   TAction,
   TActionApiCall,
@@ -19,6 +19,8 @@ import {
 import { GridItem } from '@/types/gridItem';
 import { variableUtil } from '@/uitls';
 
+import { useApiCall } from './useApiCall';
+
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
 
 export type TUseActions = {
@@ -27,6 +29,7 @@ export type TUseActions = {
 
 export const useActions = (data?: GridItem): TUseActions => {
   const pathname = usePathname();
+  const { getApiMember } = useApiCall();
   console.log('🚀 ~ useActions ~ pathname:', pathname);
   const router = useRouter();
 
@@ -35,7 +38,6 @@ export const useActions = (data?: GridItem): TUseActions => {
   const [triggerName, setTriggerName] = useState<TTriggerValue>('onClick');
 
   // Store hooks
-  const { findApiResourceValue } = apiResourceStore((state) => state);
   const { findVariable, updateDocumentVariable } = stateManagementStore();
 
   // Memoized actions from data
@@ -124,7 +126,7 @@ export const useActions = (data?: GridItem): TUseActions => {
   };
 
   const handleApiCallAction = async (action: TAction<TActionApiCall>): Promise<void> => {
-    const apiCall = findApiResourceValue(action?.data?.apiId ?? '');
+    const apiCall = getApiMember(action?.data?.apiId ?? '');
     console.log('🚀 ~ handleApiCallAction ~ apiCall:', apiCall);
 
     if (!apiCall) return;
