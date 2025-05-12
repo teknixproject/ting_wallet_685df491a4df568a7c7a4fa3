@@ -41,7 +41,7 @@ const InputText: React.FC<Props> = ({ data }) => {
 
   const { findVariable, updateDocumentVariable, componentState } = stateManagementStore();
   const { extractAllValuesFromTemplate } = variableUtil;
-  const updateVarialbe = _.debounce((key, value) => {
+  const updateVariable = _.debounce((key, value) => {
     updateDocumentVariable({
       type: 'componentState',
       dataUpdate: { key, value },
@@ -53,7 +53,7 @@ const InputText: React.FC<Props> = ({ data }) => {
     const key = extractAllValuesFromTemplate(variableName);
     const value = e.target.value;
 
-    updateVarialbe(key, value);
+    updateVariable(key, value);
   };
   const handleEnter = (e: any) => {
     if (e.key === 'Enter') {

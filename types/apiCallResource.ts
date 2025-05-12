@@ -1,4 +1,4 @@
-import { TTypeVariable } from './variable';
+import { TTypeVariable } from '@/types';
 
 export enum METHODS {
   GET = 'GET',
@@ -7,13 +7,11 @@ export enum METHODS {
   DELETE = 'DELETE',
   PATCH = 'PATCH',
 }
-export type TApiCallVariable = {
-  key: string;
-  value: string;
-  type: TTypeVariable;
-  isList: boolean;
-};
-
+export enum TypeApiCall {
+  GROUP = 'GROUP',
+  MEMBER = 'MEMBER',
+  INDIVIDUAL = 'INDIVIDUAL',
+}
 export type TApiCall = {
   projectId: string;
   documentId: string;
@@ -21,12 +19,22 @@ export type TApiCall = {
   apis: TApiCallValue[];
 };
 export type TApiCallValue = {
-  apiId: string;
-  apiName: string;
-  url: string;
-  method: METHODS;
-  headers: object;
-  body: object;
-  query: object;
-  variables: TApiCallVariable[];
+  type?: TypeApiCall;
+  groupId?: string | null;
+  groupName?: string | null;
+  apiId?: string;
+  apiName?: string;
+  url?: string;
+  baseUrl?: string | null;
+  method?: METHODS;
+  headers?: object;
+  body?: object;
+  query?: object;
+  variables?: TApiCallVariable[];
+};
+export type TApiCallVariable = {
+  key: string;
+  value: string;
+  type: TTypeVariable;
+  isList: boolean;
 };
