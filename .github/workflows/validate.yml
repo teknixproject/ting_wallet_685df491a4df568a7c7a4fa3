@@ -24,11 +24,13 @@ jobs:
 
       - name: Run build
         run: npm run build
+        continue-on-error: false
 
       - name: Capture build error log
         if: failure()
         run: |
           echo "Build failed. Check logs above." > build-error.log
+          find .next -type f -name "*.log" -exec cat {} >> build-error.log \;
           cat build-error.log
 
       - name: Upload build log
@@ -37,5 +39,6 @@ jobs:
         with:
           name: build-log
           path: |
+            build-error.log
             **/*.log
             .next/**
