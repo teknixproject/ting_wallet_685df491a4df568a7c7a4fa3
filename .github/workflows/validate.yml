@@ -25,6 +25,12 @@ jobs:
       - name: Run build
         run: npm run build
 
+      - name: Capture build error log
+        if: failure()
+        run: |
+          echo "Build failed. Check logs above." > build-error.log
+          cat build-error.log
+
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v4
