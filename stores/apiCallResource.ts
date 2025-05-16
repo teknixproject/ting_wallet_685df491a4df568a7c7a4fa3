@@ -28,7 +28,7 @@ export const apiResourceStore = create<TApiCallStore>()(
             apiResources: {
               ...state.apiResources,
               ...data.apis.reduce((arr, item) => {
-                return { ...arr, [item.apiId]: item };
+                return { ...arr, [item?.apiId as string]: item };
               }, {}),
             },
           };

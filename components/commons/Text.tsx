@@ -15,7 +15,7 @@ interface TextProps {
 
 const Text = ({ data, style }: TextProps) => {
   const { title } = useData({ layoutData: data });
-  const titles = _.get(data, 'dataSlice.titles', {});
+  const combineText = _.get(data, 'dataSlice.combineText', {});
 
   const newStyle: CSSProperties = {
     ...style,
@@ -25,13 +25,10 @@ const Text = ({ data, style }: TextProps) => {
     return data.tooltip;
   }, [data]);
 
-  const content = !_.isEmpty(titles) ? (
-    <TextComplex data={titles} style={style} />
+  const content = !_.isEmpty(combineText) ? (
+    <TextComplex texts={combineText} style={style} />
   ) : (
-    <CsText
-      style={convertStyle(newStyle)}
-      styledComponentCss={data?.styledComponentCss}
-    >
+    <CsText style={convertStyle(newStyle)} styledComponentCss={data?.styledComponentCss}>
       {_.isObject(title) ? JSON.stringify(title) : title}
     </CsText>
   );
@@ -50,33 +47,31 @@ const Text = ({ data, style }: TextProps) => {
   );
 };
 
-const TextComplex = ({ data, style }: { data: any; style: any }) => {
+const TextComplex = ({
+  texts,
+  style,
+}: {
+  texts: { text: string; style: CSSProperties & { gradient?: string } }[];
+  style: any;
+}) => {
   return (
     <Container
       style={{
         display: 'inline',
         ...style,
       }}
-      styledComponentCss={data?.styledComponentCss}
     >
-      {Object.keys(data).map((key) => {
-        const isSpecial = data[key]?.isSpecial;
-
-        return isSpecial ? (
-          <CsStrong
-            key={key}
+      {texts.map((item, index) => {
+        return (
+          <div
+            key={index}
             style={{
-              color: data[key].color,
-              flexShrink: 0,
-              fontWeight: 'normal',
-              ...style,
+              display: 'inline',
+              ...item.style,
             }}
-            gradient={data[key].gradient}
           >
-            {data[key]?.text || ''}
-          </CsStrong>
-        ) : (
-          data[key]?.text
+            {item.text}
+          </div>
         );
       })}
     </Container>

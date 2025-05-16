@@ -15,7 +15,13 @@ type Props = {
 
 export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   const [title, setTitle] = useState<string | Record<string, any>>(
-    _.get(layoutData, 'dataSlice.title', defaultTitle)
+    _.get(layoutData, 'dataSlice.title')
+  );
+  const [value, setValue] = useState<string | Record<string, any>>(
+    _.get(layoutData, 'dataSlice.value')
+  );
+  const [defaultValue, setDefaultValue] = useState<string | Record<string, any>>(
+    _.get(layoutData, 'dataSlice.defaultValue')
   );
   const [variableName, setVariableName] = useState<string>(
     _.get(layoutData, 'dataSlice.variableName', '')
@@ -28,12 +34,6 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   );
   const { findVariable, appState, componentState, globalState } = stateManagementStore();
 
-  // useEffect(() => {
-  //   const newTitle = _.get(layoutData, 'dataSlice.title', defaultTitle);
-  //   setTitle(newTitle);
-  //   setVariableName(_.get(layoutData, 'dataSlice.variableName', ''));
-  //   setTypeStore(_.get(layoutData, 'dataSlice.typeStore', 'appState'));
-  // }, [layoutData, defaultTitle]);
 
   useEffect(() => {
     if (dynamicGenerateData) {
@@ -53,8 +53,10 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
           const jsonPath = _.get(layoutData, 'dataSlice.jsonPath', '');
           if (jsonPath) {
             const valueJsonPath = JSONPath({ path: jsonPath!, json: valueInStore.value });
-            setTitle(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
-          } else setTitle(valueInStore.value ?? defaultTitle);
+            setValue(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
+          } else {
+            setValue(valueInStore.value ?? defaultTitle);
+          }
         }
       }
     }
@@ -71,6 +73,6 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   ]);
 
   return {
-    title,
+    title:title ?? value?? defaultValue??'Text',
   };
 };

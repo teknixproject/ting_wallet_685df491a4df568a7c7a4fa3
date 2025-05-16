@@ -15,7 +15,7 @@ const getDataFromApi = async (apiData: TApiData[], idParent: string, apiCall: TA
 
     const response = await axios.request({
       url: apiCall?.url,
-      method: apiCall?.method.toLowerCase(),
+      method: apiCall?.method?.toLowerCase(),
       params: apiCall?.query,
       headers: apiCall?.headers,
     });
