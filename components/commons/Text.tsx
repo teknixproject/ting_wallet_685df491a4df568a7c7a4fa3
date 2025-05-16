@@ -51,7 +51,7 @@ const TextComplex = ({
   texts,
   style,
 }: {
-  texts: { text: string; style: CSSProperties & { gradient?: string } }[];
+  texts: { text: string; style: CSSProperties & { textGradient?: string } }[];
   style: any;
 }) => {
   return (
@@ -63,7 +63,8 @@ const TextComplex = ({
     >
       {texts.map((item, index) => {
         return (
-          <div
+          <CsStrong
+            gradient={item.style.textGradient}
             key={index}
             style={{
               display: 'inline',
@@ -71,7 +72,7 @@ const TextComplex = ({
             }}
           >
             {item.text}
-          </div>
+          </CsStrong>
         );
       })}
     </Container>
