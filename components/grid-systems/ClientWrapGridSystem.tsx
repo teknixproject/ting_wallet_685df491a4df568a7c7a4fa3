@@ -13,7 +13,7 @@ import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
-import { TTypeSelect, TTypeSelectState } from '@/types';
+import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -55,7 +55,7 @@ const RenderUIClient = (props: any) => {
   const { setData } = layoutStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
-  const { setDataTypeDocumentVariable } = stateManagementStore();
+  const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
 
   const { bodyLayout, footerLayout, headerLayout, isLoading } = useConstructorDataAPI(
@@ -113,9 +113,14 @@ const RenderUIClient = (props: any) => {
           if (_.isEmpty(state)) return;
 
           if (state) {
-            setDataTypeDocumentVariable({
+            setStateManagement({
               type,
-              dataUpdate: state,
+              dataUpdate: state.reduce((acc: TVariableMap, item: TVariable) => {
+                return {
+                  ...acc,
+                  [item.id]: item,
+                };
+              }, {}),
             });
           }
         })
@@ -200,9 +205,7 @@ const RenderUIClient = (props: any) => {
 const PreviewUI = (props: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const uid =
-    searchParams.get('uid') ||
-    (pathname.slice(1) !== 'preview-ui' ? pathname.slice(1) : process.env.NEXT_PUBLIC_DEFAULT_UID);
+  const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
 
@@ -210,7 +213,7 @@ const PreviewUI = (props: any) => {
   const { setData } = layoutStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
-  const { setDataTypeDocumentVariable } = stateManagementStore();
+  const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
 
   // #region hooks
@@ -235,40 +238,6 @@ const PreviewUI = (props: any) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // const getStates = async () => {
-  //   const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
-  //   try {
-  //     await Promise.all(
-  //       list.map(async (type: TTypeSelectState) => {
-  //         const result = await stateManagerService.getData(
-  //           type === 'globalState'
-  //             ? {
-  //                 projectId: projectId ?? '',
-  //                 type,
-  //               }
-  //             : {
-  //                 uid: uid ?? '',
-  //                 projectId: projectId ?? '',
-  //                 type,
-  //               }
-  //         );
-  //         if (_.isEmpty(result?.data)) return;
-  //         const { state } = result?.data;
-  //         if (_.isEmpty(state)) return;
-
-  //         if (state) {
-  //           setDataTypeDocumentVariable({
-  //             type,
-  //             dataUpdate: state,
-  //           });
-  //         }
-  //       })
-  //     );
-  //   } catch (error) {
-  //     console.log('🚀 ~ getStates ~ error:', error);
-  //   }
-  // };
 
   const getActions = async () => {
     try {
@@ -297,7 +266,7 @@ const PreviewUI = (props: any) => {
   const setStateFormDataPreview = () => {
     if (!_.isEmpty(state)) {
       ['appState', 'globalState', 'componentState'].forEach((type) => {
-        setDataTypeDocumentVariable({
+        setStateManagement({
           type: type as TTypeSelect,
           dataUpdate: state[type],
         });
@@ -308,7 +277,6 @@ const PreviewUI = (props: any) => {
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
 
-    // getStates();
     setStateFormDataPreview();
     getApiCall();
     getActions();

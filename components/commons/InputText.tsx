@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import _ from 'lodash';
 import React, { ChangeEvent, useMemo } from 'react';
 import styled, { css, CSSProperties } from 'styled-components';
@@ -9,7 +8,6 @@ import { useActions } from '@/hooks/useActions';
 import { cn } from '@/lib/utils';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { GridItem } from '@/types/gridItem';
-import { variableUtil } from '@/uitls';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 type Props = { data: GridItem };
@@ -30,7 +28,7 @@ const InputText: React.FC<Props> = ({ data }) => {
     width: '100%',
     height: '100%',
   };
-  const variableName = _.get(data, 'dataSlice.variableName', '');
+  const variableId = _.get(data, 'dataSlice.variableId', '');
 
   const prefixIcon = useMemo(() => {
     return data?.inputText?.prefixIcon;
@@ -39,21 +37,22 @@ const InputText: React.FC<Props> = ({ data }) => {
     return data?.inputText?.suffixIcon;
   }, [data?.inputText]);
 
-  const { findVariable, updateDocumentVariable, componentState } = stateManagementStore();
-  const { extractAllValuesFromTemplate } = variableUtil;
-  const updateVariable = _.debounce((key, value) => {
-    updateDocumentVariable({
+  const { findVariable, updateVariables } = stateManagementStore();
+  const updateVariable = _.debounce((variableId, value: string) => {
+    const variable = findVariable({ id: variableId, type: 'componentState' });
+    if (!variable) return;
+    updateVariables({
       type: 'componentState',
-      dataUpdate: { key, value },
+      dataUpdate: { ...variable, value },
     });
   }, 300);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!variableName) return;
-    const key = extractAllValuesFromTemplate(variableName);
+    if (!variableId) return;
+
     const value = e.target.value;
 
-    updateVariable(key, value);
+    updateVariable(variableId, value);
   };
   const handleEnter = (e: any) => {
     if (e.key === 'Enter') {

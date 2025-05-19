@@ -10,17 +10,18 @@ import {
 } from '@/types';
 
 export type TDocumentStateActions = {
-  setDataTypeDocumentVariable: (variable: TDocumentStateSet) => void;
-  setDocumentVariable: (data: TDocumentState) => void;
+  setStateManagement: (variable: TDocumentStateSet) => void;
   findVariable: (data: TDocumentStateFind) => TVariable | undefined;
-  updateDocumentVariable: (data: TDocumentStateUpdate) => TVariable[];
+  updateVariables: (data: TDocumentStateUpdate) => void;
   resetState: () => void;
 };
 
 const initValue: TDocumentState = {
-  componentState: [],
-  appState: [],
-  globalState: [],
+  componentState: {},
+  appState: {},
+  globalState: {},
+  apiResponse: {},
+  dynamicGenerate: {},
 };
 
 // Sử dụng devtools middleware
@@ -28,35 +29,27 @@ export const stateManagementStore = create<TDocumentState & TDocumentStateAction
   devtools(
     (set, get) => ({
       ...initValue,
-      setDocumentVariable: (data) => {
-        set(() => data);
-      },
-      setDataTypeDocumentVariable: ({ type, dataUpdate }) => {
+
+      setStateManagement: ({ type, dataUpdate }) => {
         set(() => ({
           [type]: dataUpdate,
         }));
       },
-      findVariable: ({ type, name }) => {
-        const data = get()[type];
-        const existed = data?.find((item) => item.key === name);
-        return existed;
+      findVariable: ({ type, id }) => {
+        const data = get()[type] || {};
+
+        return data[id];
       },
-      updateDocumentVariable: ({ type, dataUpdate }) => {
+      updateVariables: ({ type, dataUpdate }) => {
         set((state) => {
           // Reuse findVariable to check if the item exists
-          const existingItem = state.findVariable({
-            type,
-            name: dataUpdate?.key ?? '',
-          });
-          const currentItems: TVariable[] = state[type]!;
 
-          if (!existingItem) {
-            return { [type]: [...currentItems, dataUpdate] };
-          } else {
-            return {
-              [type]: currentItems.map((item) => (item.key === dataUpdate.key ? dataUpdate : item)),
-            };
-          }
+          return {
+            [type]: {
+              ...state[type],
+              [dataUpdate.id]: dataUpdate,
+            },
+          };
         });
         return get()[type];
       },

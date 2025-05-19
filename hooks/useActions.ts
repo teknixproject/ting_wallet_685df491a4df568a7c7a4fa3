@@ -11,8 +11,11 @@ import {
   TActionNavigate,
   TActionUpdateState,
   TActionVariable,
+  TApiCallValue,
+  TApiCallVariable,
   TConditional,
   TConditionalChild,
+  TConditionChildMap,
   TTriggerActions,
   TTriggerValue,
 } from '@/types';
@@ -27,6 +30,28 @@ export type TUseActions = {
   handleAction: (triggerType: TTriggerValue) => Promise<void>;
 };
 
+const evaluateCondition = (firstValue: any, secondValue: any, operator: string): boolean => {
+  switch (operator) {
+    case 'equal':
+      return firstValue == secondValue;
+    case 'notEqual':
+      return firstValue !== secondValue;
+    case 'greaterThan':
+      return Number(firstValue) > Number(secondValue);
+    case 'lessThan':
+      return Number(firstValue) < Number(secondValue);
+    case 'greaterThanOrEqual':
+      return Number(firstValue) >= Number(secondValue);
+    case 'lessThanOrEqual':
+      return Number(firstValue) <= Number(secondValue);
+    default:
+      return false;
+  }
+};
+
+const getValueOfConditionChild = (conditions: any, conditionItemId: string) => {
+  return conditions[conditionItemId];
+};
 export const useActions = (data?: GridItem): TUseActions => {
   const pathname = usePathname();
   const { getApiMember } = useApiCall();
@@ -38,7 +63,7 @@ export const useActions = (data?: GridItem): TUseActions => {
   const [triggerName, setTriggerName] = useState<TTriggerValue>('onClick');
 
   // Store hooks
-  const { findVariable, updateDocumentVariable } = stateManagementStore();
+  const { findVariable, updateVariables } = stateManagementStore();
 
   // Memoized actions from data
   const actions = useMemo(() => _.get(data, 'actions') as TTriggerActions, [data]);
@@ -55,18 +80,31 @@ export const useActions = (data?: GridItem): TUseActions => {
 
   //#region Action Handlers
   const convertActionVariables = useCallback(
-    (actionVariables: TActionVariable[]): Record<string, any> => {
-      if (_.isEmpty(actionVariables)) return {};
+    (actionVariables: TActionVariable[], apiCall: TApiCallValue): any[] => {
+      console.log('🚀 ~ useActions ~ apiCall:', apiCall);
+      console.log('🚀 ~ useActions ~ actionVariables:', actionVariables);
+      if (_.isEmpty(actionVariables)) return [];
 
-      return actionVariables.reduce((acc, variable) => {
-        acc[variable.key] = isUseVariable(variable.value)
-          ? findVariable({
-              type: variable.store,
-              name: extractAllValuesFromTemplate(variable.value) ?? '',
-            })?.value
-          : variable.value;
-        return acc;
-      }, {} as Record<string, any>);
+      return actionVariables.map((item) => {
+        const { firstValue, secondValue } = item;
+
+        const data = apiCall?.variables?.find((item) => item.id === firstValue.variableId);
+
+        if (!data) return;
+
+        if (secondValue.variableId) {
+          const valueInStore = findVariable({
+            type: secondValue.typeStore,
+            id: secondValue.variableId,
+          });
+          data.value = valueInStore?.value || '';
+        }
+        if (secondValue.value) {
+          data.value = secondValue.value;
+        }
+
+        return data;
+      });
     },
     [findVariable]
   );
@@ -75,27 +113,37 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (typeof body === 'string') return body;
     if (typeof body !== 'object') return body;
 
+    console.log('🚀 ~ convertApiCallBody ~ body:', body);
     return Object.entries(body).reduce((acc, [key, value]) => {
       acc[key] = isUseVariable(value)
-        ? variables[extractAllValuesFromTemplate(value as string) ?? key]
+        ? variables.find(
+            (item: TApiCallVariable) => item.key === extractAllValuesFromTemplate(value as string)
+          )?.value
         : value;
       return acc;
     }, {} as Record<string, any>);
   }, []);
 
   const handleApiResponse = useCallback(
-    (result: any, outputConfig: { variableName?: string; jsonPath?: string }) => {
-      if (!outputConfig?.variableName) return;
+    (result: any, outputConfig: { variableId?: string; jsonPath?: string }) => {
+      if (!outputConfig?.variableId) return;
 
-      const variableName = extractAllValuesFromTemplate(outputConfig.variableName as string);
       const value = outputConfig.jsonPath ? _.get(result, outputConfig.jsonPath, result) : result;
 
-      updateDocumentVariable({
-        type: 'appState',
-        dataUpdate: { key: variableName, value },
+      const variable = findVariable({
+        type: 'apiResponse',
+        id: outputConfig.variableId,
+      });
+      if (!variable) return;
+      updateVariables({
+        type: 'apiResponse',
+        dataUpdate: {
+          ...variable,
+          value,
+        },
       });
     },
-    [updateDocumentVariable]
+    [updateVariables]
   );
 
   const makeApiCall = async (
@@ -131,8 +179,9 @@ export const useActions = (data?: GridItem): TUseActions => {
 
     if (!apiCall) return;
 
-    const variables = convertActionVariables(action?.data?.variables ?? []);
+    const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
+    console.log('🚀 ~ handleApiCallAction ~ newBody:', newBody);
     const result = await makeApiCall(apiCall, newBody, action?.data?.output ?? {});
 
     handleApiResponse(result, action?.data?.output ?? {});
@@ -147,20 +196,25 @@ export const useActions = (data?: GridItem): TUseActions => {
     if (_.isEmpty(updates)) return;
 
     for (const item of updates || []) {
-      if (!isUseVariable(item.key)) continue;
+      const variableFirst = findVariable({
+        type: item.firstState.typeStore,
+        id: item.firstState.variableId,
+      });
 
-      const key = extractAllValuesFromTemplate(item.key);
-      const variableInStore = findVariable({ type: item.keyStore, name: key });
-      if (!variableInStore) continue;
+      const variableSecond = findVariable({
+        type: item.secondState.typeStore,
+        id: item.secondState.variableId,
+      });
+      if (!variableFirst) return;
 
-      variableInStore.value = isUseVariable(item.value)
-        ? findVariable({
-            type: item.valueStore,
-            name: extractAllValuesFromTemplate(item.value) ?? '',
-          })?.value ?? ''
-        : item.value ?? '';
+      variableFirst.value = item.secondState.variableId
+        ? variableSecond?.value ?? ''
+        : item.secondState.value ?? '';
 
-      await updateDocumentVariable({ type: item.keyStore, dataUpdate: variableInStore });
+      updateVariables({
+        type: item.firstState.typeStore,
+        dataUpdate: variableFirst,
+      });
     }
 
     if (action?.next) {
@@ -191,40 +245,44 @@ export const useActions = (data?: GridItem): TUseActions => {
   };
   //#endregion
 
-  //#region Action Execution
-  const evaluateCondition = (condition: TConditionalChild): boolean => {
-    console.log('🚀 ~ evaluateCondition ~ condition:', condition);
-
-    const { firstValue, secondValue, operator } = condition;
-    const firstVal = isUseVariable(firstValue)
-      ? findVariable({ type: 'appState', name: extractAllValuesFromTemplate(firstValue) ?? '' })
-          ?.value
-      : apiResponsesRef.current[firstValue];
-
-    const secondVal = isUseVariable(secondValue)
-      ? findVariable({ type: 'appState', name: extractAllValuesFromTemplate(secondValue) ?? '' })
-          ?.value
-      : secondValue;
-
-    if (firstVal === undefined || secondVal === undefined) return false;
-
-    switch (operator) {
-      case 'equal':
-        return firstVal == secondVal;
-      case 'notEqual':
-        return firstVal !== secondVal;
-      case 'greaterThan':
-        return Number(firstVal) > Number(secondVal);
-      case 'lessThan':
-        return Number(firstVal) < Number(secondVal);
-      case 'greaterThanOrEqual':
-        return Number(firstVal) >= Number(secondVal);
-      case 'lessThanOrEqual':
-        return Number(firstVal) <= Number(secondVal);
-      default:
-        return false;
-    }
+  const getRootConditionChild = (condition: TConditionChildMap): TConditionalChild | undefined => {
+    return Object.values(condition.childs).find((child) => !child.parentId);
   };
+  const getConditionChild = (conditionId: string, condition: TConditionChildMap) => {
+    return condition.childs[conditionId];
+  };
+
+  const getCompareValue = (compare: TConditionalChild['compare']): boolean => {};
+  const handleCompareCondition = (
+    conditionChildId: string,
+    condition: TConditionChildMap
+  ): boolean => {
+    const conditionChild = getConditionChild(conditionChildId, condition);
+
+    if (conditionChild.type === 'compare') {
+      return getCompareValue(conditionChild.compare);
+    }
+
+    let firstValue;
+    let secondValue;
+
+    if (conditionChild.fistCondition) {
+      firstValue = handleCompareCondition(conditionChild.fistCondition, condition);
+    }
+
+    if (conditionChild.secondCondition) {
+      secondValue = handleCompareCondition(conditionChild.secondCondition, condition);
+    }
+
+    if (conditionChild.logicOperator === 'and') {
+      return !!(firstValue && secondValue);
+    }
+    if (conditionChild.logicOperator === 'or') {
+      return !!(firstValue || secondValue);
+    }
+    return !!(firstValue && secondValue);
+  };
+  //#region Action Execution
 
   const getActionById = (id: string): TAction | undefined => {
     return actions[triggerName]?.[id];
@@ -262,22 +320,21 @@ export const useActions = (data?: GridItem): TUseActions => {
         console.warn(`Unknown fcType: ${action.fcType}`);
     }
   };
+
   const executeConditional = async (action: TAction<TConditional>): Promise<void> => {
     const conditions = action?.data?.conditions || [];
     if (_.isEmpty(conditions)) return;
 
     for (const condition of conditions) {
-      const conditionChild = getActionById(condition) as TAction<TConditionalChild>;
+      const conditionChild = getActionById(condition) as TAction<TConditionChildMap>;
       if (!conditionChild?.data) continue;
 
-      console.log('API RESPONSE', apiResponsesRef);
-
-      const isConditionMet = evaluateCondition(conditionChild.data);
-      console.log('🚀 ~ executeConditional ~ isConditionMet:', isConditionMet);
-      console.log(
-        '🚀 ~ executeConditional ~ conditionChild.data.equal:',
-        conditionChild.data.equal
+      const rootCondition = getRootConditionChild(conditionChild.data as TConditionChildMap);
+      const isConditionMet = handleCompareCondition(
+        rootCondition?.id as string,
+        conditionChild.data
       );
+
       if (isConditionMet) {
         if (conditionChild.next) {
           await executeActionFCType(getActionById(conditionChild.next));
@@ -286,7 +343,6 @@ export const useActions = (data?: GridItem): TUseActions => {
       }
     }
   };
-
   const executeTriggerActions = async (
     triggerActions: TTriggerActions,
     triggerType: TTriggerValue
@@ -296,12 +352,10 @@ export const useActions = (data?: GridItem): TUseActions => {
 
     // Find and execute the root action (parentId === null)
     const rootAction = Object.values(actionsToExecute).find((action) => !action.parentId);
-    console.log('🚀 ~ useActions ~ rootAction:', rootAction);
     if (rootAction) {
       await executeActionFCType(rootAction);
     }
   };
-
   const handleAction = useCallback(
     async (triggerType: TTriggerValue): Promise<void> => {
       if (!data?.actions) return;

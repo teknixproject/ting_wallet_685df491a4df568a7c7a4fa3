@@ -1,7 +1,9 @@
+import { TTypeSelect } from './actions';
 import { TTypeVariable } from './variable';
 
 export type TTypeSelectState = 'appState' | 'componentState' | 'globalState';
 export type TVariable = {
+  id: string;
   key: string;
   type: TTypeVariable;
   isList: boolean;
@@ -21,19 +23,26 @@ export type TPageVariableResponse = {
 
 export type TTypeDocumentState = TTypeSelectState;
 export type TDocumentState = {
-  appState?: TVariable[];
-  componentState?: TVariable[];
-  globalState?: TVariable[];
+  appState?: TVariableMap;
+  componentState?: TVariableMap;
+  globalState?: TVariableMap;
+  apiResponse?: TVariableMap;
+  dynamicGenerate?: TVariableMap;
+};
+
+export type TVariableMap = {
+  [key: string]: TVariable;
 };
 export type TDocumentStateSet = {
-  type: TTypeDocumentState;
-  dataUpdate: TVariable[];
+  type: TTypeSelect;
+  dataUpdate: TVariableMap;
 };
 export type TDocumentStateUpdate = {
-  type: TTypeDocumentState;
-  dataUpdate: Partial<TVariable>;
+  type: TTypeSelect;
+  dataUpdate: TVariable;
 };
 export type TDocumentStateFind = {
-  type: TTypeDocumentState;
-  name: string;
+  type: TTypeSelect;
+  name?: string;
+  id: string;
 };
