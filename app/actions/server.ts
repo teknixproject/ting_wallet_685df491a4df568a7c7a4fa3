@@ -9,7 +9,6 @@ export const fetchMetadata = async (path: string) => {
       `${process.env.NEXT_PUBLIC_API_URL}/api/seo-metadata?projectId=${process.env.NEXT_PUBLIC_PROJECT_ID}&uid=${path}`,
       { cache: 'no-store' }
     );
-    if (!res.ok) throw new Error('Failed to fetch metadata');
     return await res.json();
   } catch (error) {
     console.error('Error fetching metadata:', error);
