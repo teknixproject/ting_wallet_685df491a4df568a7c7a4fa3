@@ -80,6 +80,11 @@ const RenderUIClient = (props: any) => {
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
   const selectedFooterLayout = footerLayout[deviceType] ?? footerLayout ?? {};
 
+  console.log('selectedHeaderLayout', {
+    deviceType,
+    headerLayout,
+  });
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => {
@@ -224,9 +229,9 @@ const PreviewUI = (props: any) => {
   const state = _.get(dataPreviewUI, 'state');
   const isPage = _.get(dataPreviewUI, 'typePreview') === 'page';
 
-  const headerLayout = _.get(dataPreviewUI, 'headerLayout');
-  const bodyLayout = _.get(dataPreviewUI, 'bodyLayout');
-  const footerLayout = _.get(dataPreviewUI, 'footerLayout');
+  const headerLayout = dataPreviewUI?.headerLayout?.layoutJson || dataPreviewUI?.headerLayout;
+  const bodyLayout = dataPreviewUI?.bodyLayout?.layoutJson || dataPreviewUI?.bodyLayout;
+  const footerLayout = dataPreviewUI?.footerLayout?.layoutJson || dataPreviewUI?.footerLayout;
 
   const selectedHeaderLayout = !_.isEmpty(headerLayout) ? headerLayout[deviceType] : {};
   const selectedBodyLayout = !_.isEmpty(bodyLayout) ? bodyLayout[deviceType] : {};

@@ -49,9 +49,9 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   }
 
   return {
-    headerLayout: _.get(data, 'headerLayout.layoutJson', {}),
-    bodyLayout: _.get(data, 'bodyLayout.layoutJson', {}),
-    footerLayout: _.get(data, 'footerLayout.layoutJson', {}),
+    headerLayout: _.get(data, 'data.headerLayout.layoutJson', {}),
+    bodyLayout: _.get(data, 'data.bodyLayout.layoutJson', {}),
+    footerLayout: _.get(data, 'data.footerLayout.layoutJson', {}),
     component: isValidComponent ? componentString : {},
     isLoading: false,
   };
@@ -63,16 +63,6 @@ export async function rebuilComponentMonaco(componentString: string) {
       console.error('Error: Invalid componentString', componentString);
       return;
     }
-
-    // const response = await fetch(`http://localhost:3000/api`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "text/plain",
-    //   },
-    //   body: componentString,
-    // });
-
-    // await response.text();
   } catch (error) {
     console.error('Build failed:', error);
   }
@@ -81,8 +71,13 @@ export async function rebuilComponentMonaco(componentString: string) {
 export function usePreviewUI(projectId?: string, uid?: string | null, sectionName?: string | null) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  const newUID = uid === 'null' ? uid : uid;
+  const newSectionName = sectionName === 'null' ? sectionName : sectionName;
+
   const { data: dataPreviewUI } = useSWR(
-    projectId ? `${API_URL}/api/preview-ui?projectId=${projectId}&uid=${uid}&sectionName=${sectionName}` : null,
+    projectId
+      ? `${API_URL}/api/preview-ui?projectId=${projectId}&uid=${newUID}&sectionName=${newSectionName}`
+      : null,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
   );
