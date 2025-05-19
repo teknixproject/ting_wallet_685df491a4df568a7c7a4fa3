@@ -38,6 +38,18 @@ export default function ClientWrapper(props: any) {
   return <RenderUIClient {...props} />;
 }
 
+const setUid = (searchParams: any, pathname: string, defaultUid: string) => {
+  if (searchParams.get('uid')) {
+    return searchParams.get('uid');
+  }
+  if (pathname === '/') {
+    return defaultUid;
+  }
+  if (pathname.slice(1) && pathname.slice(1) !== 'preview-ui') {
+    return pathname.slice(1);
+  }
+};
+
 const RenderUIClient = (props: any) => {
   //#region store
   const { setData } = layoutStore();
@@ -60,10 +72,8 @@ const RenderUIClient = (props: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const uid =
-    searchParams.get('uid') || pathname.slice(1) !== 'preview-ui'
-      ? pathname.slice(1)
-      : process.env.NEXT_PUBLIC_DEFAULT_UID || '';
+
+  const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
