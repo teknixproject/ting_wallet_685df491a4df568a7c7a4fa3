@@ -122,19 +122,17 @@ export type TConditional = {
 
 export type TConditionCompareValue = {
   firstValue: {
-    variable: string;
+    variableId: string;
     typeStore: TTypeSelect;
     value: string;
     returnValue: string;
-    valueSelected: TSourceValue;
   };
   operator: TOperatorCompare;
   secondValue: {
-    variable: string;
+    variableId: string;
     typeStore: TTypeSelect;
     value: string;
     returnValue: string;
-    valueSelected: TSourceValue;
   };
 };
 
