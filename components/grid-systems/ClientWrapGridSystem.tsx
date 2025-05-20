@@ -213,6 +213,7 @@ const PreviewUI = (props: any) => {
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
+  const userId = searchParams.get('userId');
 
   //#region store
   const { setData } = layoutStore();
@@ -223,7 +224,7 @@ const PreviewUI = (props: any) => {
 
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
-  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName);
+  const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName, userId);
 
   // #region state
   const state = _.get(dataPreviewUI, 'state');
@@ -330,7 +331,7 @@ const PreviewUI = (props: any) => {
           )}
         </div>
       ) : (
-        <SandPackUI dataPreviewUI={dataPreviewUI} />
+        <SandPackUI dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
       )}
     </div>
   );
