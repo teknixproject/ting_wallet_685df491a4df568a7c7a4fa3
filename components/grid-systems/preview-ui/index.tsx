@@ -9,19 +9,36 @@ import {
 import _ from 'lodash';
 import React, { useEffect, useMemo, useRef } from 'react';
 
+// function extractDependencies(code: string): Record<string, string> {
+//   const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+//   const dependencies: Record<string, string> = {};
+//   let match;
+//   while ((match = importRegex.exec(code)) !== null) {
+//     const library = match[1];
+//     if (!['react', 'react-dom', 'next'].includes(library)) {
+//       dependencies[library] = 'latest';
+//     }
+//   }
+//   return dependencies;
+// }
+
 function extractDependencies(code: string): Record<string, string> {
   const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
   const dependencies: Record<string, string> = {};
   let match;
   while ((match = importRegex.exec(code)) !== null) {
-    const library = match[1];
+    let library = match[1];
+    // Xử lý các submodule của react-icons
+    if (library.startsWith('react-icons/')) {
+      library = 'react-icons'; // Chỉ lấy package chính
+    }
+    // Bỏ qua các thư viện core hoặc đã có trong customSetup
     if (!['react', 'react-dom', 'next'].includes(library)) {
       dependencies[library] = 'latest';
     }
   }
   return dependencies;
 }
-
 interface SandPackUIProps {
   dataPreviewUI: any;
 }
@@ -34,59 +51,11 @@ const SandPackUI = ({ dataPreviewUI }: SandPackUIProps) => {
     return extractDependencies(code);
   }, [dataPreviewUI]);
 
-  console.log('dynamicDependencies', dynamicDependencies);
+  console.log('dynamicDependencies', _.get(dataPreviewUI, 'previewData', ''));
 
   useEffect(() => {
     const iframe = previewRef.current?.querySelector('iframe');
     if (!iframe) return;
-
-    // const handleLoad = () => {
-    //   const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
-    //   if (!iframeDoc) return;
-
-    //   const style = iframeDoc.createElement('style');
-    //   style.innerHTML = `
-    //     body {
-    //       margin: 0 !important;
-    //       padding: 0 !important;
-    //       min-height: 100vh !important;
-    //       display: flex !important;
-    //       justify-content: center !important;
-    //       align-items: center !important;
-    //     }
-
-    //     /* Nếu muốn căn giữa một container cụ thể */
-    //     .your-container {
-    //       width: 100%;
-    //       max-width: 1200px;
-    //       margin: 0 auto;
-    //     }
-    //   `;
-
-    //   iframeDoc.head.appendChild(style);
-
-    //   const observer = new MutationObserver(() => {
-    //     const body = iframeDoc.body;
-    //     if (body) {
-    //       body.style.display = 'flex';
-    //       body.style.justifyContent = 'center';
-    //       body.style.alignItems = 'center';
-    //     }
-    //   });
-
-    //   observer.observe(iframeDoc.documentElement, {
-    //     childList: true,
-    //     subtree: true,
-    //   });
-
-    //   return () => observer.disconnect();
-    // };
-
-    // iframe.addEventListener('load', handleLoad);
-
-    // return () => {
-    //   iframe.removeEventListener('load', handleLoad);
-    // };
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== 'http://expected-origin.com') return; // Thay bằng origin của iframe
