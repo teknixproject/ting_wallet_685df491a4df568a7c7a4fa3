@@ -7,12 +7,34 @@ import {
   SandpackProvider,
 } from '@codesandbox/sandpack-react';
 import _ from 'lodash';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
-// import {useData} from "../../../hooks"
+function extractDependencies(code: string): Record<string, string> {
+  const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+  const dependencies: Record<string, string> = {};
+  let match;
+  while ((match = importRegex.exec(code)) !== null) {
+    const library = match[1];
+    if (!['react', 'react-dom', 'next'].includes(library)) {
+      dependencies[library] = 'latest';
+    }
+  }
+  return dependencies;
+}
 
-const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
+interface SandPackUIProps {
+  dataPreviewUI: any;
+}
+
+const SandPackUI = ({ dataPreviewUI }: SandPackUIProps) => {
   const previewRef = useRef<HTMLDivElement>(null);
+
+  const dynamicDependencies = useMemo(() => {
+    const code = _.get(dataPreviewUI, 'previewData', '');
+    return extractDependencies(code);
+  }, [dataPreviewUI]);
+
+  console.log('dynamicDependencies', dynamicDependencies);
 
   useEffect(() => {
     const iframe = previewRef.current?.querySelector('iframe');
@@ -86,14 +108,31 @@ const SandPackUI = ({ dataPreviewUI }: { dataPreviewUI: any }) => {
           react: '^18.2.0',
           'react-dom': '^18.2.0',
           'react-scripts': '^5.0.1',
-          lodash: 'latest',
-          '@types/lodash': '^4.14.197',
+          next: '^14.2.0',
+          tailwindcss: '^3.4.0',
+          postcss: '^8.4.31',
+          autoprefixer: '^10.4.16',
+          'styled-components': '^5.3.11',
+          '@types/styled-components': '^5.1.26',
           'react-icons': '^4.7.1',
-          tailwindcss: 'latest',
-          postcss: 'latest',
-          autoprefixer: 'latest',
-          'styled-components': '^5.3.11', // Thêm styled-components
-          '@types/styled-components': '^5.1.26', // Thêm @types/styled-components nếu dùng TypeScript
+          axios: '^1.6.0',
+          '@tanstack/react-query': '^4.29.0',
+          zustand: '^4.5.0',
+          'react-router-dom': '^6.14.0',
+          'react-chartjs-2': '^5.2.0',
+          'chart.js': '^4.4.0',
+          recharts: '^2.12.0',
+          'framer-motion': '^10.16.0',
+          lodash: '^4.17.21',
+          '@types/lodash': '^4.14.197',
+          'date-fns': '^2.30.0',
+          'react-hook-form': '^7.45.0',
+          formik: '^2.4.0',
+          yup: '^1.2.0',
+          'react-hot-toast': '^2.4.1',
+          uuid: '^9.0.0',
+          '@types/uuid': '^9.0.2',
+          ...dynamicDependencies,
         },
         environment: 'create-react-app',
       }}
