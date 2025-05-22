@@ -108,16 +108,21 @@ const SandPackUI = ({ dataPreviewUI }: SandPackUIProps) => {
       files={{
         '/App.tsx': {
           code: `
-            import PreviewComponent from "./PreviewComponent";
-            import './tailwind.css';
-            export default function App() {
-              return <div className="w-full h-[100vh] flex items-center justify-between">
-               <div className="w-full flex items-center justify-center">
-                <PreviewComponent />
-               </div>
-              </div>;
-            }
-          `,
+          import { BrowserRouter } from 'react-router-dom';
+          import PreviewComponent from "./PreviewComponent";
+          import './tailwind.css';
+          export default function App() {
+            return (
+              <BrowserRouter>
+                <div className="w-full h-[100vh] flex items-center justify-between">
+                  <div className="w-full flex items-center justify-center">
+                    <PreviewComponent />
+                  </div>
+                </div>
+              </BrowserRouter>
+            );
+          }
+        `,
         },
         '/PreviewComponent.tsx': _.get(dataPreviewUI, 'previewData', ''),
         '/tailwind.css': {

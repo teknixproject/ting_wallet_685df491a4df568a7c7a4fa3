@@ -14,6 +14,7 @@ import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState } from '@/types';
+import { BrowserRouter } from 'react-router-dom';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -168,37 +169,39 @@ const RenderUIClient = (props: any) => {
   }
 
   return (
-    <div className="relative">
-      {!_.isEmpty(selectedHeaderLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedHeaderLayout || {}}
-          deviceType={deviceType}
-          isHeader
-        />
-      )}
+    <BrowserRouter>
+      <div className="relative">
+        {!_.isEmpty(selectedHeaderLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedHeaderLayout || {}}
+            deviceType={deviceType}
+            isHeader
+          />
+        )}
 
-      {!_.isEmpty(selectedBodyLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedBodyLayout || {}}
-          deviceType={deviceType}
-          isBody
-        />
-      )}
+        {!_.isEmpty(selectedBodyLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedBodyLayout || {}}
+            deviceType={deviceType}
+            isBody
+          />
+        )}
 
-      {!_.isEmpty(selectedFooterLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedFooterLayout || {}}
-          deviceType={deviceType}
-          isFooter
-        />
-      )}
-    </div>
+        {!_.isEmpty(selectedFooterLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedFooterLayout || {}}
+            deviceType={deviceType}
+            isFooter
+          />
+        )}
+      </div>
+    </BrowserRouter>
   );
 };
 
