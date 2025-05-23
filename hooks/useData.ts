@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { stateManagementStore } from '@/stores';
 import { TTypeSelectState } from '@/types';
 import { GridItem, TDynamicGenerate } from '@/types/gridItem';
-import { variableUtil } from '@/uitls';
 
 type Props = {
   layoutData: GridItem;
@@ -23,8 +22,8 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   const [defaultValue, setDefaultValue] = useState<string | Record<string, any>>(
     _.get(layoutData, 'dataSlice.defaultValue')
   );
-  const [variableName, setVariableName] = useState<string>(
-    _.get(layoutData, 'dataSlice.variableName', '')
+  const [variableId, setVariableId] = useState<string>(
+    _.get(layoutData, 'dataSlice.variableId', '')
   );
   const [typeStore, setTypeStore] = useState<TTypeSelectState>(
     _.get(layoutData, 'dataSlice.typeStore', 'appState')
@@ -34,45 +33,39 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   );
   const { findVariable, appState, componentState, globalState } = stateManagementStore();
 
-
   useEffect(() => {
     if (dynamicGenerateData) {
     }
   }, [dynamicGenerateData]);
-  const { extractAllValuesFromTemplate } = variableUtil;
 
   useEffect(() => {
-    if (variableName && typeStore) {
-      const key = extractAllValuesFromTemplate(variableName);
-      if (key) {
-        const valueInStore = findVariable({
-          type: typeStore,
-          name: key,
-        });
-        if (valueInStore !== undefined) {
-          const jsonPath = _.get(layoutData, 'dataSlice.jsonPath', '');
-          if (jsonPath) {
-            const valueJsonPath = JSONPath({ path: jsonPath!, json: valueInStore.value });
-            setValue(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
-          } else {
-            setValue(valueInStore.value ?? defaultTitle);
-          }
+    if (variableId && typeStore) {
+      const valueInStore = findVariable({
+        type: typeStore,
+        id: variableId,
+      });
+      if (valueInStore !== undefined) {
+        const jsonPath = _.get(layoutData, 'dataSlice.jsonPath', '');
+        if (jsonPath) {
+          const valueJsonPath = JSONPath({ path: jsonPath!, json: valueInStore.value });
+          setValue(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
+        } else {
+          setValue(valueInStore.value ?? defaultTitle);
         }
       }
     }
   }, [
-    variableName,
     typeStore,
     appState,
     componentState,
     globalState,
     findVariable,
-    extractAllValuesFromTemplate,
     defaultTitle,
     layoutData,
+    variableId,
   ]);
 
   return {
-    title:title ?? value?? defaultValue??'Text',
+    title: title || value || defaultValue || 'Text',
   };
 };

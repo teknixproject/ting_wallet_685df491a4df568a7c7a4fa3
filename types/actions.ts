@@ -1,8 +1,25 @@
-export type TTypeSelect = 'appState' | 'componentState' | 'globalState';
-// Core action types
-export type TActionSelect = 'navigate' | 'apiCall' | 'updateStateManagement';
-export type TActionFCType = 'action' | 'conditional' | 'loop';
-export type TStatusResposne = 'success' | 'error';
+export type TSourceValue =
+  | 'combineText'
+  | 'appState'
+  | 'globalState'
+  | 'apiCalls'
+  | 'dynamicGenerate'
+  | 'apiResponse'
+  | 'conditions';
+export type TTypeSelect =
+  | 'appState'
+  | 'componentState'
+  | 'globalState'
+  | 'apiResponse'
+  | 'dynamicGenerate';
+export type TActionSelect =
+  | 'navigate'
+  | 'apiCall'
+  | 'updateStateManagement'
+  | 'conditionalChild'
+  | 'conditional';
+export type TActionFCType = 'action' | 'conditional' | 'conditionalChild' | 'loop';
+export type TStatusResponse = 'success' | 'error';
 export type TOperatorCompare =
   | 'equal'
   | 'notEqual'
@@ -11,16 +28,56 @@ export type TOperatorCompare =
   | 'greaterThanOrEqual'
   | 'lessThanOrEqual';
 export type TTriggerValue = 'onPageLoad' | 'onClick' | 'onEnter' | 'onMouseDown';
-
+export const OPERATORS: {
+  name: string;
+  value: TOperatorCompare;
+  char: string;
+}[] = [
+  {
+    name: 'Equal',
+    value: 'equal',
+    char: '=',
+  },
+  {
+    name: 'Not Equal',
+    value: 'notEqual',
+    char: '!',
+  },
+  {
+    name: 'Greater Than',
+    value: 'greaterThan',
+    char: '>',
+  },
+  {
+    name: 'Less Than',
+    value: 'lessThan',
+    char: '<',
+  },
+  {
+    name: 'Greater Than or Equal',
+    value: 'greaterThanOrEqual',
+    char: '>=',
+  },
+  {
+    name: 'Less Than or Equal',
+    value: 'lessThanOrEqual',
+    char: '<=',
+  },
+];
 export type TTriggerActionValue = {
   [key: string]: TAction;
 };
 
-// Action variable for API calls
 export type TActionVariable = {
-  key: string;
-  value: string;
-  store: TTypeSelect;
+  firstValue: {
+    variableId: string;
+    typeStore: TTypeSelect;
+  };
+  secondValue: {
+    variableId: string;
+    typeStore: TTypeSelect;
+    value: string;
+  };
 };
 
 // API call action configuration
@@ -29,61 +86,103 @@ export type TActionApiCall = {
   apiName: string;
   variables: TActionVariable[];
   output: {
-    variableName: string;
+    variableId: string;
     jsonPath?: string;
   };
-  status: TStatusResposne;
+  status: TStatusResponse;
 };
 
-// State update variable configuration
 export type TActionUpdateStateVariable = {
-  key: string;
-  value: string;
-  keyStore: TTypeSelect;
-  valueStore: TTypeSelect;
+  firstState: {
+    typeStore: TTypeSelect;
+    variableId: string;
+  };
+  secondState: {
+    typeStore: TTypeSelect;
+    variableId: string;
+    value: string;
+  };
 };
 
-// State update action
 export type TActionUpdateState = {
   update: TActionUpdateStateVariable[];
 };
 
-// Navigation action
-export type TActionNavigate = { isExternal: boolean; isNewTab: boolean; url: string };
+export type TActionNavigate = {
+  isExternal: boolean;
+  isNewTab: boolean;
+  url: string;
+};
 
 export type TConditional = {
+  label: string;
   isMultiple?: boolean;
-  conditions?: string[];
-  true?: TAction<TConditionalChild>;
-  false?: TAction<TConditionalChild>;
+  conditions?: string[]; //action ids
 };
-export type TConditionalChild = {
-  equal: boolean;
-  firstValue: string;
-  secondValue: string;
+
+export type TConditionCompareValue = {
+  firstValue: {
+    variableId: string;
+    typeStore: TTypeSelect;
+    value: string;
+    returnValue: string;
+  };
   operator: TOperatorCompare;
+  secondValue: {
+    variableId: string;
+    typeStore: TTypeSelect;
+    value: string;
+    returnValue: string;
+  };
 };
-// Base action type with recursive structure
+
+export type TConditionalChild = {
+  id: string;
+  parentId: string | null;
+  label: string;
+  name: string;
+  conditionField: 'firstValue' | 'secondValue';
+  type: 'compare' | 'logic';
+  logicOperator: 'and' | 'or';
+  fistCondition: string;
+  secondCondition: string;
+  compare: TConditionCompareValue;
+};
+export type TConditionChildCompareValue = {
+  firstValue: {
+    variable: string;
+    typeStore: TTypeSelect;
+  };
+  operator: TOperatorCompare;
+  secondValue: {
+    typeStore: TTypeSelect;
+    variable: string;
+    value: string;
+  };
+};
+export type TConditionChildMap = {
+  label: 'if' | 'else' | 'elseIf';
+  childs: { [key: string]: TConditionalChild };
+};
+
 export type TAction<T = unknown> = {
   id: string;
   parentId: string | null;
-  next?: string; //id of Next handler
+  next?: string;
   name: string;
   fcType?: TActionFCType;
   type?: TActionSelect | undefined | null;
-  success?: string; // Success handler
-  error?: string; // Error handler
-  data?: T; // Generic data for action-specific payload
+  success?: string;
+  error?: string;
+  data?: T;
 };
 
-// Trigger-to-action mapping
 export type TTriggerActions = {
   [key in TTriggerValue]?: {
     [key: string]: TAction;
-  }; // Optional actions per trigger
+  };
 };
 
-// State management action (optional, if needed)
 export type TActionStateManagement = {
   id: string;
   variable: string;

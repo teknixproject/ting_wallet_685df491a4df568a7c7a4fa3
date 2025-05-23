@@ -4,6 +4,7 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
@@ -14,8 +15,8 @@ import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState } from '@/types';
-import { BrowserRouter } from 'react-router-dom';
-import DynamicComponent from './preview-ui';
+
+import DynamicComponent from './DynamicComponent';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -54,7 +55,7 @@ const RenderUIClient = (props: any) => {
   const { setData } = layoutStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
-  const { setDataTypeDocumentVariable } = stateManagementStore();
+  const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
 
   const { bodyLayout, footerLayout, headerLayout, isLoading } = useConstructorDataAPI(
@@ -112,9 +113,14 @@ const RenderUIClient = (props: any) => {
           if (_.isEmpty(state)) return;
 
           if (state) {
-            setDataTypeDocumentVariable({
+            setStateManagement({
               type,
-              dataUpdate: state,
+              dataUpdate: state.reduce((acc: TVariableMap, item: TVariable) => {
+                return {
+                  ...acc,
+                  [item.id]: item,
+                };
+              }, {}),
             });
           }
         })
@@ -210,12 +216,13 @@ const PreviewUI = (props: any) => {
   const { setData } = layoutStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
-  const { setDataTypeDocumentVariable } = stateManagementStore();
+  const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
 
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName, userId);
+  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
 
   // #region state
   const state = _.get(dataPreviewUI, 'state');
@@ -235,40 +242,6 @@ const PreviewUI = (props: any) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // const getStates = async () => {
-  //   const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
-  //   try {
-  //     await Promise.all(
-  //       list.map(async (type: TTypeSelectState) => {
-  //         const result = await stateManagerService.getData(
-  //           type === 'globalState'
-  //             ? {
-  //                 projectId: projectId ?? '',
-  //                 type,
-  //               }
-  //             : {
-  //                 uid: uid ?? '',
-  //                 projectId: projectId ?? '',
-  //                 type,
-  //               }
-  //         );
-  //         if (_.isEmpty(result?.data)) return;
-  //         const { state } = result?.data;
-  //         if (_.isEmpty(state)) return;
-
-  //         if (state) {
-  //           setDataTypeDocumentVariable({
-  //             type,
-  //             dataUpdate: state,
-  //           });
-  //         }
-  //       })
-  //     );
-  //   } catch (error) {
-  //     console.log('🚀 ~ getStates ~ error:', error);
-  //   }
-  // };
 
   const getActions = async () => {
     try {
@@ -297,7 +270,7 @@ const PreviewUI = (props: any) => {
   const setStateFormDataPreview = () => {
     if (!_.isEmpty(state)) {
       ['appState', 'globalState', 'componentState'].forEach((type) => {
-        setDataTypeDocumentVariable({
+        setStateManagement({
           type: type as TTypeSelect,
           dataUpdate: state[type],
         });
@@ -308,7 +281,6 @@ const PreviewUI = (props: any) => {
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
 
-    // getStates();
     setStateFormDataPreview();
     getApiCall();
     getActions();
@@ -358,7 +330,7 @@ const PreviewUI = (props: any) => {
             )}
           </div>
         ) : (
-          <DynamicComponent dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
+          <DynamicComponent code={dataPreviewUI || dataPreviewUI?.data} />
         )}
       </div>
     </BrowserRouter>

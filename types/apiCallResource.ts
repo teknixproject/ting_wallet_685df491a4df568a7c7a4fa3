@@ -33,6 +33,7 @@ export type TApiCallValue = {
   variables?: TApiCallVariable[];
 };
 export type TApiCallVariable = {
+  id: string;
   key: string;
   value: string;
   type: TTypeVariable;
