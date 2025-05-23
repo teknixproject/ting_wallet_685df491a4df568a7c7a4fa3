@@ -14,7 +14,7 @@ import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
-import { TTypeSelect, TTypeSelectState } from '@/types';
+import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
 import DynamicComponent from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
