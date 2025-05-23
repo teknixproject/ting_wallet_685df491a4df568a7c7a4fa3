@@ -16,7 +16,7 @@ import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState } from '@/types';
 
-import DynamicComponent from './preview-ui';
+import DynamicComponent from './DynamicComponent';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -222,6 +222,7 @@ const PreviewUI = (props: any) => {
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName, userId);
+  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
 
   // #region state
   const state = _.get(dataPreviewUI, 'state');
@@ -328,7 +329,7 @@ const PreviewUI = (props: any) => {
           )}
         </div>
       ) : (
-        <DynamicComponent dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
+        <DynamicComponent code={dataPreviewUI?.previewData} />
       )}
     </div>
   );
