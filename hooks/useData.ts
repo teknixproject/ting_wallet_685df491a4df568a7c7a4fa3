@@ -66,6 +66,6 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   ]);
 
   return {
-    title: title ?? value ?? defaultValue ?? 'Text',
+    title: title || value || defaultValue || 'Text',
   };
 };
