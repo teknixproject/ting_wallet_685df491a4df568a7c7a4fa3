@@ -1,39 +1,38 @@
-// components/preview-ui.tsx
-'use client';
+'use client'; // Mark as client-only component
 
-import React, { useEffect, useState, useMemo } from 'react';
-import * as Babel from '@babel/standalone';
-import { MemoryRouter } from 'react-router-dom';
+import LoadingPage from '../loadingPage';
+import dynamic from 'next/dynamic';
 
-interface DynamicComponentProps {
-  dataPreviewUI: {
-    previewData: string; // Chuỗi mã của component
-    [key: string]: any;
-  };
+interface PreviewUIProps {
+  customWidgetName: string | null;
 }
 
-const DynamicComponent: React.FC<DynamicComponentProps> = ({ dataPreviewUI }) => {
-  const [Component, setComponent] = useState(null);
+const DynamicComponent = ({ customWidgetName }: PreviewUIProps) => {
+  console.log('PreviewUI', customWidgetName);
 
-  useEffect(() => {
-    const componentCode = `// Mã JSX từ tool web
-import { Button } from './components';
-export default function NewComponent() {
-  return <div><Button>Click me</Button><p>New Component</p></div>;
-}`;
+  // Fallback if customWidgetName is invalid
+  if (!customWidgetName || typeof customWidgetName !== 'string') {
+    return <div>Invalid widget name</div>;
+  }
 
-    // Giả lập biên dịch mã JSX (trong thực tế, bạn có thể gửi mã này đến server để xử lý)
-    const DynamicComponent = dynamic(() => {
-      return eval(Babel.transform(componentCode, { presets: ['react'] }).code);
-    });
-
-    setComponent(() => DynamicComponent);
-  }, []);
+  // Dynamic import with error handling
+  const CustomWidget = dynamic(
+    () =>
+      import(`@/components/commons/${customWidgetName}`).catch((error) => {
+        console.error(`Failed to load component ${customWidgetName}:`, error);
+        const ErrorComponent = () => <div>Error loading component</div>;
+        ErrorComponent.displayName = 'ErrorComponent';
+        return ErrorComponent;
+      }),
+    {
+      loading: () => <LoadingPage />,
+      ssr: false, // Disable SSR to avoid hydration issues
+    }
+  );
 
   return (
     <div>
-      <h1>Component Preview</h1>
-      {Component && <Component />}
+      <CustomWidget />
     </div>
   );
 };

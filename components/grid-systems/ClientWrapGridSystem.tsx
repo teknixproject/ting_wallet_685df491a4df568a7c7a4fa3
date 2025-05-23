@@ -15,8 +15,7 @@ import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState } from '@/types';
-
-import DynamicComponent from './DynamicComponent';
+import DynamicComponent from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -211,6 +210,7 @@ const PreviewUI = (props: any) => {
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
   const userId = searchParams.get('userId');
+  const customWidgetName = searchParams.get('customWidgetName');
 
   //#region store
   const { setData } = layoutStore();
@@ -222,7 +222,6 @@ const PreviewUI = (props: any) => {
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const { dataPreviewUI, isLoading } = usePreviewUI(projectId ?? '', uid, sectionName, userId);
-  console.log('🚀 ~ PreviewUI ~ dataPreviewUI:', dataPreviewUI);
 
   // #region state
   const state = _.get(dataPreviewUI, 'state');
@@ -295,7 +294,7 @@ const PreviewUI = (props: any) => {
   return (
     <BrowserRouter>
       <div className="component-preview-container">
-        {isPage ? (
+        {isPage && customWidgetName ? (
           <div className="relative flex flex-col justify-between min-h-screen">
             {!_.isEmpty(selectedHeaderLayout) && (
               <GridSystemContainer
@@ -330,7 +329,7 @@ const PreviewUI = (props: any) => {
             )}
           </div>
         ) : (
-          <DynamicComponent code={dataPreviewUI || dataPreviewUI?.data} />
+          <DynamicComponent customWidgetName={customWidgetName} />
         )}
       </div>
     </BrowserRouter>
