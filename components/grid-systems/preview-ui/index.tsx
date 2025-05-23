@@ -1,58 +1,80 @@
 // components/preview-ui.tsx
 'use client';
 
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo } from 'react';
-
-const Babel = dynamic(() => import('@babel/standalone'), { ssr: false });
+import * as Babel from '@babel/standalone';
 
 interface DynamicComponentProps {
   dataPreviewUI: {
-    code: string; // Chuỗi mã của component
+    previewData: string; // Chuỗi mã của component
     [key: string]: any;
   };
 }
 
 const DynamicComponent: React.FC<DynamicComponentProps> = ({ dataPreviewUI }) => {
+  console.log('dataPreviewUI', dataPreviewUI);
+
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const match = dataPreviewUI.code.match(/export default (\w+)/);
+  // Extract component name from the code
+  const match = dataPreviewUI?.previewData.match(/export default (\w+)/);
   const componentName = match ? match[1] : 'App';
 
+  // Memoize the compiled code
   const compiledCode = useMemo(() => {
-    if (!dataPreviewUI?.code) {
+    if (!dataPreviewUI?.previewData) {
       setError('No component code provided');
       return null;
     }
 
-    // Kiểm tra cơ bản để đảm bảo mã hợp lệ
-    if (!dataPreviewUI.code.includes('export default')) {
+    if (!dataPreviewUI.previewData.includes('export default')) {
       setError('Component code must have a default export');
       return null;
     }
 
     try {
-      const transformedCode = Babel.transform(dataPreviewUI.code, {
-        presets: ['react', 'typescript'],
+      // Transform the code using Babel
+      const { code } = Babel.transform(dataPreviewUI.previewData, {
+        presets: [['react', { runtime: 'automatic' }], 'typescript'],
         filename: 'App.tsx',
-      }).code;
-      return transformedCode;
+        sourceType: 'module',
+        plugins: ['transform-modules-commonjs'],
+      });
+      console.log('Transformed code:', code); // Debug: Log the transformed code
+      return code;
     } catch (err) {
-      setError('Failed to compile component: ' + err.message);
+      console.error('Babel transform error:', err);
+      setError('Failed to compile component: ' + (err as Error).message);
       return null;
     }
-  }, [dataPreviewUI?.code]);
+  }, [dataPreviewUI?.previewData]);
 
+  // Execute the compiled code
   useEffect(() => {
     if (!compiledCode) return;
+    console.log('compiledCode', compiledCode);
 
     try {
+      // Create a module to hold exports
       const mod: { exports: any } = { exports: {} };
-      const fn = new Function(componentName, compiledCode);
-      fn(mod, mod.exports, React);
+      // Provide a mock require function that returns React
+      const require = (module: string) => {
+        if (module === 'react') return React;
+        throw new Error(`Module ${module} not found`);
+      };
+      // Evaluate the compiled code
+      const fn = new Function(
+        'module',
+        'exports',
+        'React',
+        'require',
+        compiledCode + '\nreturn module.exports;'
+      );
 
-      const CompiledComponent = mod.exports.default || mod.exports;
+      const exports = fn(mod, mod.exports, React, require);
+
+      const CompiledComponent = exports.default || exports;
 
       if (!CompiledComponent) {
         setError('No default export found in the component code');
@@ -63,9 +85,8 @@ const DynamicComponent: React.FC<DynamicComponentProps> = ({ dataPreviewUI }) =>
       setError(null);
     } catch (err) {
       console.error('Error executing component:', err);
-      setError('Failed to execute component: ' + err.message);
+      setError('Failed to execute component: ' + (err as Error).message);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compiledCode]);
 
   if (error) {
