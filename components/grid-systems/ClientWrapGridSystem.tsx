@@ -15,6 +15,7 @@ import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState } from '@/types';
 import { BrowserRouter } from 'react-router-dom';
+import DynamicComponent from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -22,10 +23,7 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
   ssr: false,
 });
-const SandPackUI = dynamic(() => import('./preview-ui'), {
-  loading: () => <LoadingPage />,
-  ssr: false,
-});
+
 const LoadingPage = dynamic(() => import('./loadingPage'), {
   ssr: false,
 });
@@ -80,11 +78,6 @@ const RenderUIClient = (props: any) => {
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
   const selectedFooterLayout = footerLayout[deviceType] ?? footerLayout ?? {};
-
-  console.log('selectedHeaderLayout', {
-    deviceType,
-    headerLayout,
-  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -364,7 +357,7 @@ const PreviewUI = (props: any) => {
           )}
         </div>
       ) : (
-        <SandPackUI dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
+        <DynamicComponent dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
       )}
     </div>
   );

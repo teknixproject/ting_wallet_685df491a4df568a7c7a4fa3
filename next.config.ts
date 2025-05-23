@@ -1,7 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     remotePatterns: [
       {
@@ -18,7 +17,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=9999999999, must-revalidate',
+            value: 'public, max-age=31536000, must-revalidate',
           },
         ],
       },
@@ -26,10 +25,9 @@ const nextConfig: NextConfig = {
   },
   webpack(config, { dev }) {
     if (dev) {
-      config.cache = false; // Tắt cache trong chế độ phát triển
       config.optimization = {
         ...config.optimization,
-        runtimeChunk: false, // Tránh lỗi runtime không đồng bộ
+        runtimeChunk: false,
       };
     }
     return config;
@@ -38,7 +36,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   compiler: {
-    styledComponents: true, // Kích hoạt styled-components cho Next.js
+    styledComponents: true,
+  },
+  experimental: {
+    turbo: {
+      disabled: true, // Tắt Turbopack rõ ràng
+    },
   },
 };
 
