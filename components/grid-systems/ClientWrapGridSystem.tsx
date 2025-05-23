@@ -4,6 +4,7 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
@@ -13,7 +14,9 @@ import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
 import { stateManagementStore } from '@/stores/stateManagement';
-import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
+import { TTypeSelect, TTypeSelectState } from '@/types';
+
+import DynamicComponent from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -21,10 +24,7 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
   ssr: false,
 });
-const SandPackUI = dynamic(() => import('./preview-ui'), {
-  loading: () => <LoadingPage />,
-  ssr: false,
-});
+
 const LoadingPage = dynamic(() => import('./loadingPage'), {
   ssr: false,
 });
@@ -79,11 +79,6 @@ const RenderUIClient = (props: any) => {
   const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
   const selectedFooterLayout = footerLayout[deviceType] ?? footerLayout ?? {};
-
-  console.log('selectedHeaderLayout', {
-    deviceType,
-    headerLayout,
-  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -173,37 +168,39 @@ const RenderUIClient = (props: any) => {
   }
 
   return (
-    <div className="relative">
-      {!_.isEmpty(selectedHeaderLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedHeaderLayout || {}}
-          deviceType={deviceType}
-          isHeader
-        />
-      )}
+    <BrowserRouter>
+      <div className="relative">
+        {!_.isEmpty(selectedHeaderLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedHeaderLayout || {}}
+            deviceType={deviceType}
+            isHeader
+          />
+        )}
 
-      {!_.isEmpty(selectedBodyLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedBodyLayout || {}}
-          deviceType={deviceType}
-          isBody
-        />
-      )}
+        {!_.isEmpty(selectedBodyLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedBodyLayout || {}}
+            deviceType={deviceType}
+            isBody
+          />
+        )}
 
-      {!_.isEmpty(selectedFooterLayout) && (
-        <GridSystemContainer
-          isLoading={isLoading}
-          {...props}
-          page={selectedFooterLayout || {}}
-          deviceType={deviceType}
-          isFooter
-        />
-      )}
-    </div>
+        {!_.isEmpty(selectedFooterLayout) && (
+          <GridSystemContainer
+            isLoading={isLoading}
+            {...props}
+            page={selectedFooterLayout || {}}
+            deviceType={deviceType}
+            isFooter
+          />
+        )}
+      </div>
+    </BrowserRouter>
   );
 };
 
@@ -331,7 +328,7 @@ const PreviewUI = (props: any) => {
           )}
         </div>
       ) : (
-        <SandPackUI dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
+        <DynamicComponent dataPreviewUI={dataPreviewUI || dataPreviewUI?.data} />
       )}
     </div>
   );
