@@ -13,8 +13,10 @@ import { apiCallService } from '@/services/apiCall';
 import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
+import { pageActionsStore } from '@/stores/pageActions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
+
 import DynamicComponent from './preview-ui';
 
 type DeviceType = 'mobile' | 'desktop';
@@ -217,7 +219,7 @@ const PreviewUI = (props: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
   const { setStateManagement } = stateManagementStore();
-  const { setActions } = actionsStore();
+  const { setActions } = pageActionsStore();
 
   // #region hooks
   const [deviceType, setDeviceType] = useState(getDeviceType());
@@ -248,8 +250,9 @@ const PreviewUI = (props: any) => {
         uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
         projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
-      if (_.isEmpty(result?.data?.data)) return;
-      setActions(result.data.data);
+      console.log('🚀 ~ getActions ~ result:', result);
+      if (_.isEmpty(result?.data)) return;
+      setActions(result.data);
     } catch (error) {
       console.log('🚀 ~ getStates ~ error:', error);
     }

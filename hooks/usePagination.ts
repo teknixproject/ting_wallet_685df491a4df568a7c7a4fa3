@@ -2,9 +2,9 @@ import axios from 'axios';
 import _ from 'lodash';
 import queryString from 'query-string';
 
-import { GridItem } from '@/components/grid-systems/const';
 import { useApiCallStore } from '@/providers';
 import { layoutStore, TApiData } from '@/stores';
+import { GridItem } from '@/types/gridItem';
 
 const findComponentHaveAPI = (
   component: GridItem,

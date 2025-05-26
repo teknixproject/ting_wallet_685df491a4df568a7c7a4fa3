@@ -22,16 +22,16 @@ export const apiResourceStore = create<TApiCallStore>()(
   devtools(
     (set, get) => ({
       ...defaultApiResource,
-      addAndUpdateApiResource: (data: TApiResourceValue) =>
+      addAndUpdateApiResource: ({ apis }: TApiResourceValue) =>
         set((state) => {
           return {
             apiResources: {
               ...state.apiResources,
-              ...data.apis.reduce((arr, item) => {
+              ...apis?.reduce((arr, item) => {
                 return { ...arr, [item?.apiId as string]: item };
               }, {}),
             },
-          };
+          } as TApiCallResource;
         }),
 
       findApiResourceValue(apiId) {
