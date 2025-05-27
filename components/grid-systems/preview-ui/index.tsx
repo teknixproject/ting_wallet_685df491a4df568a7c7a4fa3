@@ -10,7 +10,7 @@ interface PreviewUIProps {
 const DynamicComponent = ({ customWidgetName }: PreviewUIProps) => {
   // Fallback if customWidgetName is invalid
   if (!customWidgetName || typeof customWidgetName !== 'string') {
-    return <div>Invalid widget name</div>;
+    return <div className="">Sorry! You are lacking customwidgetname param 🥲</div>;
   }
 
   // Dynamic import with error handling
@@ -18,7 +18,11 @@ const DynamicComponent = ({ customWidgetName }: PreviewUIProps) => {
     () =>
       import(`@/components/commons/${customWidgetName}`).catch((error) => {
         console.error(`Failed to load component ${customWidgetName}:`, error);
-        const ErrorComponent = () => <div>Error loading component</div>;
+        const ErrorComponent = () => (
+          <div className="w-full h-screen flex items-center justify-center">
+            Error loading component 🥲, Widgets do not exist!
+          </div>
+        );
         ErrorComponent.displayName = 'ErrorComponent';
         return ErrorComponent;
       }),
@@ -29,7 +33,7 @@ const DynamicComponent = ({ customWidgetName }: PreviewUIProps) => {
   );
 
   return (
-    <div>
+    <div className='w-full h-screen flex items-center justify-center'>
       <CustomWidget />
     </div>
   );

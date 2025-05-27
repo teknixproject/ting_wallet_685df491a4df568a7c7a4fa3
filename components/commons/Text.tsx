@@ -22,7 +22,7 @@ const Text = ({ data, style }: TextProps) => {
   };
 
   const tooltip = useMemo(() => {
-    return data.tooltip;
+    return data?.tooltip;
   }, [data]);
 
   const content = !_.isEmpty(combineText) ? (
