@@ -2,14 +2,9 @@ import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 
 import { stateManagementStore } from '@/stores';
-import {
-  TAction,
-  TConditional,
-  TConditionalChild,
-  TConditionChildMap,
-  TTriggerActions,
-  TTriggerValue,
-} from '@/types';
+import { TAction, TConditional, TConditionalChild, TConditionChildMap } from '@/types';
+
+import { actionHookSliceStore } from './actionSliceStore';
 
 export type TUseActions = {
   executeConditional: (action: TAction<TConditional>) => Promise<void>;
@@ -34,19 +29,14 @@ const evaluateCondition = (firstValue: any, secondValue: any, operator: string):
   }
 };
 type TProps = {
-  actions: TTriggerActions;
-  triggerName: TTriggerValue;
   executeActionFCType: (action?: TAction) => Promise<void>;
 };
-export const useConditionAction = ({
-  actions,
-  triggerName,
-  executeActionFCType,
-}: TProps): TUseActions => {
+export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions => {
   // State management
 
   // Store hooks
   const { findVariable } = stateManagementStore();
+  const { findAction } = actionHookSliceStore();
 
   // Memoized actions from data
 
@@ -127,16 +117,12 @@ export const useConditionAction = ({
   };
   //#region Action Execution
 
-  const getActionById = (id: string): TAction | undefined => {
-    return actions[triggerName]?.[id];
-  };
-
   const executeConditional = async (action: TAction<TConditional>): Promise<void> => {
     const conditions = action?.data?.conditions || [];
     if (_.isEmpty(conditions)) return;
 
     for (const condition of conditions) {
-      const conditionChild = getActionById(condition) as TAction<TConditionChildMap>;
+      const conditionChild = findAction(condition) as TAction<TConditionChildMap>;
       if (!conditionChild?.data) continue;
 
       const rootCondition = getRootConditionChild(conditionChild.data as TConditionChildMap);
@@ -148,7 +134,7 @@ export const useConditionAction = ({
 
       if (isConditionMet) {
         if (conditionChild.next) {
-          await executeActionFCType(getActionById(conditionChild.next));
+          await executeActionFCType(findAction(conditionChild.next));
         }
         return; // Exit after first matching condition
       }

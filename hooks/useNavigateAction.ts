@@ -1,25 +1,20 @@
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
-import { TAction, TActionNavigate, TTriggerActions, TTriggerValue } from '@/types';
+import { TAction, TActionNavigate } from '@/types';
+
+import { actionHookSliceStore } from './actionSliceStore';
 
 export type TUseActions = {
   handleNavigateAction: (action: TAction<TActionNavigate>) => Promise<void>;
 };
 
 type TProps = {
-  actions: TTriggerActions;
-  triggerName: TTriggerValue;
   executeActionFCType: (action?: TAction) => Promise<void>;
 };
-export const useNavigateAction = ({
-  actions,
-  triggerName,
-  executeActionFCType,
-}: TProps): TUseActions => {
-  const pathname = usePathname();
-  console.log('🚀 ~ useNavigateAction ~ pathname:', pathname);
+export const useNavigateAction = ({ executeActionFCType }: TProps): TUseActions => {
   const router = useRouter();
+  const { findAction } = actionHookSliceStore();
 
   // Memoized actions from data
 
@@ -32,16 +27,10 @@ export const useNavigateAction = ({
       mounted.current = false;
     };
   }, []);
-  const getActionById = (id: string): TAction | undefined => {
-    return actions[triggerName]?.[id];
-  };
+
   const handleNavigateAction = async (action: TAction<TActionNavigate>): Promise<void> => {
     const { url, isExternal, isNewTab } = action?.data || {};
-    console.log(`🚀 ~ handleNavigateAction ~ { url, isExternal, isNewTab }:`, {
-      url,
-      isExternal,
-      isNewTab,
-    });
+
     if (!url) return;
 
     if (isNewTab) {
@@ -53,7 +42,7 @@ export const useNavigateAction = ({
     }
 
     if (action?.next) {
-      await executeActionFCType(getActionById(action.next));
+      await executeActionFCType(findAction(action.next));
     }
   };
   //#endregion

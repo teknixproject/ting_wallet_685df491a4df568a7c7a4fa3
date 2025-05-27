@@ -2,27 +2,23 @@ import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 
 import { stateManagementStore } from '@/stores';
-import { TAction, TActionUpdateState, TTriggerActions, TTriggerValue } from '@/types';
+import { TAction, TActionUpdateState } from '@/types';
+
+import { actionHookSliceStore } from './actionSliceStore';
 
 export type TUseActions = {
   handleUpdateStateAction: (action: TAction<TActionUpdateState>) => Promise<void>;
 };
 
 type TProps = {
-  actions: TTriggerActions;
-  triggerName: TTriggerValue;
   executeActionFCType: (action?: TAction) => Promise<void>;
 };
-export const useUpdateStateAction = ({
-  actions,
-  triggerName,
-  executeActionFCType,
-}: TProps): TUseActions => {
+export const useUpdateStateAction = ({ executeActionFCType }: TProps): TUseActions => {
   // State management
 
   // Store hooks
   const { findVariable, updateVariables } = stateManagementStore();
-
+  const { findAction } = actionHookSliceStore();
   // Memoized actions from data
 
   const mounted = useRef(false);
@@ -36,9 +32,7 @@ export const useUpdateStateAction = ({
   }, []);
 
   //#region Action Handlers
-  const getActionById = (id: string): TAction | undefined => {
-    return actions[triggerName]?.[id];
-  };
+
   const handleUpdateStateAction = async (action: TAction<TActionUpdateState>): Promise<void> => {
     const updates = action?.data?.update;
     if (_.isEmpty(updates)) return;
@@ -66,7 +60,7 @@ export const useUpdateStateAction = ({
     }
 
     if (action?.next) {
-      await executeActionFCType(getActionById(action.next));
+      await executeActionFCType(findAction(action.next));
     }
   };
 

@@ -4,17 +4,10 @@ import _ from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { stateManagementStore } from '@/stores';
-import {
-  TAction,
-  TActionApiCall,
-  TActionVariable,
-  TApiCallValue,
-  TApiCallVariable,
-  TTriggerActions,
-  TTriggerValue,
-} from '@/types';
+import { TAction, TActionApiCall, TActionVariable, TApiCallValue, TApiCallVariable } from '@/types';
 import { variableUtil } from '@/uitls';
 
+import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCall } from './useApiCall';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
@@ -24,17 +17,11 @@ export type TUseActions = {
 };
 
 type TProps = {
-  actions: TTriggerActions;
-  triggerName: TTriggerValue;
   executeActionFCType: (action?: TAction) => Promise<void>;
 };
-export const useApiCallAction = ({
-  actions,
-  triggerName,
-  executeActionFCType,
-}: TProps): TUseActions => {
+export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
   const { getApiMember } = useApiCall();
-
+  const { findAction } = actionHookSliceStore();
   const apiResponsesRef = useRef<Record<string, any>>({});
 
   const { findVariable, updateVariables } = stateManagementStore();
@@ -51,8 +38,6 @@ export const useApiCallAction = ({
 
   const convertActionVariables = useCallback(
     (actionVariables: TActionVariable[], apiCall: TApiCallValue): any[] => {
-      console.log('🚀 ~ useApiCallAction ~ apiCall:', apiCall);
-      console.log('🚀 ~ useApiCallAction ~ actionVariables:', actionVariables);
       if (_.isEmpty(actionVariables)) return [];
 
       return actionVariables.map((item) => {
@@ -144,24 +129,18 @@ export const useApiCallAction = ({
 
   const handleApiCallAction = async (action: TAction<TActionApiCall>): Promise<void> => {
     const apiCall = getApiMember(action?.data?.apiId ?? '');
-    console.log('🚀 ~ handleApiCallAction ~ apiCall:', apiCall);
 
     if (!apiCall) return;
 
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
-    console.log('🚀 ~ handleApiCallAction ~ newBody:', newBody);
     const result = await makeApiCall(apiCall, newBody, action?.data?.output ?? {});
 
     handleApiResponse(result, action?.data?.output ?? {});
 
     if (result && action?.next) {
-      await executeActionFCType(getActionById(action.next));
+      await executeActionFCType(findAction(action.next));
     }
-  };
-
-  const getActionById = (id: string): TAction | undefined => {
-    return actions[triggerName]?.[id];
   };
 
   return { handleApiCallAction };

@@ -4,15 +4,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { pageActionsStore } from '@/stores/pageActions';
 import {
-  TAction,
-  TActionApiCall,
-  TActionNavigate,
-  TActionUpdateState,
-  TConditional,
-  TTriggerActions,
-  TTriggerValue,
+    TAction, TActionApiCall, TActionNavigate, TActionUpdateState, TConditional, TTriggerActions,
+    TTriggerValue
 } from '@/types';
 
+import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCallAction } from './useApiCallAction';
 import { useConditionAction } from './useConditionAction';
 import { useNavigateAction } from './useNavigateAction';
@@ -24,6 +20,7 @@ export type TUseActions = {
 
 export const usePageActions = (): TUseActions => {
   const { pageActions } = pageActionsStore();
+  const { setMultipleActions } = actionHookSliceStore();
   const triggerNameRef = useRef<TTriggerValue>('onClick');
   const mounted = useRef(false);
 
@@ -37,6 +34,14 @@ export const usePageActions = (): TUseActions => {
     });
     return map;
   }, [pageActions]);
+
+  useEffect(() => {
+    setMultipleActions({
+      actions: actionsMap[triggerNameRef.current] || {},
+      triggerName: triggerNameRef.current,
+    });
+  }, [actionsMap, setMultipleActions]);
+  console.log('🚀 ~ actionsMap ~ actionsMap:', actionsMap);
 
   const executeActionFCType = useCallback(async (action?: TAction): Promise<void> => {
     if (!action?.fcType) return;
@@ -55,26 +60,18 @@ export const usePageActions = (): TUseActions => {
 
   const { handleApiCallAction } = useApiCallAction({
     executeActionFCType,
-    actions: actionsMap[triggerNameRef.current] || {},
-    triggerName: triggerNameRef.current,
   });
 
   const { executeConditional } = useConditionAction({
     executeActionFCType,
-    actions: actionsMap[triggerNameRef.current] || {},
-    triggerName: triggerNameRef.current,
   });
 
   const { handleUpdateStateAction } = useUpdateStateAction({
     executeActionFCType,
-    actions: actionsMap[triggerNameRef.current] || {},
-    triggerName: triggerNameRef.current,
   });
 
   const { handleNavigateAction } = useNavigateAction({
     executeActionFCType,
-    actions: actionsMap[triggerNameRef.current] || {},
-    triggerName: triggerNameRef.current,
   });
 
   const executeAction = useCallback(
@@ -99,19 +96,19 @@ export const usePageActions = (): TUseActions => {
     [handleApiCallAction, handleNavigateAction, handleUpdateStateAction]
   );
 
-  const executeTriggerActions = useCallback(
-    async (actions: TTriggerActions, triggerType: TTriggerValue): Promise<void> => {
-      const actionsToExecute = actions[triggerType];
-      if (!actionsToExecute) return;
+  const executeTriggerActions = async (
+    actions: TTriggerActions,
+    triggerType: TTriggerValue
+  ): Promise<void> => {
+    const actionsToExecute = actions[triggerType];
+    setMultipleActions({ actions, triggerName: triggerType });
+    if (!actionsToExecute) return;
 
-      const rootAction = Object.values(actionsToExecute).find((action) => !action.parentId);
-      if (rootAction) {
-        await executeActionFCType(rootAction);
-      }
-    },
-    [executeActionFCType]
-  );
-
+    const rootAction = Object.values(actionsToExecute).find((action) => !action.parentId);
+    if (rootAction) {
+      await executeActionFCType(rootAction);
+    }
+  };
   const handleAction = useCallback(
     (actionName: string) =>
       async (triggerType: TTriggerValue = 'onClick'): Promise<void> => {

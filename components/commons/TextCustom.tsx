@@ -12,7 +12,6 @@ interface TextProps {
 const TextCustom = ({ data, style }: TextProps) => {
   const title = _.get(data, 'title', 'Title Header');
   const { multiples } = usePageActions();
-  console.log('🚀 ~ TextCustom ~ multiples:', multiples);
   const { test1, test2 } = multiples || {};
   const newStyle: CSSProperties = {
     ...style,

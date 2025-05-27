@@ -253,7 +253,6 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
       )}
     >
       <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
-      {/* <TextCustom /> */}
     </div>
   );
 };

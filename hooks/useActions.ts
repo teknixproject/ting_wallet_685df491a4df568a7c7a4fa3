@@ -1,18 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import _ from 'lodash';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
-  TAction,
-  TActionApiCall,
-  TActionNavigate,
-  TActionUpdateState,
-  TConditional,
-  TTriggerActions,
-  TTriggerValue,
+    TAction, TActionApiCall, TActionNavigate, TActionUpdateState, TConditional, TTriggerActions,
+    TTriggerValue
 } from '@/types';
 import { GridItem } from '@/types/gridItem';
 
+import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCallAction } from './useApiCallAction';
 import { useConditionAction } from './useConditionAction';
 import { useNavigateAction } from './useNavigateAction';
@@ -23,8 +19,8 @@ export type TUseActions = {
 };
 
 export const useActions = (data?: GridItem): TUseActions => {
-  const [triggerName, setTriggerName] = useState<TTriggerValue>('onClick');
   const actions = useMemo(() => _.get(data, 'actions') as TTriggerActions, [data]);
+  const { setMultipleActions } = actionHookSliceStore();
 
   const executeActionFCType = async (action?: TAction): Promise<void> => {
     if (!action?.fcType) return;
@@ -41,14 +37,12 @@ export const useActions = (data?: GridItem): TUseActions => {
     }
   };
 
-  const { handleApiCallAction } = useApiCallAction({ actions, triggerName, executeActionFCType });
-  const { executeConditional } = useConditionAction({ actions, triggerName, executeActionFCType });
+  const { handleApiCallAction } = useApiCallAction({ executeActionFCType });
+  const { executeConditional } = useConditionAction({ executeActionFCType });
   const { handleUpdateStateAction } = useUpdateStateAction({
-    actions,
-    triggerName,
     executeActionFCType,
   });
-  const { handleNavigateAction } = useNavigateAction({ actions, triggerName, executeActionFCType });
+  const { handleNavigateAction } = useNavigateAction({ executeActionFCType });
   const mounted = useRef(false);
 
   useEffect(() => {
@@ -82,6 +76,10 @@ export const useActions = (data?: GridItem): TUseActions => {
     triggerType: TTriggerValue
   ): Promise<void> => {
     const actionsToExecute = triggerActions[triggerType];
+    setMultipleActions({
+      actions: triggerActions,
+      triggerName: triggerType,
+    });
     if (!actionsToExecute) return;
 
     // Find and execute the root action (parentId === null)
@@ -93,7 +91,6 @@ export const useActions = (data?: GridItem): TUseActions => {
   const handleAction = useCallback(
     async (triggerType: TTriggerValue): Promise<void> => {
       if (!data?.actions) return;
-      setTriggerName(triggerType);
       await executeTriggerActions(data.actions, triggerType);
     },
     [data?.actions, executeTriggerActions]
@@ -101,8 +98,6 @@ export const useActions = (data?: GridItem): TUseActions => {
 
   useEffect(() => {
     if (mounted.current && !_.isEmpty(actions) && 'onPageLoad' in actions) {
-      console.log("🚀 ~ useEffect ~ 'onPageLoad' in actions:", 'onPageLoad' in actions);
-
       handleAction('onPageLoad');
     }
   }, [mounted.current]);
