@@ -294,7 +294,7 @@ const PreviewUI = (props: any) => {
   return (
     <BrowserRouter>
       <div className="component-preview-container">
-        {isPage && customWidgetName ? (
+        {isPage ? (
           <div className="relative flex flex-col justify-between min-h-screen">
             {!_.isEmpty(selectedHeaderLayout) && (
               <GridSystemContainer

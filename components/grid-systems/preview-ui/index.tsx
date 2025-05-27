@@ -8,8 +8,6 @@ interface PreviewUIProps {
 }
 
 const DynamicComponent = ({ customWidgetName }: PreviewUIProps) => {
-  console.log('PreviewUI', customWidgetName);
-
   // Fallback if customWidgetName is invalid
   if (!customWidgetName || typeof customWidgetName !== 'string') {
     return <div>Invalid widget name</div>;
