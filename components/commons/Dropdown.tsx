@@ -83,7 +83,9 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const handleItemClick = (item: any) => {
     if (item?.action?.pageId) router.push(`/${item.action.pageId}`);
-    setSelectedItem(item?.name || null);
+    console.log('handleItemClick', item);
+
+    setSelectedItem(item?.dataSlice?.title || null);
     setIsOpen(false);
   };
 
@@ -120,6 +122,8 @@ const Dropdown: React.FC<DropdownProps> = ({
         return null;
     }
   };
+
+  console.log('selectedItem', selectedItem);
 
   return (
     <div ref={dropdownRef} className={cn(`relative inline-block`, menuClassDropdow)}>
