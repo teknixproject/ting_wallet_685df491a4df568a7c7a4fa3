@@ -1,3 +1,4 @@
+import { JSONPath } from 'jsonpath-plus';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 
@@ -11,11 +12,16 @@ export type TUseActions = {
 };
 
 const evaluateCondition = (firstValue: any, secondValue: any, operator: string): boolean => {
+  const first = JSON.stringify(firstValue);
+  console.log('🚀 ~ evaluateCondition ~ first:', first);
+  const second = JSON.stringify(secondValue);
+  console.log('🚀 ~ evaluateCondition ~ second:', second);
+
   switch (operator) {
     case 'equal':
-      return firstValue == secondValue;
+      return String(firstValue) === String(secondValue);
     case 'notEqual':
-      return firstValue !== secondValue;
+      return String(firstValue) !== String(secondValue);
     case 'greaterThan':
       return Number(firstValue) > Number(secondValue);
     case 'lessThan':
@@ -69,8 +75,13 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
         type: firstCompare.typeStore,
         id: firstCompare.variableId,
       });
-
-      firstValue = variable?.value || '';
+      if (firstCompare.optionApiResponse === 'jsonBody') {
+        firstValue = JSONPath({ path: firstCompare.jsonPath!, json: variable?.value?.data })[0];
+      } else if (firstCompare.optionApiResponse === 'statusCode') {
+        firstValue = variable?.value?.statusCode;
+      } else if (firstCompare.optionApiResponse === 'succeeded') {
+        firstValue = variable?.value?.succeeded;
+      } else firstValue = variable?.value || '';
     }
     if (secondCompare.variableId) {
       const variable = findVariable({
@@ -80,6 +91,8 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
       secondValue = variable?.value || '';
     }
     const resultCompare = evaluateCondition(firstValue, secondValue, compare.operator);
+    console.log('🚀 ~ getCompareValue ~ firstValue:', firstValue);
+    console.log('🚀 ~ getCompareValue ~ secondValue:', secondValue);
 
     return resultCompare;
   };

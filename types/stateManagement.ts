@@ -1,13 +1,18 @@
 import { TTypeSelect } from './actions';
 import { TTypeVariable } from './variable';
 
-export type TTypeSelectState = 'appState' | 'componentState' | 'globalState';
+export type TTypeSelectState =
+  | 'appState'
+  | 'componentState'
+  | 'globalState'
+  | 'apiResponse'
+  | 'dynamicGenerate';
 export type TVariable = {
   id: string;
   key: string;
   type: TTypeVariable;
   isList: boolean;
-  value: string;
+  value: any;
 };
 export type TPageVariable = {
   projectId: string;

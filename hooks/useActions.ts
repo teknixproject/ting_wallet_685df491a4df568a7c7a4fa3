@@ -3,8 +3,13 @@ import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
-    TAction, TActionApiCall, TActionNavigate, TActionUpdateState, TConditional, TTriggerActions,
-    TTriggerValue
+  TAction,
+  TActionApiCall,
+  TActionNavigate,
+  TActionUpdateState,
+  TConditional,
+  TTriggerActions,
+  TTriggerValue,
 } from '@/types';
 import { GridItem } from '@/types/gridItem';
 
@@ -97,7 +102,10 @@ export const useActions = (data?: GridItem): TUseActions => {
   );
 
   useEffect(() => {
+    console.log('🚀 ~ useEffect ~ mounted.current:', mounted.current);
     if (mounted.current && !_.isEmpty(actions) && 'onPageLoad' in actions) {
+      console.log('🚀 ~ useEffect ~ actions:', actions);
+
       handleAction('onPageLoad');
     }
   }, [mounted.current]);

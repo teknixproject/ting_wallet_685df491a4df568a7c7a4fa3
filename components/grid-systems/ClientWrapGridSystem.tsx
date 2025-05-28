@@ -93,7 +93,13 @@ const RenderUIClient = (props: any) => {
   }, [props?.page]);
 
   const getStates = async () => {
-    const list: TTypeSelectState[] = ['appState', 'componentState', 'globalState'];
+    const list: TTypeSelectState[] = [
+      'appState',
+      'componentState',
+      'globalState',
+      'apiResponse',
+      'dynamicGenerate',
+    ];
     try {
       await Promise.all(
         list.map(async (type: TTypeSelectState) => {
@@ -271,12 +277,14 @@ const PreviewUI = (props: any) => {
 
   const setStateFormDataPreview = () => {
     if (!_.isEmpty(state)) {
-      ['appState', 'globalState', 'componentState'].forEach((type) => {
-        setStateManagement({
-          type: type as TTypeSelect,
-          dataUpdate: state[type],
-        });
-      });
+      ['appState', 'globalState', 'componentState', 'apiResponse', 'dynamicGenerate'].forEach(
+        (type) => {
+          setStateManagement({
+            type: type as TTypeSelect,
+            dataUpdate: state[type],
+          });
+        }
+      );
     }
   };
 

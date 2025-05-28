@@ -3,7 +3,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { stateManagementStore } from '@/stores';
+import { apiResourceStore, stateManagementStore } from '@/stores';
 import { TAction, TActionApiCall, TActionVariable, TApiCallValue, TApiCallVariable } from '@/types';
 import { variableUtil } from '@/uitls';
 
@@ -21,10 +21,12 @@ type TProps = {
 };
 export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
   const { getApiMember } = useApiCall();
-  const { findAction } = actionHookSliceStore();
+  const findAction = actionHookSliceStore((state) => state.findAction);
+  const updateApiResource = apiResourceStore((state) => state.updateApiResource);
   const apiResponsesRef = useRef<Record<string, any>>({});
 
-  const { findVariable, updateVariables } = stateManagementStore();
+  const findVariable = stateManagementStore((state) => state.findVariable);
+  const updateVariables = stateManagementStore((state) => state.updateVariables);
 
   const mounted = useRef(false);
 
@@ -102,14 +104,14 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
   );
 
   const makeApiCall = async (
-    apiCall: any,
-    body: any,
-    outputVariable: { variableName?: string; jsonPath?: string }
+    apiCall: TApiCallValue,
+    body: object,
+    variableId: string
   ): Promise<any> => {
-    const keyOutput = isUseVariable(outputVariable.variableName)
-      ? extractAllValuesFromTemplate(outputVariable.variableName as string)
-      : outputVariable.variableName || '';
-
+    const outputVariable = findVariable({
+      type: 'apiResponse',
+      id: variableId,
+    });
     try {
       const response = await axios.request({
         method: apiCall?.method?.toUpperCase(),
@@ -118,12 +120,40 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
         data: body,
       });
 
-      apiResponsesRef.current[keyOutput] = 'success';
+      if (outputVariable) {
+        updateVariables({
+          type: 'apiResponse',
+          dataUpdate: {
+            ...outputVariable,
+            value: {
+              data: response.data,
+              statusCode: response.status,
+              succeeded: true,
+            },
+          },
+        });
+      }
+
       return response.data;
-    } catch (error) {
+    } catch (error: unknown) {
       console.log('API call failed:', error);
-      apiResponsesRef.current[keyOutput] = 'error';
-      return error;
+      if (axios.isAxiosError(error)) {
+        if (outputVariable) {
+          console.log('🚀 ~ useApiCallAction ~ outputVariable:', outputVariable);
+          updateVariables({
+            type: 'apiResponse',
+            dataUpdate: {
+              ...outputVariable,
+              value: {
+                data: error,
+                statusCode: error?.response?.status || 500,
+                succeeded: false,
+              },
+            },
+          });
+        }
+        return error;
+      }
     }
   };
 
@@ -134,9 +164,9 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
 
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
-    const result = await makeApiCall(apiCall, newBody, action?.data?.output ?? {});
+    const result = await makeApiCall(apiCall, newBody, action?.data?.output?.variableId ?? '');
 
-    handleApiResponse(result, action?.data?.output ?? {});
+    // handleApiResponse(result, action?.data?.output ?? {});
 
     if (result && action?.next) {
       await executeActionFCType(findAction(action.next));

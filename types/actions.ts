@@ -1,3 +1,5 @@
+export type TApiResponseOption = 'jsonBody' | 'statusCode' | 'succeeded';
+
 export type TSourceValue =
   | 'combineText'
   | 'appState'
@@ -126,6 +128,8 @@ export type TConditionCompareValue = {
     typeStore: TTypeSelect;
     value: string;
     returnValue: string;
+    optionApiResponse: TApiResponseOption;
+    jsonPath: string;
   };
   operator: TOperatorCompare;
   secondValue: {
@@ -133,6 +137,9 @@ export type TConditionCompareValue = {
     typeStore: TTypeSelect;
     value: string;
     returnValue: string;
+    optionApiResponse: TApiResponseOption;
+    apiResponseSuccess: boolean;
+    jsonPath: string;
   };
 };
 

@@ -11,6 +11,7 @@ export type TApiCallResource = {
 };
 type TApiStoreActions = {
   addAndUpdateApiResource: (data: TApiResourceValue) => void;
+  updateApiResource: (apiId: string, data: TApiCallValue) => void;
   findApiResourceValue: (apiId: string) => TApiCallValue | undefined;
 };
 
@@ -34,6 +35,16 @@ export const apiResourceStore = create<TApiCallStore>()(
           } as TApiCallResource;
         }),
 
+      updateApiResource(apiId, data) {
+        set((state) => {
+          const updatedApiResources = { ...state.apiResources };
+          updatedApiResources[apiId] = {
+            ...updatedApiResources[apiId],
+            ...data,
+          };
+          return { apiResources: updatedApiResources } as TApiCallResource;
+        });
+      },
       findApiResourceValue(apiId) {
         const apiResource = get().apiResources[apiId];
         return apiResource;

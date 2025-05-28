@@ -31,6 +31,11 @@ export type TApiCallValue = {
   body?: object;
   query?: object;
   variables?: TApiCallVariable[];
+  response?: {
+    data: any;
+    statusCode: number;
+    succeeded: boolean;
+  };
 };
 export type TApiCallVariable = {
   id: string;
