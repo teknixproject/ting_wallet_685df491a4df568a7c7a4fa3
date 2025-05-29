@@ -31,7 +31,8 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
   const [dynamicGenerateData, setDynamicGenerateData] = useState<TDynamicGenerate>(
     _.get(layoutData, 'dynamicGenerateData', {})
   );
-  const { findVariable, appState, componentState, globalState } = stateManagementStore();
+  const { findVariable, appState, componentState, globalState, apiResponse } =
+    stateManagementStore();
 
   useEffect(() => {
     if (dynamicGenerateData) {
@@ -47,8 +48,13 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
       if (valueInStore !== undefined) {
         const jsonPath = _.get(layoutData, 'dataSlice.jsonPath', '');
         if (jsonPath) {
-          const valueJsonPath = JSONPath({ path: jsonPath!, json: valueInStore.value });
-          setValue(_.isArray(valueJsonPath) ? valueJsonPath[0] : valueJsonPath ?? defaultTitle);
+          const valueJsonPath = JSONPath({
+            path: jsonPath!,
+            json: typeStore === 'apiResponse' ? valueInStore?.value?.data : valueInStore.value,
+          });
+          setValue(
+            _.isArray(valueJsonPath) ? String(valueJsonPath[0]) : valueJsonPath ?? defaultTitle
+          );
         } else {
           setValue(valueInStore.value ?? defaultTitle);
         }
@@ -59,6 +65,7 @@ export const useData = ({ layoutData, defaultTitle = 'Text' }: Props) => {
     appState,
     componentState,
     globalState,
+    apiResponse,
     findVariable,
     defaultTitle,
     layoutData,
