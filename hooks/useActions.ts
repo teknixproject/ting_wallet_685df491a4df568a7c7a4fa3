@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   TAction,
   TActionApiCall,
+  TActionLoop,
   TActionNavigate,
   TActionUpdateState,
   TConditional,
@@ -16,6 +17,7 @@ import { GridItem } from '@/types/gridItem';
 import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCallAction } from './useApiCallAction';
 import { useConditionAction } from './useConditionAction';
+import { useLoopActions } from './useLoopActions';
 import { useNavigateAction } from './useNavigateAction';
 import { useUpdateStateAction } from './useUpdateStateAction';
 
@@ -37,6 +39,10 @@ export const useActions = (data?: GridItem): TUseActions => {
       case 'conditional':
         await executeConditional(action as TAction<TConditional>);
         break;
+      case 'loop':
+        await executeLoopOverList(action as TAction<TActionLoop>);
+        break;
+
       default:
         console.warn(`Unknown fcType: ${action.fcType}`);
     }
@@ -48,6 +54,8 @@ export const useActions = (data?: GridItem): TUseActions => {
     executeActionFCType,
   });
   const { handleNavigateAction } = useNavigateAction({ executeActionFCType });
+  const { executeLoopOverList } = useLoopActions({ executeActionFCType });
+
   const mounted = useRef(false);
 
   useEffect(() => {
@@ -102,10 +110,7 @@ export const useActions = (data?: GridItem): TUseActions => {
   );
 
   useEffect(() => {
-    console.log('🚀 ~ useEffect ~ mounted.current:', mounted.current);
     if (mounted.current && !_.isEmpty(actions) && 'onPageLoad' in actions) {
-      console.log('🚀 ~ useEffect ~ actions:', actions);
-
       handleAction('onPageLoad');
     }
   }, [mounted.current]);

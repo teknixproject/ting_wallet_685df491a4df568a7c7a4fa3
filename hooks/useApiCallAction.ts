@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import _ from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { apiResourceStore, stateManagementStore } from '@/stores';
+import { stateManagementStore } from '@/stores';
 import { TAction, TActionApiCall, TActionVariable, TApiCallValue, TApiCallVariable } from '@/types';
 import { variableUtil } from '@/uitls';
 
@@ -22,8 +21,8 @@ type TProps = {
 export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
   const { getApiMember } = useApiCall();
   const findAction = actionHookSliceStore((state) => state.findAction);
-  const updateApiResource = apiResourceStore((state) => state.updateApiResource);
-  const apiResponsesRef = useRef<Record<string, any>>({});
+  // const updateApiResource = apiResourceStore((state) => state.updateApiResource);
+  // const apiResponsesRef = useRef<Record<string, any>>({});
 
   const findVariable = stateManagementStore((state) => state.findVariable);
   const updateVariables = stateManagementStore((state) => state.updateVariables);
@@ -81,27 +80,27 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     }, {} as Record<string, any>);
   }, []);
 
-  const handleApiResponse = useCallback(
-    (result: any, outputConfig: { variableId?: string; jsonPath?: string }) => {
-      if (!outputConfig?.variableId) return;
+  // const handleApiResponse = useCallback(
+  //   (result: any, outputConfig: { variableId?: string; jsonPath?: string }) => {
+  //     if (!outputConfig?.variableId) return;
 
-      const value = outputConfig.jsonPath ? _.get(result, outputConfig.jsonPath, result) : result;
+  //     const value = outputConfig.jsonPath ? _.get(result, outputConfig.jsonPath, result) : result;
 
-      const variable = findVariable({
-        type: 'apiResponse',
-        id: outputConfig.variableId,
-      });
-      if (!variable) return;
-      updateVariables({
-        type: 'apiResponse',
-        dataUpdate: {
-          ...variable,
-          value,
-        },
-      });
-    },
-    [updateVariables]
-  );
+  //     const variable = findVariable({
+  //       type: 'apiResponse',
+  //       id: outputConfig.variableId,
+  //     });
+  //     if (!variable) return;
+  //     updateVariables({
+  //       type: 'apiResponse',
+  //       dataUpdate: {
+  //         ...variable,
+  //         value,
+  //       },
+  //     });
+  //   },
+  //   [updateVariables]
+  // );
 
   const makeApiCall = async (
     apiCall: TApiCallValue,

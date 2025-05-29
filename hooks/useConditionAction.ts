@@ -9,6 +9,7 @@ import { actionHookSliceStore } from './actionSliceStore';
 
 export type TUseActions = {
   executeConditional: (action: TAction<TConditional>) => Promise<void>;
+  handleCompareCondition: (conditionChildId: string, condition: TConditionChildMap) => boolean;
 };
 
 const evaluateCondition = (firstValue: any, secondValue: any, operator: string): boolean => {
@@ -154,5 +155,5 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
     }
   };
 
-  return { executeConditional };
+  return { executeConditional, handleCompareCondition };
 };

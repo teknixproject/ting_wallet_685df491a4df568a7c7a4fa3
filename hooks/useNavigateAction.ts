@@ -1,5 +1,4 @@
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
 
 import { TAction, TActionNavigate } from '@/types';
 
@@ -14,19 +13,7 @@ type TProps = {
 };
 export const useNavigateAction = ({ executeActionFCType }: TProps): TUseActions => {
   const router = useRouter();
-  const { findAction } = actionHookSliceStore();
-
-  // Memoized actions from data
-
-  const mounted = useRef(false);
-
-  useEffect(() => {
-    mounted.current = true;
-
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const findAction = actionHookSliceStore((state) => state.findAction);
 
   const handleNavigateAction = async (action: TAction<TActionNavigate>): Promise<void> => {
     const { url, isExternal, isNewTab } = action?.data || {};

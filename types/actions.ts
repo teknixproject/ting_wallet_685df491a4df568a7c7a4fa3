@@ -8,19 +8,25 @@ export type TSourceValue =
   | 'dynamicGenerate'
   | 'apiResponse'
   | 'conditions';
-export type TTypeSelect =
-  | 'appState'
-  | 'componentState'
-  | 'globalState'
-  | 'apiResponse'
-  | 'dynamicGenerate';
+
+export const TTypeSelectValues = [
+  'appState',
+  'componentState',
+  'globalState',
+  'apiResponse',
+  'dynamicGenerate',
+] as const;
+
+export type TTypeSelect = (typeof TTypeSelectValues)[number];
 export type TActionSelect =
   | 'navigate'
   | 'apiCall'
   | 'updateStateManagement'
   | 'conditionalChild'
-  | 'conditional';
-export type TActionFCType = 'action' | 'conditional' | 'conditionalChild' | 'loop';
+  | 'conditional'
+  | 'loopOverList'
+  | 'loop';
+export type TActionFCType = 'action' | 'conditional' | 'conditionalChild' | 'loopOverList' | 'loop';
 export type TStatusResponse = 'success' | 'error';
 export type TOperatorCompare =
   | 'equal'
@@ -43,7 +49,7 @@ export const OPERATORS: {
   {
     name: 'Not Equal',
     value: 'notEqual',
-    char: '!',
+    char: '#',
   },
   {
     name: 'Greater Than',
@@ -66,9 +72,6 @@ export const OPERATORS: {
     char: '<=',
   },
 ];
-export type TTriggerActionValue = {
-  [key: string]: TAction;
-};
 
 export type TActionVariable = {
   firstValue: {
@@ -159,19 +162,43 @@ export type TConditionChildCompareValue = {
   firstValue: {
     variable: string;
     typeStore: TTypeSelect;
+    valueSelected: TSourceValue;
   };
   operator: TOperatorCompare;
   secondValue: {
     typeStore: TTypeSelect;
     variable: string;
     value: string;
+    valueSelected: TSourceValue;
   };
 };
 export type TConditionChildMap = {
-  label: 'if' | 'else' | 'elseIf';
+  label: 'if' | 'else' | 'elseIf' | 'loopCondition';
   childs: { [key: string]: TConditionalChild };
 };
 
+//#region  loop
+
+export type TActionLoop = {
+  option: 'while' | 'overList';
+  while: {
+    condition: string;
+  };
+  overList: {
+    condition: string;
+  };
+  next: string;
+};
+
+export type TActionLoopOverList = {
+  label: string;
+  variableId: string;
+  typeStore: TTypeSelect;
+  startIndex: number;
+  endIndex: number;
+  stepSize: number;
+  reserverOrder: boolean;
+};
 export type TAction<T = unknown> = {
   id: string;
   parentId: string | null;
@@ -179,15 +206,13 @@ export type TAction<T = unknown> = {
   name: string;
   fcType?: TActionFCType;
   type?: TActionSelect | undefined | null;
-  success?: string;
-  error?: string;
   data?: T;
 };
-
+export type TTriggerActionValue = {
+  [key: string]: TAction;
+};
 export type TTriggerActions = {
-  [key in TTriggerValue]?: {
-    [key: string]: TAction;
-  };
+  [key in TTriggerValue]?: TTriggerActionValue;
 };
 
 export type TActionStateManagement = {
