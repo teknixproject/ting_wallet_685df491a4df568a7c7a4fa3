@@ -16,6 +16,7 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off", // Disable the rule globally
       "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off"
     },
   },
 ];
