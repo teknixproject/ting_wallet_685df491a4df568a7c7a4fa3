@@ -12,11 +12,9 @@ import { componentRegistry } from '@/lib/slices';
 import { cn, convertStyle, getDeviceSize, setActive } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
 import { apiResourceStore } from '@/stores';
-import { data } from '@/text';
 import { GridItem } from '@/types/gridItem';
 import { dynamicGenarateUtil } from '@/uitls/dynamicGenarate';
 
-import TextCustom from '../commons/TextCustom';
 import NotFound from './404';
 import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } from './const';
 import LoadingPage from './loadingPage';
@@ -190,7 +188,6 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 //#region Grid System
 const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: GridSystemProps) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
-  const { multiples } = usePageActions({ actionsProp: data.props });
   const styleDevice: string = getDeviceSize() as string;
 
   const config = layout || page;
@@ -256,7 +253,6 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
       )}
     >
       <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
-      <TextCustom {...multiples} />
     </div>
   );
 };
