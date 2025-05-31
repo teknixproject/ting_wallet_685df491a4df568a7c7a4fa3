@@ -2,10 +2,14 @@
 import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { pageActionsStore } from '@/stores/pageActions';
 import {
-    TAction, TActionApiCall, TActionNavigate, TActionUpdateState, TConditional, TTriggerActions,
-    TTriggerValue
+  TAction,
+  TActionApiCall,
+  TActionNavigate,
+  TActionUpdateState,
+  TConditional,
+  TTriggerActions,
+  TTriggerValue,
 } from '@/types';
 
 import { actionHookSliceStore } from './actionSliceStore';
@@ -15,33 +19,42 @@ import { useNavigateAction } from './useNavigateAction';
 import { useUpdateStateAction } from './useUpdateStateAction';
 
 export type TUseActions = {
-  multiples: Record<string, (triggerType?: TTriggerValue) => Promise<void>>;
+  multiples: Record<string, React.MouseEventHandler<HTMLButtonElement>>;
 };
-
-export const usePageActions = (): TUseActions => {
-  const { pageActions } = pageActionsStore();
+type TProps = {
+  actionsProp: {
+    name: string;
+    type: any;
+    data: any;
+  }[];
+};
+export const usePageActions = ({ actionsProp }: TProps): TUseActions => {
+  const actionsReal = useMemo(
+    () =>
+      actionsProp.filter((item) =>
+        item.type.includes('React.MouseEventHandler<HTMLButtonElement>')
+      ),
+    [actionsProp]
+  );
   const { setMultipleActions } = actionHookSliceStore();
   const triggerNameRef = useRef<TTriggerValue>('onClick');
-  const mounted = useRef(false);
 
-  // Create a map of all actions for quick lookup
   const actionsMap = useMemo(() => {
     const map: Record<string, TTriggerActions> = {};
-    pageActions?.forEach((item) => {
-      if (!_.isEmpty(item.actions)) {
-        map[item.name] = item.actions;
+    actionsReal?.forEach((item) => {
+      if (!_.isEmpty(item.data)) {
+        map[item.name] = item.data;
       }
     });
     return map;
-  }, [pageActions]);
+  }, [actionsReal]);
 
   useEffect(() => {
     setMultipleActions({
       actions: actionsMap[triggerNameRef.current] || {},
       triggerName: triggerNameRef.current,
     });
-  }, [actionsMap, setMultipleActions]);
-  console.log('🚀 ~ actionsMap ~ actionsMap:', actionsMap);
+  }, [actionsMap]);
 
   const executeActionFCType = useCallback(async (action?: TAction): Promise<void> => {
     if (!action?.fcType) return;
@@ -119,38 +132,20 @@ export const usePageActions = (): TUseActions => {
     [actionsMap, executeTriggerActions]
   );
 
-  useEffect(() => {
-    mounted.current = true;
-
-    // Run onPageLoad actions for all page actions
-    pageActions?.forEach((item) => {
-      if (!_.isEmpty(item.actions)) {
-        const onPageLoadActions = item.actions.onPageLoad;
-        if (onPageLoadActions) {
-          const rootAction = Object.values(onPageLoadActions).find((a) => !a.parentId);
-          if (rootAction) {
-            executeActionFCType(rootAction);
-          }
-        }
-      }
-    });
-
-    return () => {
-      mounted.current = false;
-    };
-  }, [executeActionFCType, pageActions]);
-
   const multiples = useMemo(() => {
-    const result: Record<string, (triggerType?: TTriggerValue) => Promise<void>> = {};
+    const result: Record<string, React.MouseEventHandler<HTMLButtonElement>> = {};
 
-    pageActions?.forEach((item) => {
-      if (!_.isEmpty(item.actions)) {
-        result[item.name] = handleAction(item.name);
+    actionsReal?.forEach((item) => {
+      if (!_.isEmpty(item.data)) {
+        result[item.name] = async (e) => {
+          e?.preventDefault?.();
+          await handleAction(item.name)();
+        };
       }
     });
 
     return result;
-  }, [handleAction, pageActions]);
+  }, [handleAction, actionsReal]);
 
   return { multiples };
 };

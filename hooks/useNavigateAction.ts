@@ -16,6 +16,7 @@ export const useNavigateAction = ({ executeActionFCType }: TProps): TUseActions 
   const findAction = actionHookSliceStore((state) => state.findAction);
 
   const handleNavigateAction = async (action: TAction<TActionNavigate>): Promise<void> => {
+    console.log('🚀 ~ handleNavigateAction ~ action:', action);
     const { url, isExternal, isNewTab } = action?.data || {};
 
     if (!url) return;

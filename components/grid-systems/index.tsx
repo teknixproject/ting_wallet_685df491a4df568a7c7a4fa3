@@ -7,13 +7,16 @@ import { io } from 'socket.io-client';
 
 import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
+import { usePageActions } from '@/hooks/usePageActions';
 import { componentRegistry } from '@/lib/slices';
 import { cn, convertStyle, getDeviceSize, setActive } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
 import { apiResourceStore } from '@/stores';
+import { data } from '@/text';
 import { GridItem } from '@/types/gridItem';
 import { dynamicGenarateUtil } from '@/uitls/dynamicGenarate';
 
+import TextCustom from '../commons/TextCustom';
 import NotFound from './404';
 import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } from './const';
 import LoadingPage from './loadingPage';
@@ -30,7 +33,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const pathname = usePathname();
   const { apiData } = useApiCallStore((state) => state);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
-
+  const { multiples } = usePageActions({ actionsProp: slice?.props });
   useEffect(() => {
     if (
       sliceRef &&
@@ -98,6 +101,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
       style={isButton ? styleSlice : convertStyle(styleSlice)}
       data={sliceRef}
       childs={sliceRef?.childs}
+      {...multiples}
     />
   ) : (
     sliceRef?.childs && (
@@ -186,7 +190,7 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 //#region Grid System
 const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: GridSystemProps) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
-
+  const { multiples } = usePageActions({ actionsProp: data.props });
   const styleDevice: string = getDeviceSize() as string;
 
   const config = layout || page;
@@ -200,7 +204,6 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey]); // ✅
-
   const content = (
     <>
       {config?.childs ? (
@@ -253,6 +256,7 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
       )}
     >
       <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
+      <TextCustom {...multiples} />
     </div>
   );
 };

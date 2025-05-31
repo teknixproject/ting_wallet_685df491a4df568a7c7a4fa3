@@ -42,6 +42,7 @@ interface GridItem {
   dropdown?: TDropdown;
   inputText?: TInputText;
   styledComponentCss?: string;
+  props?: any;
 }
 
 export type TInputText = {
