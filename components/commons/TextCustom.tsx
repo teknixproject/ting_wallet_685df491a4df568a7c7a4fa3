@@ -1,26 +1,25 @@
 import _ from 'lodash';
 import { CSSProperties } from 'react';
 
-import {} from '@/hooks';
-import { usePageActions } from '@/hooks/usePageActions';
-
 interface TextProps {
   data?: any;
   style?: CSSProperties;
+  goToHome?: React.MouseEventHandler<HTMLButtonElement>;
+  goToAbout?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const TextCustom = ({ data, style }: TextProps) => {
+const TextCustom = ({ data, style, goToHome, goToAbout }: TextProps) => {
+  console.log('🚀 ~ TextCustom ~ goToHome:', goToHome);
+  console.log('🚀 ~ TextCustom ~ goToAbout:', goToAbout);
   const title = _.get(data, 'title', 'Title Header');
-  const { multiples } = usePageActions();
-  const { test1, test2 } = multiples || {};
   const newStyle: CSSProperties = {
     ...style,
   };
 
   return (
     <div style={newStyle} className="text-[#858585]">
-      <button onClick={() => test1()}>Button1</button>
-      <button onClick={() => test2()}>Button2</button>
+      <button onClick={goToHome}>Button1</button>
+      <button onClick={goToAbout}>Button2</button>
       {title}
     </div>
   );

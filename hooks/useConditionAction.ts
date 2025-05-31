@@ -13,11 +13,6 @@ export type TUseActions = {
 };
 
 const evaluateCondition = (firstValue: any, secondValue: any, operator: string): boolean => {
-  const first = JSON.stringify(firstValue);
-  console.log('🚀 ~ evaluateCondition ~ first:', first);
-  const second = JSON.stringify(secondValue);
-  console.log('🚀 ~ evaluateCondition ~ second:', second);
-
   switch (operator) {
     case 'equal':
       return String(firstValue) === String(secondValue);
@@ -92,8 +87,6 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
       secondValue = variable?.value || '';
     }
     const resultCompare = evaluateCondition(firstValue, secondValue, compare.operator);
-    console.log('🚀 ~ getCompareValue ~ firstValue:', firstValue);
-    console.log('🚀 ~ getCompareValue ~ secondValue:', secondValue);
 
     return resultCompare;
   };
@@ -113,12 +106,10 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
 
     if (conditionChild.fistCondition) {
       firstValue = handleCompareCondition(conditionChild.fistCondition, condition);
-      console.log('🚀 ~ useConditionAction ~ firstValue:', firstValue);
     }
 
     if (conditionChild.secondCondition) {
       secondValue = handleCompareCondition(conditionChild.secondCondition, condition);
-      console.log('🚀 ~ useConditionAction ~ secondValue:', secondValue);
     }
 
     if (conditionChild.logicOperator === 'and') {
@@ -144,14 +135,17 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
         rootCondition?.id as string,
         conditionChild.data
       );
-      console.log('🚀 ~ executeConditional ~ isConditionMet:', isConditionMet);
 
       if (isConditionMet) {
         if (conditionChild.next) {
           await executeActionFCType(findAction(conditionChild.next));
         }
-        return; // Exit after first matching condition
+        break; // Exit after first matching condition
       }
+    }
+
+    if (action?.next) {
+      await executeActionFCType(findAction(action.next));
     }
   };
 

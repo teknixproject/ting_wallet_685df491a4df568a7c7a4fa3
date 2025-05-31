@@ -69,7 +69,6 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     if (typeof body === 'string') return body;
     if (typeof body !== 'object') return body;
 
-    console.log('🚀 ~ convertApiCallBody ~ body:', body);
     return Object.entries(body).reduce((acc, [key, value]) => {
       acc[key] = isUseVariable(value)
         ? variables.find(
@@ -135,10 +134,8 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
 
       return response.data;
     } catch (error: unknown) {
-      console.log('API call failed:', error);
       if (axios.isAxiosError(error)) {
         if (outputVariable) {
-          console.log('🚀 ~ useApiCallAction ~ outputVariable:', outputVariable);
           updateVariables({
             type: 'apiResponse',
             dataUpdate: {

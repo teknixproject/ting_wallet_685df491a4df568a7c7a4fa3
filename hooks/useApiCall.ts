@@ -8,7 +8,7 @@ export const useApiCall = () => {
   const getApiMember = (apiId: string) => {
     const apiCall = findApiResourceValue(apiId) as TApiCallValue;
     const apiCallMember = (apiCall: TApiCallValue) => {
-      if (apiCall.type !== TypeApiCall.MEMBER) return apiCall;
+      if (apiCall?.type !== TypeApiCall.MEMBER) return apiCall;
       const group: TApiCallValue | undefined = findApiResourceValue(apiCall?.groupId ?? '');
       if (!group) return apiCall;
 
