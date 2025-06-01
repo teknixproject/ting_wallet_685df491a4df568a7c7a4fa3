@@ -30,7 +30,7 @@ type TProps = {
 };
 export const usePageActions = ({ actionsProp }: TProps): TUseActions => {
   const actionsReal = useMemo(
-    () => actionsProp?.filter((item) => item.type.includes('MouseEventHandler<HTMLButtonElement>')),
+    () => actionsProp?.filter((item) => item.type.includes('MouseEventHandler')),
     [actionsProp]
   );
   const { setMultipleActions } = actionHookSliceStore();
