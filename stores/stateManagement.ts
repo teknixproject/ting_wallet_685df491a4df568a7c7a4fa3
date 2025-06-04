@@ -8,6 +8,7 @@ import {
   TDocumentStateUpdate,
   TVariable,
 } from '@/types';
+import { transformVariable } from '@/uitls/tranformVariable';
 
 export type TDocumentStateActions = {
   setStateManagement: (variable: TDocumentStateSet) => void;
@@ -38,7 +39,10 @@ export const stateManagementStore = create<TDocumentState & TDocumentStateAction
       findVariable: ({ type, id }) => {
         const data = get()[type] || {};
 
-        return data[id];
+        return {
+          ...data[id],
+          value: transformVariable(data[id]),
+        };
       },
       updateVariables: ({ type, dataUpdate }) => {
         set((state) => {

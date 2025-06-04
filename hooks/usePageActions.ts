@@ -15,6 +15,7 @@ import {
 import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCallAction } from './useApiCallAction';
 import { useConditionAction } from './useConditionAction';
+import { useHandleData } from './useHandleData';
 import { useNavigateAction } from './useNavigateAction';
 import { useUpdateStateAction } from './useUpdateStateAction';
 
@@ -29,10 +30,8 @@ type TProps = {
   }[];
 };
 export const usePageActions = ({ actionsProp }: TProps): TUseActions => {
-  const actionsReal = useMemo(
-    () => actionsProp?.filter((item) => item.type.includes('MouseEventHandler')),
-    [actionsProp]
-  );
+  const actionsReal = useMemo(() => actionsProp, [actionsProp]);
+  const { getData } = useHandleData();
   const { setMultipleActions } = actionHookSliceStore();
   const triggerNameRef = useRef<TTriggerValue>('onClick');
 
@@ -130,14 +129,18 @@ export const usePageActions = ({ actionsProp }: TProps): TUseActions => {
   );
 
   const multiples = useMemo(() => {
-    const result: Record<string, React.MouseEventHandler<HTMLButtonElement>> = {};
+    const result: Record<string, any> = {};
 
     actionsReal?.forEach((item) => {
+      console.log('🚀 ~ actionsReal?.forEach ~ item:', item);
+
       if (!_.isEmpty(item.data)) {
-        result[item.name] = async (e) => {
-          e?.preventDefault?.();
-          await handleAction(item.name)();
-        };
+        if (item.type.includes('MouseEventHandler'))
+          result[item.name] = async (e: any) => {
+            e?.preventDefault?.();
+            await handleAction(item.name)();
+          };
+        else result[item.name] = getData(item.data);
       }
     });
 

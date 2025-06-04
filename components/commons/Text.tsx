@@ -3,7 +3,9 @@ import { CSSProperties, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { useData } from '@/hooks';
+import { useHandleData } from '@/hooks/useHandleData';
 import { convertStyle } from '@/lib/utils';
+import { TData } from '@/types/dataItem';
 import { GridItem } from '@/types/gridItem';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -15,7 +17,10 @@ interface TextProps {
 
 const Text = ({ data, style }: TextProps) => {
   const { title } = useData({ layoutData: data });
+  const { getData } = useHandleData();
   const combineText = _.get(data, 'dataSlice.combineText', {});
+  const dataTitle = getData(data.data as TData);
+  console.log('🚀 ~ Text ~ dataTitle:', dataTitle);
 
   const newStyle: CSSProperties = {
     ...style,
@@ -30,6 +35,7 @@ const Text = ({ data, style }: TextProps) => {
   ) : (
     <CsText style={convertStyle(newStyle)} styledComponentCss={data?.styledComponentCss}>
       {_.isObject(title) ? JSON.stringify(title) : title}
+      {_.isObject(dataTitle) ? JSON.stringify(dataTitle) : dataTitle}
     </CsText>
   );
 
