@@ -1,6 +1,7 @@
 import { TTriggerActions } from './actions';
 
 interface GridItem {
+  _id?: string;
   id?: string; // Optional slice ID for identifying slices
   columns?: string; // Number of columns (for grid layout)
   rows?: string; // Number of rows (for grid layout)

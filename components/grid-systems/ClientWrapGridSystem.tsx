@@ -4,7 +4,6 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
@@ -59,10 +58,7 @@ const RenderUIClient = (props: any) => {
   const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
 
-  const { bodyLayout, footerLayout, headerLayout, isLoading } = useConstructorDataAPI(
-    props?.documentId,
-    props?.pathName
-  );
+  const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, props?.pathName);
 
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
@@ -77,9 +73,7 @@ const RenderUIClient = (props: any) => {
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
-  const selectedHeaderLayout = headerLayout[deviceType] ?? headerLayout ?? {};
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
-  const selectedFooterLayout = footerLayout[deviceType] ?? footerLayout ?? {};
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -149,6 +143,7 @@ const RenderUIClient = (props: any) => {
       console.log('🚀 ~ getStates ~ error:', error);
     }
   };
+
   const getApiCall = async () => {
     try {
       const result = await apiCallService.get({
@@ -163,7 +158,6 @@ const RenderUIClient = (props: any) => {
 
   useEffect(() => {
     if (!projectId) return;
-
     getStates();
     getApiCall();
     getActions();
@@ -175,39 +169,17 @@ const RenderUIClient = (props: any) => {
   }
 
   return (
-    <BrowserRouter>
-      <div className="relative">
-        {!_.isEmpty(selectedHeaderLayout) && (
-          <GridSystemContainer
-            isLoading={isLoading}
-            {...props}
-            page={selectedHeaderLayout || {}}
-            deviceType={deviceType}
-            isHeader
-          />
-        )}
-
-        {!_.isEmpty(selectedBodyLayout) && (
-          <GridSystemContainer
-            isLoading={isLoading}
-            {...props}
-            page={selectedBodyLayout || {}}
-            deviceType={deviceType}
-            isBody
-          />
-        )}
-
-        {!_.isEmpty(selectedFooterLayout) && (
-          <GridSystemContainer
-            isLoading={isLoading}
-            {...props}
-            page={selectedFooterLayout || {}}
-            deviceType={deviceType}
-            isFooter
-          />
-        )}
-      </div>
-    </BrowserRouter>
+    <div className="relative">
+      {!_.isEmpty(selectedBodyLayout) && (
+        <GridSystemContainer
+          isLoading={isLoading}
+          {...props}
+          page={selectedBodyLayout || {}}
+          deviceType={deviceType}
+          isBody
+        />
+      )}
+    </div>
   );
 };
 
@@ -303,46 +275,44 @@ const PreviewUI = (props: any) => {
   }
 
   return (
-    <BrowserRouter>
-      <div className="component-preview-container">
-        {isPage && !customWidgetName ? (
-          <div className="relative flex flex-col justify-between min-h-screen">
-            {!_.isEmpty(selectedHeaderLayout) && (
-              <GridSystemContainer
-                isLoading={isLoading}
-                {...props}
-                page={selectedHeaderLayout || {}}
-                deviceType={deviceType}
-                isHeader
-              />
-            )}
+    <div className="component-preview-container">
+      {isPage && !customWidgetName ? (
+        <div className="relative flex flex-col justify-between min-h-screen">
+          {!_.isEmpty(selectedHeaderLayout) && (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedHeaderLayout || {}}
+              deviceType={deviceType}
+              isHeader
+            />
+          )}
 
-            {!_.isEmpty(selectedBodyLayout) ? (
-              <GridSystemContainer
-                isLoading={isLoading}
-                {...props}
-                page={selectedBodyLayout || {}}
-                deviceType={deviceType}
-                isBody
-              />
-            ) : (
-              <div className="h-[300px]" />
-            )}
+          {!_.isEmpty(selectedBodyLayout) ? (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedBodyLayout || {}}
+              deviceType={deviceType}
+              isBody
+            />
+          ) : (
+            <div className="h-[300px]" />
+          )}
 
-            {!_.isEmpty(selectedFooterLayout) && (
-              <GridSystemContainer
-                isLoading={isLoading}
-                {...props}
-                page={selectedFooterLayout || {}}
-                deviceType={deviceType}
-                isFooter
-              />
-            )}
-          </div>
-        ) : (
-          <DynamicComponent customWidgetName={customWidgetName} />
-        )}
-      </div>
-    </BrowserRouter>
+          {!_.isEmpty(selectedFooterLayout) && (
+            <GridSystemContainer
+              isLoading={isLoading}
+              {...props}
+              page={selectedFooterLayout || {}}
+              deviceType={deviceType}
+              isFooter
+            />
+          )}
+        </div>
+      ) : (
+        <DynamicComponent customWidgetName={customWidgetName} />
+      )}
+    </div>
   );
 };

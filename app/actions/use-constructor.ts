@@ -1,7 +1,7 @@
 'use client';
 
+import { useLayoutContext } from '@/context/LayoutContext';
 import _ from 'lodash';
-import { useRef } from 'react';
 import useSWR from 'swr';
 
 const fetcher = async (url: string) => {
@@ -12,11 +12,12 @@ const fetcher = async (url: string) => {
 
 export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const prevComponentRef = useRef<string | null>(null);
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+  const { headerLayout, footerLayout } = useLayoutContext();
 
-  const { data, error } = useSWR(
+  const { data, error, isLoading } = useSWR(
     pageName
-      ? `${API_URL}/api/client/getLayout?pId=${process.env.NEXT_PUBLIC_PROJECT_ID}&uid=${pageName}`
+      ? `${API_URL}/api/client/getLayout?pId=${projectId}&uid=${pageName}`
       : null,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
@@ -37,22 +38,10 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
     };
   }
 
-  const componentString = data?.componentConfig?.component?.trim() || '';
-  const isValidComponent = typeof componentString === 'string' && componentString;
-
-  if (!isValidComponent) {
-    console.error('❌ Error: componentString is missing or invalid.');
-  } else if (componentString !== prevComponentRef.current) {
-    console.log('🔄 Rebuilding component...');
-    rebuilComponentMonaco(componentString);
-    prevComponentRef.current = componentString;
-  }
-
   return {
     headerLayout: _.get(data, 'data.headerLayout.layoutJson', {}),
     bodyLayout: _.get(data, 'data.bodyLayout.layoutJson', {}),
     footerLayout: _.get(data, 'data.footerLayout.layoutJson', {}),
-    component: isValidComponent ? componentString : {},
     isLoading: false,
   };
 }
