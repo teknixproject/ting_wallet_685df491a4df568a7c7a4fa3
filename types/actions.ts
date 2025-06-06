@@ -80,11 +80,7 @@ export type TActionVariable = {
     variableId: string;
     typeStore: TTypeSelect;
   };
-  secondValue: {
-    variableId: string;
-    typeStore: TTypeSelect;
-    value: string;
-  };
+  secondValue: TData;
 };
 
 // API call action configuration
@@ -100,15 +96,8 @@ export type TActionApiCall = {
 };
 
 export type TActionUpdateStateVariable = {
-  firstState: {
-    typeStore: TTypeSelect;
-    variableId: string;
-  };
-  secondState: {
-    typeStore: TTypeSelect;
-    variableId: string;
-    value: string;
-  };
+  firstState: TData;
+  secondState: TData;
 };
 
 export type TActionUpdateState = {

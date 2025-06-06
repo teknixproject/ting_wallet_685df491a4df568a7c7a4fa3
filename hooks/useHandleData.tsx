@@ -196,6 +196,8 @@ export const useHandleData = (): UseHandleDataReturn => {
               });
             }
             break;
+          case 'length':
+            return value?.length || 0;
           case 'isEmpty':
             return _.isEmpty(value);
           case 'isNotEmpty':

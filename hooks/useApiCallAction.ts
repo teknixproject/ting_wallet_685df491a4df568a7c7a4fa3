@@ -8,6 +8,7 @@ import { variableUtil } from '@/uitls';
 
 import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCall } from './useApiCall';
+import { useHandleData } from './useHandleData';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
 
@@ -20,6 +21,7 @@ type TProps = {
 };
 export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
   const { getApiMember } = useApiCall();
+  const { getData } = useHandleData();
   const findAction = actionHookSliceStore((state) => state.findAction);
   // const updateApiResource = apiResourceStore((state) => state.updateApiResource);
   // const apiResponsesRef = useRef<Record<string, any>>({});
@@ -48,21 +50,15 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
 
         if (!data) return;
 
-        if (secondValue.variableId) {
-          const valueInStore = findVariable({
-            type: secondValue.typeStore,
-            id: secondValue.variableId,
-          });
-          data.value = valueInStore?.value || '';
-        }
-        if (secondValue.value) {
-          data.value = secondValue.value;
+        if (secondValue?.type) {
+          const valueInStore = getData(secondValue);
+          data.value = valueInStore;
         }
 
         return data;
       });
     },
-    [findVariable]
+    [getData]
   );
 
   const convertApiCallBody = useCallback((body: any, variables: Record<string, any>): any => {
