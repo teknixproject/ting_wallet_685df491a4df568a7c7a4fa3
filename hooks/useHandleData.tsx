@@ -262,7 +262,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
           return handleState(data);
         case 'combineText':
           // Add your combine text logic here
-          break;
+          return data.combineText;
         case 'itemInList':
           return handleItemInList(data);
         default:

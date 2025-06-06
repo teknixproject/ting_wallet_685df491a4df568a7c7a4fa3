@@ -2,8 +2,8 @@ import _ from 'lodash';
 import React, { ChangeEvent, useMemo } from 'react';
 import styled, { css, CSSProperties } from 'styled-components';
 
-import { useData } from '@/hooks';
 import { useActions } from '@/hooks/useActions';
+import { useHandleData } from '@/hooks/useHandleData';
 // import { useData } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { stateManagementStore } from '@/stores/stateManagement';
@@ -13,7 +13,8 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 type Props = { data: GridItem };
 
 const InputText: React.FC<Props> = ({ data }) => {
-  const { title } = useData({ layoutData: data });
+  const { dataState } = useHandleData({ dataProp: data?.data });
+  const title = _.get(data, 'dataSlice.title') || dataState;
   const { handleAction } = useActions(data);
   const style = _.get(data, 'dataSlice.style', {});
   const newStyle: CSSProperties = {

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useData } from '@/hooks';
+import { useHandleData } from '@/hooks/useHandleData';
 import { cn } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -30,7 +30,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   // const cleanedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const { title } = useData({ layoutData: data, defaultTitle: '' });
+  const { dataState } = useHandleData({ dataProp: data?.data });
+  const title = _.get(data, 'dataSlice.title') || dataState;
   const router = useRouter();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);

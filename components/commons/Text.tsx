@@ -15,8 +15,7 @@ interface TextProps {
 
 const Text = ({ data, style }: TextProps) => {
   const { dataState } = useHandleData({ dataProp: data.data });
-  console.log('🚀 ~ Text ~ dataState:', dataState);
-  const combineText = _.get(data, 'dataSlice.combineText', {});
+  const isCombineText = _.get(data, 'data.type') === 'combineText';
 
   const newStyle: CSSProperties = {
     ...style,
@@ -26,8 +25,8 @@ const Text = ({ data, style }: TextProps) => {
     return data?.tooltip;
   }, [data]);
 
-  const content = !_.isEmpty(combineText) ? (
-    <TextComplex texts={combineText} style={style} />
+  const content = isCombineText ? (
+    <TextComplex texts={dataState} style={style} />
   ) : (
     <CsText style={convertStyle(newStyle)} styledComponentCss={data?.styledComponentCss}>
       {_.isObject(dataState) ? JSON.stringify(dataState) : dataState}
@@ -62,7 +61,7 @@ const TextComplex = ({
         ...style,
       }}
     >
-      {texts.map((item, index) => {
+      {texts?.map((item, index) => {
         return (
           <CsStrong
             gradient={item.style.textGradient}

@@ -7,6 +7,7 @@ import { CSSProperties, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
+import { useHandleData } from '@/hooks/useHandleData';
 import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
@@ -19,7 +20,8 @@ interface ButtonCompoProps {
 }
 
 const Button = ({ data, style }: ButtonCompoProps) => {
-  const title = _.get(data, 'dataSlice.title', 'Button');
+  const { dataState } = useHandleData({ dataProp: data?.data });
+  const title = _.get(data, 'dataSlice.title') || dataState;
   const iconStart = _.get(data, 'dataSlice.iconStart', null);
   const iconEnd = _.get(data, 'dataSlice.iconEnd', null);
   const link = _.get(data, 'dataSlice.link', '');

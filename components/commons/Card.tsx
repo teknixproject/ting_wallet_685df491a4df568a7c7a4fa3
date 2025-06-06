@@ -3,7 +3,7 @@ import Image from 'next/image';
 import React from 'react';
 import styled, { css, CSSProperties } from 'styled-components';
 
-import { useData } from '@/hooks';
+import { useHandleData } from '@/hooks/useHandleData';
 import { cn } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 
@@ -16,7 +16,8 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ data, style }) => {
   const childs = _.get(data, 'childs', []);
-  const { title } = useData({ layoutData: data });
+  const { dataState } = useHandleData({ dataProp: data?.data });
+  const title = _.get(data, 'dataSlice.title', 'Button') || dataState;
 
   const newStyle: CSSProperties = {
     lineHeight: '170%',
