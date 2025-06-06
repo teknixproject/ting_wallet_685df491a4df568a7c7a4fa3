@@ -98,6 +98,9 @@ export const useActions = (data?: GridItem): TUseActions => {
     // Find and execute the root action (parentId === null)
     const rootAction = Object.values(actionsToExecute).find((action) => !action.parentId);
     if (rootAction) {
+      if (rootAction.delay) {
+        await new Promise((resolve) => setTimeout(resolve, rootAction.delay));
+      }
       await executeActionFCType(rootAction);
     }
   };

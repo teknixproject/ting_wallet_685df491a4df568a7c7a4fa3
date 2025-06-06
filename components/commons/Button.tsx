@@ -10,6 +10,7 @@ import { useActions } from '@/hooks/useActions';
 import { GridItem } from '@/types/gridItem';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
+import { Button as ButtonUI } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface ButtonCompoProps {
@@ -41,7 +42,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
 
   if (isButtonGradient) {
     return (
-      <button
+      <ButtonUI
         type="button"
         className="transition group flex items-center justify-center rounded-full bg-gradient-to-r from-[#1ECC97] to-[#5A60FC] p-[1.5px] text-[#1ECC97] duration-300 hover:shadow-2xl hover:shadow-purple-600/30"
         onClick={() => (route ? handleRouteClick() : handleAction('onClick'))}
@@ -49,7 +50,7 @@ const Button = ({ data, style }: ButtonCompoProps) => {
         <div className="px-[24px] py-[14px] max-sm:px-[16px] max-sm:py-[16px] text-[#1ECC97] flex h-full w-full items-center justify-center rounded-full bg-white transition duration-300 ease-in-out group-hover:bg-gradient-to-br group-hover:from-gray-700 group-hover:to-gray-900">
           Get Now
         </div>
-      </button>
+      </ButtonUI>
     );
   }
 
@@ -66,17 +67,16 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       </Container>
     </Link>
   ) : (
-    <CsButton
+    <ButtonUI
       type="button"
       style={style}
       onClick={() => (route ? handleRouteClick() : handleAction('onClick'))}
       className="cursor-pointer"
-      styledComponentCss={data?.styledComponentCss}
     >
       {iconStart && <span className="icon-start">{iconStart}</span>}
       <>{title}</>
       {iconEnd && <span className="icon-end">{iconEnd}</span>}
-    </CsButton>
+    </ButtonUI>
   );
 
   if (_.isEmpty(tooltip?.title)) return content;

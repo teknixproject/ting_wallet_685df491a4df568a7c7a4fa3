@@ -29,9 +29,9 @@ type TProps = {
     data: any;
   }[];
 };
-export const usePageActions = ({ actionsProp }: TProps): TUseActions => {
+export const useHandleProps = ({ actionsProp }: TProps): TUseActions => {
   const actionsReal = useMemo(() => actionsProp, [actionsProp]);
-  const { getData } = useHandleData();
+  const { getData } = useHandleData({});
   const { setMultipleActions } = actionHookSliceStore();
   const triggerNameRef = useRef<TTriggerValue>('onClick');
 

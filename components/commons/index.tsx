@@ -18,4 +18,6 @@ export const components = {
   Dropdown: dynamic(() => import('./Dropdown')),
   Collapse: dynamic(() => import('./Collapse')),
   Nav1: dynamic(() => import('./Nav1')),
+  CapabilityData: dynamic(() => import('./CapabilityData')),
+  InputSearch: dynamic(() => import('./InputSearch')),
 };

@@ -21,7 +21,7 @@ type TProps = {
 };
 export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
   const { getApiMember } = useApiCall();
-  const { getData } = useHandleData();
+  const { getData } = useHandleData({});
   const findAction = actionHookSliceStore((state) => state.findAction);
   // const updateApiResource = apiResourceStore((state) => state.updateApiResource);
   // const apiResponsesRef = useRef<Record<string, any>>({});

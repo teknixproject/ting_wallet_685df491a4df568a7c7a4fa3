@@ -18,7 +18,7 @@ export const useUpdateStateAction = ({ executeActionFCType }: TProps): TUseActio
   // State management
 
   // Store hooks
-  const { getData } = useHandleData();
+  const { getData } = useHandleData({});
   const { findVariable, updateVariables } = stateManagementStore();
   const { findAction } = actionHookSliceStore();
   // Memoized actions from data
@@ -45,12 +45,10 @@ export const useUpdateStateAction = ({ executeActionFCType }: TProps): TUseActio
       if (!firstState || !secondState || !firstState[type]) continue;
       const variableFirst = findVariable({
         type: type as TTypeSelectState,
-        id: (item.firstState as any).variableId || '',
+        id: (item.firstState[type] as any).variableId || '',
       });
-      console.log('🚀 ~ handleUpdateStateAction ~ variableFirst:', variableFirst);
 
       const variableSecond = getData(item.secondState);
-      console.log('🚀 ~ handleUpdateStateAction ~ variableSecond:', variableSecond);
       if (!variableFirst) return;
 
       variableFirst.value = variableSecond;

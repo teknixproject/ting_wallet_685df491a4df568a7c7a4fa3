@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { ApiStoreProvider } from '@/providers';
+import ReactQueryProvider from '@/providers/QueryClient';
 
 export const fetchSEOData = async (path: string) => {
   try {
@@ -48,7 +49,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ApiStoreProvider>{children}</ApiStoreProvider>
+        <ReactQueryProvider>
+          <ApiStoreProvider>{children}</ApiStoreProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
