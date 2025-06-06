@@ -1,3 +1,5 @@
+import { TData } from './dataItem';
+
 export type TApiResponseOption = 'jsonBody' | 'statusCode' | 'succeeded';
 
 export type TSourceValue =
@@ -156,21 +158,12 @@ export type TConditionalChild = {
   logicOperator: 'and' | 'or';
   fistCondition: string;
   secondCondition: string;
-  compare: TConditionCompareValue;
+  compare: TConditionChildCompareValue;
 };
 export type TConditionChildCompareValue = {
-  firstValue: {
-    variable: string;
-    typeStore: TTypeSelect;
-    valueSelected: TSourceValue;
-  };
+  firstValue: TData;
   operator: TOperatorCompare;
-  secondValue: {
-    typeStore: TTypeSelect;
-    variable: string;
-    value: string;
-    valueSelected: TSourceValue;
-  };
+  secondValue: TData;
 };
 export type TConditionChildMap = {
   label: 'if' | 'else' | 'elseIf' | 'loopCondition';

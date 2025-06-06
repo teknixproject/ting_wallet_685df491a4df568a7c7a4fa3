@@ -1,4 +1,5 @@
 import { TTriggerActions } from './actions';
+import { TData } from './dataItem';
 
 interface GridItem {
   _id?: string;
@@ -44,8 +45,8 @@ interface GridItem {
   inputText?: TInputText;
   styledComponentCss?: string;
   props?: any;
+  data?: TData;
 }
-
 export type TInputText = {
   prefixIcon?: string;
   suffixIcon?: string;

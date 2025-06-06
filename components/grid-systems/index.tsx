@@ -32,6 +32,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const { apiData } = useApiCallStore((state) => state);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
   const { multiples } = usePageActions({ actionsProp: slice?.props });
+  console.log('🚀 ~ multiples:', multiples);
   useEffect(() => {
     if (
       sliceRef &&
