@@ -1,6 +1,7 @@
+import _ from 'lodash';
 import { CSSProperties } from 'react';
 
-import { useData } from '@/hooks';
+import { useHandleData } from '@/hooks/useHandleData';
 
 interface DescriptionProps {
   data?: any;
@@ -8,8 +9,8 @@ interface DescriptionProps {
 }
 
 const Description = ({ data, style }: DescriptionProps) => {
-  const { title } = useData({ layoutData: data, defaultTitle: 'Description' });
-
+  const { dataState } = useHandleData({ dataProp: data?.data });
+  const title = _.get(data, 'dataSlice.title') || dataState;
   const newStyle: CSSProperties = {
     lineHeight: '170%',
     ...style,

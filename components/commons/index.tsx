@@ -10,12 +10,11 @@ export const components = {
   Image: dynamic(() => import('./Image')),
   Link: dynamic(() => import('./Link')),
   Text: dynamic(() => import('./Text')),
-  TitleComplex: dynamic(() => import('./TitleComplex')),
-  TitleHeader: dynamic(() => import('./TitleHeader')),
   TitleHeaderGradient: dynamic(() => import('./TitleHeaderGradient')),
   InputText: dynamic(() => import('./InputText')),
   Navigation: dynamic(() => import('./Navigation')),
   Dropdown: dynamic(() => import('./Dropdown')),
   Collapse: dynamic(() => import('./Collapse')),
   Nav1: dynamic(() => import('./Nav1')),
+  InputSearch: dynamic(() => import('./InputSearch')),
 };

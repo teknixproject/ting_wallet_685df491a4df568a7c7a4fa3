@@ -37,7 +37,7 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
 
   // Store hooks
   const { findAction } = actionHookSliceStore();
-  const { getData } = useHandleData();
+  const { getData } = useHandleData({});
   // Memoized actions from data
 
   const mounted = useRef(false);
@@ -58,11 +58,14 @@ export const useConditionAction = ({ executeActionFCType }: TProps): TUseActions
   };
 
   const getCompareValue = (compare: TConditionalChild['compare']): boolean => {
-    const firstCompare = getData(compare?.firstValue);
-    const secondCompare = getData(compare?.secondValue);
+    const firstCompare = String(getData(compare?.firstValue));
+    console.log('🚀 ~ getCompareValue ~ firstCompare:', firstCompare);
+    const secondCompare = String(getData(compare?.secondValue));
+    console.log('🚀 ~ getCompareValue ~ secondCompare:', secondCompare);
     if (!firstCompare || !secondCompare) return false;
 
     const resultCompare = evaluateCondition(firstCompare, secondCompare, compare.operator);
+    console.log('🚀 ~ getCompareValue ~ resultCompare:', resultCompare);
 
     return resultCompare;
   };

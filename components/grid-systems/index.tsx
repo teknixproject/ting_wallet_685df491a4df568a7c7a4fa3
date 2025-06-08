@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 
 import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
-import { usePageActions } from '@/hooks/usePageActions';
+import { useHandleProps } from '@/hooks/useHandleProps';
 import { componentRegistry } from '@/lib/slices';
 import { cn, convertStyle, getDeviceSize, setActive } from '@/lib/utils';
 import { useApiCallStore } from '@/providers';
@@ -29,10 +29,9 @@ const { updateTitleInText } = dynamicGenarateUtil;
 //#region Render Slice
 export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const pathname = usePathname();
-  const { apiData } = useApiCallStore((state) => state);
+  const apiData = useApiCallStore((state) => state.apiData);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
-  const { multiples } = usePageActions({ actionsProp: slice?.props });
-  console.log('🚀 ~ multiples:', multiples);
+  const { multiples } = useHandleProps({ actionsProp: slice?.props });
   useEffect(() => {
     if (
       sliceRef &&
@@ -53,7 +52,8 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiData, slice, updateTitleInText]);
 
-  const key = sliceRef?.id?.split('$')[0];
+  const key = _.upperFirst(sliceRef?.id?.split('$')[0]);
+
   const isButton = key === 'button';
 
   const data = useMemo(() => {

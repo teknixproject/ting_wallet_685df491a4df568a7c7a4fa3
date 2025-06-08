@@ -37,7 +37,7 @@ export type TOperatorCompare =
   | 'lessThan'
   | 'greaterThanOrEqual'
   | 'lessThanOrEqual';
-export type TTriggerValue = 'onPageLoad' | 'onClick' | 'onEnter' | 'onMouseDown';
+export type TTriggerValue = 'onPageLoad' | 'onClick' | 'onEnter' | 'onMouseDown' | 'onChange';
 export const OPERATORS: {
   name: string;
   value: TOperatorCompare;
@@ -80,11 +80,7 @@ export type TActionVariable = {
     variableId: string;
     typeStore: TTypeSelect;
   };
-  secondValue: {
-    variableId: string;
-    typeStore: TTypeSelect;
-    value: string;
-  };
+  secondValue: TData;
 };
 
 // API call action configuration
@@ -100,15 +96,8 @@ export type TActionApiCall = {
 };
 
 export type TActionUpdateStateVariable = {
-  firstState: {
-    typeStore: TTypeSelect;
-    variableId: string;
-  };
-  secondState: {
-    typeStore: TTypeSelect;
-    variableId: string;
-    value: string;
-  };
+  firstState: TData;
+  secondState: TData;
 };
 
 export type TActionUpdateState = {
@@ -185,11 +174,10 @@ export type TActionLoop = {
 
 export type TActionLoopOverList = {
   label: string;
-  variableId: string;
-  typeStore: TTypeSelect;
-  startIndex: number;
-  endIndex: number;
-  stepSize: number;
+  list: TData;
+  startIndex: TData;
+  endIndex: TData;
+  stepSize: TData;
   reserverOrder: boolean;
 };
 export type TAction<T = unknown> = {
@@ -200,6 +188,7 @@ export type TAction<T = unknown> = {
   fcType?: TActionFCType;
   type?: TActionSelect | undefined | null;
   data?: T;
+  delay?: number;
 };
 export type TTriggerActionValue = {
   [key: string]: TAction;
