@@ -17,4 +17,5 @@ export const components = {
   Collapse: dynamic(() => import('./Collapse')),
   Nav1: dynamic(() => import('./Nav1')),
   InputSearch: dynamic(() => import('./InputSearch')),
+  AppleNavigation: dynamic(() => import('./AppleNavigation')),
 };

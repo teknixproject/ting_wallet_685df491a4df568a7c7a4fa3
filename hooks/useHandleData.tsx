@@ -276,8 +276,6 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   useEffect(() => {
     if (props?.dataProp) {
       const newDataState = getData(props.dataProp);
-      console.log('🚀 ~ useEffect ~ newDataState:', newDataState);
-
       // Only update state if the value actually changed
       setDataState((prevState: any) => {
         if (!_.isEqual(prevState, newDataState)) {

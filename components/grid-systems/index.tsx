@@ -1,6 +1,5 @@
 'use client';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
@@ -187,28 +186,27 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 };
 
 //#region Grid System
-const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: GridSystemProps) => {
+const GridSystemContainer = ({
+  page,
+  deviceType,
+  isBody,
+  isHeader,
+  isFooter,
+  style,
+}: GridSystemProps) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
   const styleDevice: string = getDeviceSize() as string;
 
   const config = layout || page;
-  const [refreshKey, setRefreshKey] = useState(0);
   const previousComponentRef = useRef(null);
 
-  const MonacoContainerRoot = useMemo(() => {
-    return dynamic(() => import('@/components/grid-systems/monacoContainer'), {
-      ssr: false,
-      loading: () => <LoadingPage />,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey]); // ✅
   const content = (
     <>
       {config?.childs ? (
         <CsContainerRenderSlice
           className="w-full flex flex-col justify-center flex-wrap"
           id={config.id}
-          style={_.get(config, [styleDevice]) as React.CSSProperties}
+          style={{ ...(_.get(config, [styleDevice]) as React.CSSProperties), ...style }}
           styledComponentCss={config?.styledComponentCss}
         >
           <RenderGrid items={config.childs} idParent={config.id!} slice={config} />
@@ -228,7 +226,6 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
     socket.on('return-json', async (data) => {
       if (data?.component && data.component !== previousComponentRef.current) {
         previousComponentRef.current = data.component;
-        setRefreshKey((prev) => prev + 1);
         await rebuilComponentMonaco(data.component);
       }
       if (data?.layout) {
@@ -240,20 +237,17 @@ const GridSystemContainer = ({ page, deviceType, isBody, isHeader, isFooter }: G
     };
   }, [deviceType]);
 
-  if (!MonacoContainerRoot || typeof MonacoContainerRoot !== 'function') {
-    return <>{content}</>;
-  }
-
   return (
     <div
       className={cn(
         '',
         isBody ? 'z-1 min-h-screen' : '',
-        isHeader ? 'z-3 fixed w-full top-0' : '',
+        isHeader && !style ? 'z-3 fixed w-full top-0' : '',
         isFooter ? 'z-3' : ''
       )}
+      style={style}
     >
-      <MonacoContainerRoot key={refreshKey}>{content}</MonacoContainerRoot>
+      {content}
     </div>
   );
 };

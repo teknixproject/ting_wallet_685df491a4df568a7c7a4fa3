@@ -1,53 +1,32 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// components/LayoutContent.tsx
 'use client';
-import { useState, useEffect, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
+import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-// import { useConstructorDataAPI } from '@/app/actions/use-constructor';
+
 import { getDeviceType } from '@/lib/utils';
 import { useLayoutContext } from '@/context/LayoutContext';
-import LoadingPage from './loadingPage';
-import useSWR from 'swr';
 import { actionService, apiCallService, stateManagerService } from '@/services';
 import { TTypeSelectState, TVariable, TVariableMap } from '@/types';
 import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
+
+import LoadingPage from './loadingPage';
 
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
   ssr: false,
 });
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
-  return res.json();
-};
-
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { headerLayout, footerLayout, setHeaderLayout, setFooterLayout } = useLayoutContext();
+  const { headerLayout, footerLayout } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   // Store hooks
   const { addAndUpdateApiResource } = apiResourceStore();
   const { setStateManagement } = stateManagementStore();
   const { setActions } = actionsStore();
-
-  const [stateLayoutIds, setStateLayoutIds] = useState({
-    headerId: '',
-    footerId: '',
-  });
-
-  const { data, error, isLoading } = useSWR(
-    `${API_URL}/api/client/getLayout?pId=${projectId}&uid=${pathname}`,
-    fetcher,
-    { revalidateOnFocus: false, refreshInterval: 60000 }
-  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -56,39 +35,18 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (data && !error) {
-      const newHeaderId = _.get(data, 'data.headerLayout._id');
-      const newFooterId = _.get(data, 'data.footerLayout._id');
-      const newHeaderLayout = _.get(data, 'data.headerLayout.layoutJson');
-      const newFooterLayout = _.get(data, 'data.footerLayout.layoutJson');
-
-      // Compare layouts by deep equality or use another unique property if _id does not exist
-      if (newHeaderLayout && !_.isEqual(newHeaderId?._id, stateLayoutIds.headerId)) {
-        console.log('newHeaderLayout', newHeaderLayout);
-        setHeaderLayout(newHeaderLayout);
-      }
-      if (newFooterLayout && !_.isEqual(newFooterId?._id, stateLayoutIds.footerId)) {
-        setFooterLayout(newFooterLayout);
-      }
-    }
-  }, [
-    data,
-    error,
-    headerLayout,
-    footerLayout,
-    setHeaderLayout,
-    setFooterLayout,
-    stateLayoutIds.headerId,
-    stateLayoutIds.footerId,
-  ]);
-
   const selectedHeaderLayout = useMemo(
-    () => (headerLayout && (headerLayout as any)[deviceType]) ?? headerLayout ?? {},
+    () =>
+      (headerLayout?.layoutJson && (headerLayout?.layoutJson as any)[deviceType]) ??
+      headerLayout?.layoutJson ??
+      {},
     [headerLayout, deviceType]
   );
   const selectedFooterLayout = useMemo(
-    () => (footerLayout && (footerLayout as Record<string, any>)[deviceType]) ?? footerLayout ?? {},
+    () =>
+      (footerLayout?.layoutJson && (footerLayout?.layoutJson as Record<string, any>)[deviceType]) ??
+      footerLayout?.layoutJson ??
+      {},
     [footerLayout, deviceType]
   );
 
@@ -150,6 +108,9 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     }
   };
 
+  // Lấy vị trí của header từ dữ liệu layout
+  const headerPosition = headerLayout?.position ?? 'top';
+
   useEffect(() => {
     if (!projectId) return;
     getStates();
@@ -158,25 +119,68 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, projectId]);
 
-  if (isLoading) return <LoadingPage />;
+  const containerStyle = useMemo(() => {
+    if (headerPosition === 'left' || headerPosition === 'right') {
+      return {
+        display: 'flex',
+        flexDirection: 'row',
+        minHeight: '100vh',
+      };
+    }
+    return {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+    };
+  }, [headerPosition]);
+
+  // Style cho header dựa trên vị trí
+  const headerStyle = useMemo(() => {
+    if (headerPosition === 'left') {
+      return {
+        width: '250px', // Độ rộng cố định cho sidebar
+        flexShrink: 0,
+        position: 'sticky',
+        top: 0,
+        height: '100vh',
+      };
+    } else if (headerPosition === 'right') {
+      return {
+        width: '250px',
+        flexShrink: 0,
+        position: 'sticky',
+        top: 0,
+        height: '100vh',
+        order: 2, // Đặt header sang bên phải
+      };
+    }
+    return {
+      width: '100%',
+      position: 'fixed',
+      top: 0,
+      zIndex: 3,
+    };
+  }, [headerPosition]);
 
   return (
-    <div className="relative flex flex-col min-h-screen">
-      {!_.isEmpty(selectedHeaderLayout) && (
-        <GridSystemContainer
-          // isLoading={isLoading}
-          page={selectedHeaderLayout}
-          deviceType={deviceType}
-          isHeader
-        />
-      )}
-      <main>{children}</main>
+    <div>
+      <div style={containerStyle as any}>
+        {!_.isEmpty(selectedHeaderLayout) && (
+          <GridSystemContainer
+            page={selectedHeaderLayout}
+            deviceType={deviceType}
+            isHeader
+            style={headerStyle}
+          />
+        )}
+        <main style={{ flex: 1 }}>{children}</main>
+      </div>
       {!_.isEmpty(selectedFooterLayout) && (
         <GridSystemContainer
-          // isLoading={isLoading}
           page={selectedFooterLayout}
           deviceType={deviceType}
           isFooter
+          style={{ width: '100%' }}
         />
       )}
     </div>

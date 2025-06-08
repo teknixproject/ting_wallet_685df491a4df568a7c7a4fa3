@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useLayoutContext } from '@/context/LayoutContext';
 import _ from 'lodash';
+import { useEffect } from 'react';
 import useSWR from 'swr';
 
 const fetcher = async (url: string) => {
@@ -13,19 +15,41 @@ const fetcher = async (url: string) => {
 export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const { headerLayout, footerLayout } = useLayoutContext();
+  const { headerLayout, footerLayout, setHeaderLayout, setFooterLayout } = useLayoutContext();
 
   const { data, error, isLoading } = useSWR(
-    pageName
-      ? `${API_URL}/api/client/getLayout?pId=${projectId}&uid=${pageName}`
-      : null,
+    pageName ? `${API_URL}/api/client/getLayout?pId=${projectId}&uid=${pageName}` : null,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
   );
 
+  const newHeaderLayout = _.get(data, 'data.headerLayout.layoutJson', null);
+  const newHeaderId = _.get(data, 'data.headerLayout._id', '');
+  const newFooterLayout = _.get(data, 'data.footerLayout.layoutJson', null);
+  const newFooterId = _.get(data, 'data.footerLayout._id', '');
+
+  useEffect(() => {
+    if (data && !error) {
+      // Chỉ set khi _id khác và layout hợp lệ
+      if (newHeaderId && newHeaderId !== (headerLayout?._id || '')) {
+        setHeaderLayout({ _id: newHeaderId, layoutJson: newHeaderLayout });
+      }
+      if (newFooterId && newFooterId !== (footerLayout?._id || '')) {
+        setFooterLayout({ layoutJson: newFooterLayout, _id: newFooterId });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newHeaderId, newFooterId]);
+
   if (error) {
     console.error('❌ Error fetching constructor:', error);
-    return { layout: {}, component: {}, isLoading: false };
+    return {
+      headerLayout: {},
+      bodyLayout: {},
+      footerLayout: {},
+      isLoading: false,
+      error: true,
+    };
   }
 
   if (!data) {
@@ -33,8 +57,8 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
       headerLayout: {},
       bodyLayout: {},
       footerLayout: {},
-      component: {},
       isLoading: true,
+      error: false,
     };
   }
 
@@ -43,6 +67,7 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
     bodyLayout: _.get(data, 'data.bodyLayout.layoutJson', {}),
     footerLayout: _.get(data, 'data.footerLayout.layoutJson', {}),
     isLoading: false,
+    error: false,
   };
 }
 

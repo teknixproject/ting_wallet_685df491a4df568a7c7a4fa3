@@ -3,21 +3,48 @@
 import { createContext, useContext, useState } from 'react';
 import { GridItem } from '@/types/gridItem';
 
+interface layoutDataType {
+  layoutJson?: GridItem | null;
+  _id?: string;
+  [key: string]: unknown;
+}
 interface LayoutContextType {
-  headerLayout: GridItem | null;
-  footerLayout: GridItem | null;
-  setHeaderLayout: (layout: GridItem | null) => void;
-  setFooterLayout: (layout: GridItem | null) => void;
+  headerLayout: layoutDataType;
+  footerLayout: layoutDataType;
+  setHeaderLayout: (layout: layoutDataType) => void;
+  setFooterLayout: (layout: layoutDataType) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
-  const [headerLayout, setHeaderLayout] = useState<GridItem | null>(null);
-  const [footerLayout, setFooterLayout] = useState<GridItem | null>(null);
+  const [headerLayout, setHeaderLayout] = useState<layoutDataType>({
+    layoutJson: null,
+    _id: '',
+  });
+  const [footerLayout, setFooterLayout] = useState<layoutDataType>({
+    layoutJson: null,
+    _id: '',
+  });
+
+  // Wrapper functions to match the context type
+  // const handleSetHeaderLayout = (layout: GridItem | null, _id, ) => {
+  //   setHeaderLayout({ layoutJson: layout, _id: '' });
+  // };
+
+  // const handleSetFooterLayout = (layout: GridItem | null) => {
+  //   setFooterLayout({ layoutJson: layout, _id: '' });
+  // };
 
   return (
-    <LayoutContext.Provider value={{ headerLayout, footerLayout, setHeaderLayout, setFooterLayout }}>
+    <LayoutContext.Provider
+      value={{
+        headerLayout,
+        footerLayout,
+        setHeaderLayout,
+        setFooterLayout,
+      }}
+    >
       {children}
     </LayoutContext.Provider>
   );

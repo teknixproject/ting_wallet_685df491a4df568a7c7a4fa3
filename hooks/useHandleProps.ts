@@ -132,8 +132,6 @@ export const useHandleProps = ({ actionsProp }: TProps): TUseActions => {
     const result: Record<string, any> = {};
 
     actionsReal?.forEach((item) => {
-      console.log('🚀 ~ actionsReal?.forEach ~ item:', item);
-
       if (!_.isEmpty(item.data)) {
         if (item.type.includes('MouseEventHandler'))
           result[item.name] = async (e: any) => {
