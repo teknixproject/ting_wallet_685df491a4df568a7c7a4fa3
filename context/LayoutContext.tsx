@@ -10,9 +10,11 @@ interface layoutDataType {
 }
 interface LayoutContextType {
   headerLayout: layoutDataType;
+  headerPosition: string;
   footerLayout: layoutDataType;
   setHeaderLayout: (layout: layoutDataType) => void;
   setFooterLayout: (layout: layoutDataType) => void;
+  setHeaderPosition: (value: string) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -26,23 +28,17 @@ export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
     layoutJson: null,
     _id: '',
   });
-
-  // Wrapper functions to match the context type
-  // const handleSetHeaderLayout = (layout: GridItem | null, _id, ) => {
-  //   setHeaderLayout({ layoutJson: layout, _id: '' });
-  // };
-
-  // const handleSetFooterLayout = (layout: GridItem | null) => {
-  //   setFooterLayout({ layoutJson: layout, _id: '' });
-  // };
+  const [headerPosition, setHeaderPosition] = useState<string>('top');
 
   return (
     <LayoutContext.Provider
       value={{
         headerLayout,
         footerLayout,
+        headerPosition,
         setHeaderLayout,
         setFooterLayout,
+        setHeaderPosition,
       }}
     >
       {children}

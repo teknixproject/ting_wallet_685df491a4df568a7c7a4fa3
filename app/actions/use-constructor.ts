@@ -15,7 +15,14 @@ const fetcher = async (url: string) => {
 export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const { headerLayout, footerLayout, setHeaderLayout, setFooterLayout } = useLayoutContext();
+  const {
+    headerLayout,
+    footerLayout,
+    headerPosition,
+    setHeaderLayout,
+    setFooterLayout,
+    setHeaderPosition,
+  } = useLayoutContext();
 
   const { data, error, isLoading } = useSWR(
     pageName ? `${API_URL}/api/client/getLayout?pId=${projectId}&uid=${pageName}` : null,
@@ -27,19 +34,22 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   const newHeaderId = _.get(data, 'data.headerLayout._id', '');
   const newFooterLayout = _.get(data, 'data.footerLayout.layoutJson', null);
   const newFooterId = _.get(data, 'data.footerLayout._id', '');
+  const newHeaderPosition = _.get(data, 'data.headerPosition', '');
 
   useEffect(() => {
     if (data && !error) {
-      // Chỉ set khi _id khác và layout hợp lệ
       if (newHeaderId && newHeaderId !== (headerLayout?._id || '')) {
         setHeaderLayout({ _id: newHeaderId, layoutJson: newHeaderLayout });
       }
       if (newFooterId && newFooterId !== (footerLayout?._id || '')) {
         setFooterLayout({ layoutJson: newFooterLayout, _id: newFooterId });
       }
+      if (newHeaderPosition && newHeaderPosition !== headerPosition) {
+        setHeaderPosition(newHeaderPosition);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newHeaderId, newFooterId]);
+  }, [newHeaderId, newFooterId, newHeaderPosition]);
 
   if (error) {
     console.error('❌ Error fetching constructor:', error);

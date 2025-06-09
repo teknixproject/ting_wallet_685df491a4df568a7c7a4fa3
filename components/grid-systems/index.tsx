@@ -173,9 +173,9 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 
   // Memoize the rendered children to avoid unnecessary re-renders
   const renderedChildren = useMemo(() => {
-    return _.map(childs, (child, index) => (
-      <RenderSlice slice={child} key={index} idParent={idParent} />
-    ));
+    return _.map(childs, (child, index) => {
+      return <RenderSlice slice={child} key={index} idParent={idParent} />;
+    });
   }, [childs, idParent]);
 
   if (isLoading) {

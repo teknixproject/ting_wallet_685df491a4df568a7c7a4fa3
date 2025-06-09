@@ -18,7 +18,7 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
 });
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { headerLayout, footerLayout } = useLayoutContext();
+  const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -108,9 +108,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     }
   };
 
-  // Lấy vị trí của header từ dữ liệu layout
-  const headerPosition = headerLayout?.position ?? 'top';
-
   useEffect(() => {
     if (!projectId) return;
     getStates();
@@ -134,11 +131,10 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     };
   }, [headerPosition]);
 
-  // Style cho header dựa trên vị trí
   const headerStyle = useMemo(() => {
     if (headerPosition === 'left') {
       return {
-        width: '250px', // Độ rộng cố định cho sidebar
+        // width: '250px',
         flexShrink: 0,
         position: 'sticky',
         top: 0,
@@ -146,12 +142,12 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       };
     } else if (headerPosition === 'right') {
       return {
-        width: '250px',
+        // width: '250px',
         flexShrink: 0,
         position: 'sticky',
         top: 0,
         height: '100vh',
-        order: 2, // Đặt header sang bên phải
+        order: 2,
       };
     }
     return {
