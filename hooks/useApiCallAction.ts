@@ -1,5 +1,6 @@
 import axios from 'axios';
 import _ from 'lodash';
+import queryString from 'query-string';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { stateManagementStore } from '@/stores';
@@ -96,20 +97,45 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
   //   },
   //   [updateVariables]
   // );
+  const handleUrl = (apiCallMember: TApiCallValue) => {
+    const queryConvert = apiCallMember?.query
+      ?.map((item) => {
+        const type = item.type;
+        if (type === 'variable') {
+          const variable = apiCallMember?.variables?.find(
+            (variable) => variable.id === item.variableId
+          );
+          item.value = variable?.value;
+        }
+        return item;
+      })
+      .reduce((acc, item) => {
+        acc[item.key as string] = item.value;
+        return acc;
+      }, {});
 
+    console.log('🚀 ~ handleUrl ~ queryConvert:', queryConvert);
+    const url = queryString.stringifyUrl({
+      url: apiCallMember.url!,
+      query: queryConvert,
+    });
+    return url;
+  };
   const makeApiCall = async (
     apiCall: TApiCallValue,
     body: object,
     variableId: string
   ): Promise<any> => {
+    console.log('🚀 ~ useApiCallAction ~ body:', body);
     const outputVariable = findVariable({
       type: 'apiResponse',
       id: variableId,
     });
+
     try {
       const response = await axios.request({
         method: apiCall?.method?.toUpperCase(),
-        url: apiCall?.url,
+        url: handleUrl(apiCall),
         headers: apiCall?.headers || { 'Content-Type': 'application/json' },
         data: body,
       });
@@ -157,6 +183,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
     const result = await makeApiCall(apiCall, newBody, action?.data?.output?.variableId ?? '');
+    console.log('🚀 ~ handleApiCallAction ~ result:', result);
 
     // handleApiResponse(result, action?.data?.output ?? {});
 

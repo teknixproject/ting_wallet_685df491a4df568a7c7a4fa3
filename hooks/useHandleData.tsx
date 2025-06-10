@@ -4,12 +4,15 @@ import _ from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { stateManagementStore } from '@/stores';
+import { customFunctionStore } from '@/stores/customFunction';
 import { TConditionalChild, TConditionChildMap, TTypeSelect } from '@/types';
 import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
 
+import { handleCustomFunction } from './handleCustomFunction';
+
 type UseHandleDataReturn = {
   dataState?: any;
-  getData: (data: TData) => any;
+  getData: (data: TData | null | undefined) => any;
 };
 
 const getRootConditionChild = (condition: TConditionChildMap): TConditionalChild | undefined => {
@@ -26,19 +29,21 @@ type TUseHandleData = {
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const apiResponseState = stateManagementStore((state) => state.apiResponse);
+  const findCustomFunction = customFunctionStore((state) => state.findCustomFunction);
   const appState = stateManagementStore((state) => state.appState);
   const componentState = stateManagementStore((state) => state.componentState);
   const globalState = stateManagementStore((state) => state.globalState);
   const [dataState, setDataState] = useState<any>();
   const itemInList = useRef(null);
   const findVariable = stateManagementStore((state) => state.findVariable);
-
   const handleInputValue = (data: TData['valueInput']) => {
     return data || '';
   };
 
+  //#region handle api
   const handleApiResponse = useCallback(
     (data: TData) => {
+      if (_.isEmpty(data)) return;
       const apiResponse = data.apiResponse;
       const variableId = apiResponse?.variableId || '';
       const variable = findVariable({ id: variableId, type: 'apiResponse' });
@@ -47,15 +52,13 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
         item: NonNullable<TDataField<TOptionApiResponse>['options']>[number],
         value?: any
       ) => {
-        console.log('🚀 ~ handleApiResponse ~ item:', item);
-
         switch (item.option) {
           case 'jsonPath':
             const valueJsonPath = JSONPath({
-              json: value,
+              json: value?.data,
               path: getData(item.jsonPath as TData) || '',
             });
-            return valueJsonPath[0];
+            return valueJsonPath?.[0];
           case 'statusCode':
             return value?.statusCode;
           case 'succeeded':
@@ -67,7 +70,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
           case 'exceptionMessage':
             return value?.data?.message;
           default:
-            return variable || data.defaultValue;
+            return variable?.value?.data || data.defaultValue;
         }
       };
 
@@ -149,6 +152,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     return resultCompare;
   }, []);
 
+  //#region  handle state
   const handleState = useCallback(
     (data: TData) => {
       const state = data[data.type] as TDataField;
@@ -234,6 +238,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     [findVariable]
   );
 
+  //#region handle item list
   const handleItemInList = (data: TData) => {
     const { jsonPath } = data.itemInList;
     if (jsonPath) {
@@ -246,8 +251,11 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     return itemInList.current;
   };
 
+  //#region handle custom function
+  //#region getData
   const getData = useCallback(
-    (data: TData): any => {
+    (data: TData | null | undefined): any => {
+      if (_.isEmpty(data)) return;
       if (!data || !data.type) return data?.defaultValue;
 
       switch (data.type) {
@@ -262,21 +270,26 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
         case 'globalState':
           return handleState(data);
         case 'combineText':
-          // Add your combine text logic here
           return data.combineText;
         case 'itemInList':
           return handleItemInList(data);
+        case 'customFunction':
+          return handleCustomFunction({ data: data.customFunction, findCustomFunction, getData });
         default:
           return data?.defaultValue;
       }
     },
     [handleApiResponse, handleState]
   );
+  //#region tracking
   const variableId = (props?.dataProp?.[props?.dataProp?.type] as any)?.variableId || '';
+
   const apiResponseTracking = apiResponseState?.[variableId];
   const appStateTracking = appState?.[variableId];
   const componentStateTracking = componentState?.[variableId];
   const globalStateTracking = globalState?.[variableId];
+
+  //#region handle main
   // Fixed useEffect - only update when data actually changes
   useEffect(() => {
     if (props?.dataProp) {

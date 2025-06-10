@@ -10,9 +10,11 @@ import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-construct
 import { getDeviceType } from '@/lib/utils';
 import { actionService } from '@/services';
 import { apiCallService } from '@/services/apiCall';
+import { customFunctionService } from '@/services/customFunctionService';
 import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
+import { customFunctionStore } from '@/stores/customFunction';
 import { pageActionsStore } from '@/stores/pageActions';
 import { stateManagementStore } from '@/stores/stateManagement';
 import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
@@ -214,6 +216,7 @@ const RenderUIClient = (props: any) => {
 const PreviewUI = (props: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
   const projectId = searchParams.get('projectId');
   const sectionName = searchParams.get('sectionName');
@@ -274,7 +277,17 @@ const PreviewUI = (props: any) => {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }
   };
-
+  const getCustomFunctions = async () => {
+    try {
+      const result = await customFunctionService.getAll({
+        uid: uid || '',
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+      });
+      setCustomFunctions(result.data);
+    } catch (error) {
+      console.log('🚀 ~ getCustomFunctions ~ error:', error);
+    }
+  };
   const setStateFormDataPreview = () => {
     if (!_.isEmpty(state)) {
       ['appState', 'globalState', 'componentState', 'apiResponse', 'dynamicGenerate'].forEach(
@@ -292,8 +305,10 @@ const PreviewUI = (props: any) => {
     if (bodyLayout) setData(bodyLayout);
 
     setStateFormDataPreview();
+
     getApiCall();
     getActions();
+    getCustomFunctions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, projectId, bodyLayout]);
 
