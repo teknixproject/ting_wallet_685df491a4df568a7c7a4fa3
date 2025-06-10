@@ -14,7 +14,7 @@ type Props = { data: GridItem };
 
 const InputText: React.FC<Props> = ({ data }) => {
   const { dataState } = useHandleData({ dataProp: data?.data });
-  const title = _.get(data, 'dataSlice.title') || dataState;
+  const title = _.get(data, 'dataSlice.title') || dataState || 'Text';
   const { handleAction } = useActions(data);
   const style = _.get(data, 'dataSlice.style', {});
   const newStyle: CSSProperties = {

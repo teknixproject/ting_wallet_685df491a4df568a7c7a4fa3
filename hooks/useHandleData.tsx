@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { JSONPath } from 'jsonpath-plus';
 import _ from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -24,7 +25,10 @@ type TUseHandleData = {
 };
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
-  const { apiResponse, appState, componentState, globalState } = stateManagementStore();
+  const apiResponseState = stateManagementStore((state) => state.apiResponse);
+  const appState = stateManagementStore((state) => state.appState);
+  const componentState = stateManagementStore((state) => state.componentState);
+  const globalState = stateManagementStore((state) => state.globalState);
   const [dataState, setDataState] = useState<any>();
   const itemInList = useRef(null);
   const findVariable = stateManagementStore((state) => state.findVariable);
@@ -147,14 +151,11 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
 
   const handleState = useCallback(
     (data: TData) => {
-      console.log('🚀 ~ handleState ~ data:', data);
-
       const state = data[data.type] as TDataField;
       if ('variableId' in state || {}) {
         const variableId = state?.variableId || '';
         const variable = findVariable({ id: variableId, type: data.type as TTypeSelect });
 
-        console.log('🚀 ~ handleState ~ variable:', variable);
         let value = variable?.value;
 
         for (const option of state?.options || []) {
@@ -271,12 +272,16 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     },
     [handleApiResponse, handleState]
   );
-
+  const variableId = (props?.dataProp?.[props?.dataProp?.type] as any)?.variableId || '';
+  const apiResponseTracking = apiResponseState?.[variableId];
+  const appStateTracking = appState?.[variableId];
+  const componentStateTracking = componentState?.[variableId];
+  const globalStateTracking = globalState?.[variableId];
   // Fixed useEffect - only update when data actually changes
   useEffect(() => {
     if (props?.dataProp) {
       const newDataState = getData(props.dataProp);
-      console.log('🚀 ~ useEffect ~ newDataState:', newDataState);
+      console.log('🚀 ~ useEffect ~ props.dataProp:', props.dataProp);
 
       // Only update state if the value actually changed
       setDataState((prevState: any) => {
@@ -286,7 +291,13 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
         return prevState;
       });
     }
-  }, [props?.dataProp, apiResponse, appState, componentState, globalState, getData]);
+  }, [
+    props.dataProp,
+    apiResponseTracking,
+    appStateTracking,
+    componentStateTracking,
+    globalStateTracking,
+  ]);
 
   return {
     getData,
