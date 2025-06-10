@@ -81,6 +81,20 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   };
 }
 
+export function useGetModalUI() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+
+  const { data, error, isLoading } = useSWR(
+    `${API_URL}/api/client/getModalLayout?pId=${projectId}&modalId=${'6846b9bcba966f74486e2f11'}`,
+    fetcher,
+    { revalidateOnFocus: false, refreshInterval: 60000 }
+  );
+  return {
+    data,
+  };
+}
+
 export async function rebuilComponentMonaco(componentString: string) {
   try {
     if (!componentString || typeof componentString !== 'string') {

@@ -31,6 +31,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const apiData = useApiCallStore((state) => state.apiData);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
   const { multiples } = useHandleProps({ actionsProp: slice?.props });
+
   useEffect(() => {
     if (
       sliceRef &&
@@ -94,13 +95,16 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   }, [sliceRef, styleDevice]);
 
   const content = SliceComponent ? (
-    <SliceComponent
-      id={_.get(sliceRef, 'id')}
-      style={isButton ? styleSlice : convertStyle(styleSlice)}
-      data={sliceRef}
-      childs={sliceRef?.childs}
-      {...multiples}
-    />
+    <>
+      {/* {isModal && <Modal isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />} */}
+      <SliceComponent
+        id={_.get(sliceRef, 'id')}
+        style={isButton ? styleSlice : convertStyle(styleSlice)}
+        data={sliceRef}
+        childs={sliceRef?.childs}
+        {...multiples}
+      />
+    </>
   ) : (
     sliceRef?.childs && (
       <RenderGrid items={sliceRef.childs} idParent={sliceRef.id!} slice={sliceRef} />

@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { useActions } from '@/hooks/useActions';
@@ -13,6 +13,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { Button as ButtonUI } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import Modal from './Modal';
 
 interface ButtonCompoProps {
   data?: GridItem;
@@ -28,9 +29,13 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   const route = _.get(data, 'dataSlice.route', '');
   const router = useRouter();
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const { handleAction } = useActions(data);
 
   const isButtonGradient = _.get(data, 'isBtnGradient', false);
+
+  const isModalButton = _.get(data, 'isModalButton', false);
 
   const tooltip = useMemo(() => {
     return data?.tooltip;
@@ -72,7 +77,9 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     <ButtonUI
       type="button"
       style={style}
-      onClick={() => (route ? handleRouteClick() : handleAction('onClick'))}
+      onClick={() =>
+        isModalButton ? setIsOpen(true) : route ? handleRouteClick() : handleAction('onClick')
+      }
       className="cursor-pointer"
     >
       {iconStart && <span className="icon-start">{iconStart}</span>}
@@ -81,13 +88,22 @@ const Button = ({ data, style }: ButtonCompoProps) => {
     </ButtonUI>
   );
 
-  if (_.isEmpty(tooltip?.title)) return content;
+  if (_.isEmpty(tooltip?.title))
+    return (
+      <div>
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <h2>Tiêu đề Modal</h2>
+          <p>Nội dung modal ở đây.</p>
+        </Modal>
+        {content}
+      </div>
+    );
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div style={style} className="text-[#858585]">
+          <div style={style} className="text-[#858585]" onClick={() => setIsOpen(true)}>
             {content}
           </div>
         </TooltipTrigger>
@@ -99,26 +115,26 @@ const Button = ({ data, style }: ButtonCompoProps) => {
   );
 };
 
-const flexCenter = {
-  display: 'flex',
-  'align-items': 'center',
-  'justify-content': 'center',
-};
-const CsButton = styled.button<StylesProps>`
-  ${(props) =>
-    props.styledComponentCss
-      ? css`
-          ${props.styledComponentCss}
-        `
-      : ''}
-  box-sizing: border-box;
-  ${(props) =>
-    _.get(props, 'style.after')
-      ? Object.entries(flexCenter)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join('\n')
-      : ''}
-`;
+// const flexCenter = {
+//   display: 'flex',
+//   'align-items': 'center',
+//   'justify-content': 'center',
+// };
+// const CsButton = styled.button<StylesProps>`
+//   ${(props) =>
+//     props.styledComponentCss
+//       ? css`
+//           ${props.styledComponentCss}
+//         `
+//       : ''}
+//   box-sizing: border-box;
+//   ${(props) =>
+//     _.get(props, 'style.after')
+//       ? Object.entries(flexCenter)
+//           .map(([key, value]) => `${key}: ${value}`)
+//           .join('\n')
+//       : ''}
+// `;
 
 interface StylesProps {
   style?: {
