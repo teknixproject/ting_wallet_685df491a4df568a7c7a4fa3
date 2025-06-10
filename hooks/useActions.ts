@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   TAction,
   TActionApiCall,
+  TActionCustomFunction,
   TActionLoop,
   TActionNavigate,
   TActionUpdateState,
@@ -17,6 +18,7 @@ import { GridItem } from '@/types/gridItem';
 import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCallAction } from './useApiCallAction';
 import { useConditionAction } from './useConditionAction';
+import { useCustomFunction } from './useCustomFunction';
 import { useLoopActions } from './useLoopActions';
 import { useNavigateAction } from './useNavigateAction';
 import { useUpdateStateAction } from './useUpdateStateAction';
@@ -55,6 +57,7 @@ export const useActions = (data?: GridItem): TUseActions => {
   });
   const { handleNavigateAction } = useNavigateAction({ executeActionFCType });
   const { executeLoopOverList } = useLoopActions({ executeActionFCType });
+  const { handleCustomFunction } = useCustomFunction({ executeActionFCType });
 
   const mounted = useRef(false);
 
@@ -76,6 +79,8 @@ export const useActions = (data?: GridItem): TUseActions => {
           return handleApiCallAction(action as TAction<TActionApiCall>);
         case 'updateStateManagement':
           return handleUpdateStateAction(action as TAction<TActionUpdateState>);
+        case 'customFunction':
+          return handleCustomFunction(action as TAction<TActionCustomFunction>);
         default:
           console.warn(`Unknown action type: ${action.type}`);
       }

@@ -29,7 +29,7 @@ const Text = ({ data, style }: TextProps) => {
     <TextComplex texts={dataState} style={style} />
   ) : (
     <CsText style={convertStyle(newStyle)} styledComponentCss={data?.styledComponentCss}>
-      {_.isObject(dataState) ? JSON.stringify(dataState) : dataState}
+      {_.isObject(dataState) ? JSON.stringify(dataState || 'Text') : dataState || 'Text'}
     </CsText>
   );
 

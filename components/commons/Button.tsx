@@ -22,7 +22,7 @@ interface ButtonCompoProps {
 
 const Button = ({ data, style }: ButtonCompoProps) => {
   const { dataState } = useHandleData({ dataProp: data?.data });
-  const title = _.get(data, 'dataSlice.title') || dataState;
+  const title = _.get(data, 'dataSlice.title') || dataState || 'Button';
   const iconStart = _.get(data, 'dataSlice.iconStart', null);
   const iconEnd = _.get(data, 'dataSlice.iconEnd', null);
   const link = _.get(data, 'dataSlice.link', '');

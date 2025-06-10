@@ -1,4 +1,5 @@
 import { TAction, TConditionChildMap } from './actions';
+import { TTypeVariable } from './variable';
 
 export type TOptionApiResponse =
   | 'jsonPath'
@@ -38,6 +39,10 @@ export type TData = {
   globalState?: TDataField;
   apiCall?: {
     variableId: string;
+  };
+  customFunction: {
+    customFunctionId: string;
+    props: { key: string; type: TTypeVariable; isList: boolean; value: TData }[];
   };
   valueInput?: string;
   defaultValue?: string;

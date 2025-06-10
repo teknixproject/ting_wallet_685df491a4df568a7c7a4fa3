@@ -1,141 +1,190 @@
-import axios from 'axios';
 import { Search } from 'lucide-react';
-import React, { CSSProperties, FC, useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, FC, useEffect, useRef, useState } from 'react';
+import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
-import { stateManagementStore } from '@/stores';
+import { useUpdateData } from '@/hooks/useUpdateData';
 import { GridItem } from '@/types/gridItem';
-import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Popover, PopoverContent } from '../ui/popover';
 
-type Props = { data: GridItem; style?: CSSProperties; value?: string };
+type Props = {
+  data: GridItem;
+  style?: CSSProperties;
+  value?: any[];
+};
 
-const InputSearch: React.FC<Props> = ({ data, value }) => {
+type TForm = {
+  inputSearch: string;
+};
+
+const InputSearch: React.FC<Props> = ({ data, style, value }) => {
+  console.log('🚀 ~ value:', value);
+  const [loading, setLoading] = useState<boolean>(false);
   const { dataState } = useHandleData({ dataProp: data.data });
-
-  const findVariable = stateManagementStore((state) => state.findVariable);
-  const updateVariables = stateManagementStore((state) => state.updateVariables);
-  const { handleAction } = useActions(data);
-
+  console.log('🚀 ~ dataState:', dataState);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { type, variableId } = useMemo(() => {
-    const type = data.data?.type as 'appState' | 'globalState' | 'componentState';
-    const variableId = data.data?.[type]?.variableId ?? '';
-    return { type, variableId };
-  }, [data.data]);
+  const methods = useForm<TForm>({
+    defaultValues: {
+      inputSearch: '',
+    },
+    values: {
+      inputSearch: dataState || '',
+    },
+  });
+  const { control, handleSubmit } = methods;
+  const { handleAction } = useActions(data);
+  const { updateData } = useUpdateData({ dataProp: data.data });
 
-  const variable = useMemo(() => {
-    if (!type || !variableId) return null;
-    return findVariable({ id: variableId, type });
-  }, [findVariable, type, variableId]);
+  const onSubmit = (data: TForm) => {
+    updateData(data.inputSearch);
+    handleAction('onClick');
+  };
+  const inputSearch = useWatch({
+    control,
+    name: 'inputSearch',
+  });
 
-  const handleInputChange = useDebouncedCallback((value: string) => {
-    if (variable && type) {
-      updateVariables({
-        type,
-        dataUpdate: {
-          ...variable,
-          value,
-        },
+  useEffect(() => {
+    setLoading(true);
+
+    Promise.resolve(updateData(inputSearch))
+      .then(() => {
+        handleAction('onChange');
+      })
+      .catch((error) => {
+        console.error('Error in handleAction:', error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
+  }, [inputSearch]);
 
-      handleAction('onChange');
+  return (
+    <FormProvider {...methods}>
+      <div className="" style={style}>
+        <div className="flex justify-center items-center gap-2 relative">
+          <Controller
+            name="inputSearch"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                ref={(node) => {
+                  field.ref(node);
+                  inputRef.current = node;
+                }}
+              />
+            )}
+          />
+
+          <Button
+            variant="secondary"
+            size="icon"
+            className="size-8"
+            onClick={handleSubmit(onSubmit)}
+          >
+            <Search />
+          </Button>
+          <PopoverSearch inputRef={inputRef} values={value || []} isLoading={loading} />
+        </div>
+      </div>
+    </FormProvider>
+  );
+};
+
+const PopoverSearch: FC<{
+  inputRef: React.RefObject<HTMLInputElement>;
+  values: any[];
+  isLoading?: boolean;
+}> = ({ inputRef, values, isLoading = false }) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [isSelecting, setIsSelecting] = useState<boolean>(false);
+  const { control, setValue } = useFormContext<TForm>();
+  const inputSearch = useWatch({ control, name: 'inputSearch' });
+
+  const handle = useDebouncedCallback(() => {
+    // Don't open popup if we're in the middle of selecting a value
+    if (inputSearch && !isSelecting) {
+      setOpen(true);
+    } else if (!inputSearch) {
+      setOpen(false);
     }
   }, 300);
 
-  const handleInputValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleInputChange(e.target.value);
-  };
-
-  const {
-    data: users,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ['callApi', dataState],
-    queryFn: () => {
-      return axios.get(`https://dummyjson.com/users/search?q=${dataState}&select=lastName`);
-    },
-    enabled: false,
-  });
   useEffect(() => {
-    refetch();
-  }, [dataState, refetch]);
-  const setInputSearch = (value: string) => {
-    if (inputRef.current) {
-      inputRef.current.value = value;
-    }
-    if (variable && type) {
-      updateVariables({
-        type,
-        dataUpdate: {
-          ...variable,
-          value,
-        },
-      });
-    }
-  };
+    handle();
+  }, [inputSearch, handle]);
 
-  return (
-    <div>
-      <div className="flex justify-center items-center gap-2 relative">
-        <Input onChange={handleInputValueChange} defaultValue={dataState} ref={inputRef} />
-        <Button
-          variant="secondary"
-          size="icon"
-          className="size-8"
-          onClick={() => handleAction('onClick')}
-        >
-          <Search />
-        </Button>
-        <PopoverSearch
-          dataState={dataState}
-          handleAction={() => handleAction('onClick')}
-          handleInputValueChange={handleInputValueChange}
-          inputSearch={dataState}
-          users={users}
-          isLoading={isLoading}
-          setInputSearch={setInputSearch}
-        />
-      </div>
-    </div>
-  );
-};
-const PopoverSearch: FC<{
-  handleAction: () => void;
-  handleInputValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  inputSearch: string;
-  users: any;
-  isLoading: boolean;
-  setInputSearch: (value: string) => void;
-  dataState: string;
-}> = ({ dataState, users, setInputSearch }) => {
-  const [open, setOpen] = useState<boolean>(false);
-  useEffect(() => {
-    setOpen(!!dataState);
-  }, [dataState]);
   const handleClick = (value: string) => {
-    setInputSearch(value);
+    setIsSelecting(true);
+    setValue('inputSearch', value);
+    setOpen(false);
+
+    // Reset the selecting flag after a short delay to allow for normal typing behavior
+    setTimeout(() => {
+      setIsSelecting(false);
+      inputRef.current?.focus();
+    }, 100);
   };
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverContent className="w-80 h-80 overflow-auto absolute top-10" asChild>
-        <div className="flex flex-col gap-2">
-          {users?.data?.users.map((user: any) => (
-            <Button key={user.id} onClick={() => handleClick(user.lastName)}>
-              {user.lastName}
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <Loading />;
+    }
+    if (values?.length) {
+      return (
+        <>
+          {values?.map((value: any, index: number) => (
+            <Button
+              key={index}
+              variant="ghost"
+              className="justify-start"
+              onClick={() => handleClick(value)}
+            >
+              {value}
             </Button>
           ))}
-          {!users?.data?.users?.length && <div>No result</div>}
+        </>
+      );
+    }
+    if (!values?.length && inputSearch) {
+      return (
+        <div className="flex justify-center items-center p-4">
+          <p>No results found</p>
         </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverContent
+        className="w-80 h-80 overflow-auto absolute top-10"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <div className="flex flex-col gap-2">{renderContent()}</div>
       </PopoverContent>
     </Popover>
   );
 };
+
+const Loading = () => {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div key={index} className="p-2 animate-pulse bg-gray-200 rounded-md mb-2 h-8"></div>
+      ))}
+    </>
+  );
+};
+
 export default InputSearch;

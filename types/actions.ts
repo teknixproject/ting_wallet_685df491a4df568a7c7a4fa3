@@ -1,4 +1,5 @@
 import { TData } from './dataItem';
+import { TTypeVariable } from './variable';
 
 export type TApiResponseOption = 'jsonBody' | 'statusCode' | 'succeeded';
 
@@ -27,7 +28,8 @@ export type TActionSelect =
   | 'conditionalChild'
   | 'conditional'
   | 'loopOverList'
-  | 'loop';
+  | 'loop'
+  | 'customFunction';
 export type TActionFCType = 'action' | 'conditional' | 'conditionalChild' | 'loopOverList' | 'loop';
 export type TStatusResponse = 'success' | 'error';
 export type TOperatorCompare =
@@ -179,6 +181,11 @@ export type TActionLoopOverList = {
   endIndex: TData;
   stepSize: TData;
   reserverOrder: boolean;
+};
+export type TActionCustomFunction = TData['customFunction'] & {
+  output: { variableId: string };
+  isList: boolean;
+  outputType: TTypeVariable;
 };
 export type TAction<T = unknown> = {
   id: string;

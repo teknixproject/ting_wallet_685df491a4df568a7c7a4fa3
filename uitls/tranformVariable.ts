@@ -9,7 +9,7 @@ export type TVariable = {
 export type TTypeVariable = 'String' | 'Integer' | 'Float' | 'Boolean' | 'Date' | 'Object';
 
 // Type-safe transform function
-export const transformVariable = (variable: TVariable): any => {
+export const transformVariable = (variable: Omit<TVariable, 'id'>): any => {
   if (!variable || variable.value === null || variable.value === undefined) {
     return variable?.value ?? null;
   }
