@@ -2,21 +2,23 @@
 
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
 import { actionService } from '@/services';
 import { apiCallService } from '@/services/apiCall';
+import { authSettingService } from '@/services/authSetting';
 import { customFunctionService } from '@/services/customFunctionService';
 import { stateManagerService } from '@/services/stateManagement';
 import { apiResourceStore, layoutStore } from '@/stores';
 import { actionsStore } from '@/stores/actions';
+import { authSettingStore } from '@/stores/authSetting';
 import { customFunctionStore } from '@/stores/customFunction';
 import { pageActionsStore } from '@/stores/pageActions';
 import { stateManagementStore } from '@/stores/stateManagement';
-import { TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
+import { TAuthSetting, TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
 
 import DynamicComponent from './preview-ui';
 
@@ -33,7 +35,19 @@ const LoadingPage = dynamic(() => import('./loadingPage'), {
 
 export default function ClientWrapper(props: any) {
   const isPreviewUI = _.get(props, 'pathName') === 'preview-ui';
-
+  const resetAuthSettings = authSettingStore((state) => state.reset);
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+  const getAuthSettings = async () => {
+    try {
+      const result = await authSettingService.get({ projectId });
+      resetAuthSettings(result?.data);
+    } catch (error) {
+      console.log('🚀 ~ getAuthSettings ~ error:', error);
+    }
+  };
+  useEffect(() => {
+    getAuthSettings();
+  }, [projectId]);
   if (isPreviewUI) {
     return <PreviewUI {...props} />;
   }
@@ -57,9 +71,10 @@ const RenderUIClient = (props: any) => {
   const { setData } = layoutStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
-  const { setStateManagement } = stateManagementStore();
-  const { setActions } = actionsStore();
+  const { setStateManagement, findVariable } = stateManagementStore();
 
+  const { setActions } = actionsStore();
+  const { enable, pages, loginPage } = authSettingStore();
   const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, props?.pathName);
 
   useEffect(() => {
@@ -71,7 +86,7 @@ const RenderUIClient = (props: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-
+  const router = useRouter();
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
@@ -157,7 +172,33 @@ const RenderUIClient = (props: any) => {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }
   };
+  useEffect(() => {
+    if (enable) {
+      const role = findVariable({
+        type: 'globalState',
+        name: 'ROLE',
+      });
+      console.log('🚀 ~ useEffect ~ role:', role);
+      console.log('🚀 ~ check ~ pathname:', pathname);
+      const check = () => {
+        const pageRole = pages
+          .find((item: TAuthSetting['pages'][number]) => item.documentId.uid === pathname)
+          ?.roles?.filter((item) => item.value);
+        console.log('🚀 ~ check ~ pageRole:', pageRole);
+        return pageRole?.includes(role?.value);
+      };
+      const checkRole = check();
+      console.log('🚀 ~ useEffect ~ checkRole:', checkRole);
 
+      if (!checkRole) {
+        if (loginPage) {
+          router.push(loginPage);
+        } else {
+          router.push('/login');
+        }
+      }
+    }
+  }, [enable, loginPage]);
   useEffect(() => {
     if (!projectId) return;
     getStates();
@@ -187,6 +228,7 @@ const RenderUIClient = (props: any) => {
 
 const PreviewUI = (props: any) => {
   const pathname = usePathname();
+
   const searchParams = useSearchParams();
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
@@ -277,7 +319,6 @@ const PreviewUI = (props: any) => {
     if (bodyLayout) setData(bodyLayout);
 
     setStateFormDataPreview();
-
     getApiCall();
     getActions();
     getCustomFunctions();

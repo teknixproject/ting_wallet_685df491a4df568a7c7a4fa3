@@ -49,5 +49,5 @@ export type TDocumentStateUpdate = {
 export type TDocumentStateFind = {
   type: TTypeSelect;
   name?: string;
-  id: string;
+  id?: string;
 };
