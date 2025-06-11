@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 import { Metadata } from 'next';
 import _ from 'lodash';
 import Head from 'next/head';
@@ -17,7 +17,7 @@ export default async function Home() {
   const iconUrl = _.get(formMetadata, 'icon.icon') || '/favicon.ico';
 
   return (
-    <>
+    <Suspense>
       <Head>
         <link rel="icon" href={iconUrl} type="image/png" />
         <link rel="preload" href={iconUrl} as="image" />
@@ -55,7 +55,7 @@ export default async function Home() {
       <Fragment>
         <ClientWrapper layoutId={layoutId} pathName={pageName} />
       </Fragment>
-    </>
+    </Suspense>
   );
 }
 

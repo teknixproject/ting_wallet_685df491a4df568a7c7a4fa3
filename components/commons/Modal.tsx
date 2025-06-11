@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import ReactModal from 'react-modal';
 
 const Modal = ({ isOpen, onClose, children, ...props }: any) => {

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 import { Metadata } from 'next';
 import Head from 'next/head';
 import _ from 'lodash';
@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Params }) {
 
   try {
     return (
-      <>
+      <Suspense>
         <Head>
           <link rel="icon" href={iconUrl} type="image/png" />
           <link rel="preload" href={iconUrl} as="image" />
@@ -35,7 +35,7 @@ export default async function Page({ params }: { params: Params }) {
         <Fragment>
           <ClientWrapper layoutId={uid} pathName={uid} />
         </Fragment>
-      </>
+      </Suspense>
     );
   } catch (error) {
     console.error('Page render error:', error);
