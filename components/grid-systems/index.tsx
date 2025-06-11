@@ -4,7 +4,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 
-import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
+import { rebuilComponentMonaco, useGetModalUI } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
 import { useHandleProps } from '@/hooks/useHandleProps';
 import { componentRegistry } from '@/lib/slices';
@@ -19,6 +19,7 @@ import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } f
 import LoadingPage from './loadingPage';
 import { CsContainerRenderSlice } from './styles';
 import { GridSystemProps, RenderGripProps } from './types';
+import Modal from '../commons/Modal';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const componentHasMenu = ['dropdown'];
@@ -55,6 +56,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const key = _.upperFirst(sliceRef?.id?.split('$')[0]);
 
   const isButton = key === 'button';
+  const idModal = '';
 
   const data = useMemo(() => {
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
@@ -96,7 +98,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
 
   const content = SliceComponent ? (
     <>
-      {/* {isModal && <Modal isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />} */}
+      <RenderModal idModal={idModal} />
       <SliceComponent
         id={_.get(sliceRef, 'id')}
         style={isButton ? styleSlice : convertStyle(styleSlice)}
@@ -187,6 +189,15 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
   }
 
   return <>{renderedChildren}</>;
+};
+
+export const RenderModal: React.FC<any> = ({ modalId }: { modalId: string }) => {
+  const { data: dataModal } = useGetModalUI(modalId);
+  console.log('dataModal', dataModal);
+
+  // const renderContentModal = () => {};
+
+  return <Modal data={{}} isOpen={false} onClose={() => {}}></Modal>;
 };
 
 //#region Grid System

@@ -81,17 +81,18 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   };
 }
 
-export function useGetModalUI() {
+export function useGetModalUI(modalId: string) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
-  const { data, error, isLoading } = useSWR(
-    `${API_URL}/api/client/getModalLayout?pId=${projectId}&modalId=${'6846b9bcba966f74486e2f11'}`,
+  const { data, isLoading } = useSWR(
+    `${API_URL}/api/client/getModalLayout?projectId=${projectId}&modalId=${modalId}`,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
   );
   return {
-    data,
+    isLoading,
+    data: data?.data || [],
   };
 }
 

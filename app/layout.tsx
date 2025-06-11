@@ -8,6 +8,7 @@ import { ApiStoreProvider } from '@/providers';
 import { LayoutProvider } from '@/context/LayoutContext';
 import LayoutContent from '@/components/grid-systems/LayoutContent';
 import ReactQueryProvider from '@/providers/QueryClient';
+import { Suspense } from 'react';
 
 export const fetchSEOData = async (path: string) => {
   try {
@@ -54,7 +55,9 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ApiStoreProvider>
             <LayoutProvider>
-              <LayoutContent>{children}</LayoutContent>
+              <Suspense>
+                <LayoutContent>{children}</LayoutContent>
+              </Suspense>
             </LayoutProvider>
           </ApiStoreProvider>
         </ReactQueryProvider>
