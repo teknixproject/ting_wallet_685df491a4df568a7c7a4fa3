@@ -6,7 +6,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import { ApiStoreProvider } from '@/providers';
 import { LayoutProvider } from '@/context/LayoutContext';
-import LayoutContent from '@/components/grid-systems/LayoutContent';
+import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutContent';
 import ReactQueryProvider from '@/providers/QueryClient';
 import { Suspense } from 'react';
 
@@ -56,6 +56,7 @@ export default function RootLayout({
           <ApiStoreProvider>
             <LayoutProvider>
               <Suspense>
+                <RenderModal />
                 <LayoutContent>{children}</LayoutContent>
               </Suspense>
             </LayoutProvider>

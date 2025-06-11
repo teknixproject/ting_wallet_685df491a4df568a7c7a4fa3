@@ -13,6 +13,7 @@ type Params = { uid: string };
 
 export default async function Page({ params }: { params: Params }) {
   const { uid } = await params;
+
   const metadata = await fetchMetadata(uid);
   const formMetadata = _.get(metadata, 'data.form');
   const iconUrl = _.get(formMetadata, 'icon.icon') || '/favicon.ico';

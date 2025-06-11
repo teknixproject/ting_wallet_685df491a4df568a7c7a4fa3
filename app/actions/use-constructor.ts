@@ -81,12 +81,12 @@ export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
   };
 }
 
-export function useGetModalUI(modalId: string) {
+export function useGetModalUI() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
   const { data, isLoading } = useSWR(
-    `${API_URL}/api/client/getModalLayout?projectId=${projectId}&modalId=${modalId}`,
+    `${API_URL}/api/client/getModalLayout?projectId=${projectId}`,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 60000 }
   );

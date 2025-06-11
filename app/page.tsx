@@ -8,7 +8,7 @@ import { fetchMetadata } from './actions/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-const pageName = 'home';
+const pageName = '/';
 
 export default async function Home() {
   const layoutId = pageName;
@@ -60,15 +60,15 @@ export default async function Home() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const path = 'home';
+  const path = 'NextJS';
 
   const metadata = await fetchMetadata(path);
   const formMetadata = _.get(metadata, 'data.form');
 
   if (!formMetadata) {
     return {
-      title: 'Home',
-      description: 'Home',
+      title: 'NextJS',
+      description: 'NextJS 15',
     };
   }
   const iconConfig = {
@@ -79,18 +79,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: formMetadata?.title?.default || 'HOME PAGE',
+      default: formMetadata?.title?.default || 'NextJS PAGE',
       template: formMetadata?.title.template,
     },
-    description: formMetadata?.description || 'Default home page.',
+    description: formMetadata?.description || 'Default NextJS Page.',
     keywords: formMetadata?.keywords,
     authors: formMetadata?.authors?.map((author: any) => ({
       name: author.name,
       url: author.url,
     })),
     openGraph: {
-      title: formMetadata?.openGraph?.title || 'HOME PAGE',
-      description: formMetadata?.openGraph?.description || 'Default home page.',
+      title: formMetadata?.openGraph?.title || 'NEXTJS PAGE',
+      description: formMetadata?.openGraph?.description || 'Default NextJS page.',
       url: formMetadata?.openGraph?.url,
       siteName: formMetadata?.openGraph?.siteName,
       images: formMetadata?.openGraph?.images?.map((image: any) => ({

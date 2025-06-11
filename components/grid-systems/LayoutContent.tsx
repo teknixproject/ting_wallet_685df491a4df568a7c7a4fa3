@@ -2,15 +2,13 @@
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useMemo } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
 
 import { getDeviceType } from '@/lib/utils';
 import { useLayoutContext } from '@/context/LayoutContext';
-import { actionService, apiCallService, stateManagerService } from '@/services';
-import { TTypeSelectState, TVariable, TVariableMap } from '@/types';
-import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
+import { useGetModalUI } from '@/app/actions/use-constructor';
 
 import LoadingPage from './loadingPage';
+import Modal from '../commons/Modal';
 
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
@@ -20,13 +18,6 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  // Store hooks
-  const { addAndUpdateApiResource } = apiResourceStore();
-  const { setStateManagement } = stateManagementStore();
-  const { setActions } = actionsStore();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -49,72 +40,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       {},
     [footerLayout, deviceType]
   );
-
-  const uid: any =
-    searchParams.get('uid') ||
-    (pathname === '/' ? process.env.NEXT_PUBLIC_DEFAULT_UID : pathname.slice(1));
-
-  const getActions = async () => {
-    try {
-      const result = await actionService.getData({ uid, projectId: projectId || '' });
-      if (!_.isEmpty(result?.data?.data)) setActions(result.data.data);
-    } catch (error) {
-      console.log('🚀 ~ getActions ~ error:', error);
-    }
-  };
-
-  const getStates = async () => {
-    const list: TTypeSelectState[] = [
-      'appState',
-      'componentState',
-      'globalState',
-      'apiResponse',
-      'dynamicGenerate',
-    ];
-    try {
-      await Promise.all(
-        list.map(async (type) => {
-          const result = await stateManagerService.getData(
-            type === 'globalState'
-              ? { projectId: projectId || '', type }
-              : { uid: uid || 'home', projectId: projectId || '', type }
-          );
-          if (_.isEmpty(result?.data)) return;
-          const { state } = result?.data;
-          if (_.isEmpty(state)) return;
-          setStateManagement({
-            type,
-            dataUpdate: state.reduce(
-              (acc: TVariableMap, item: TVariable) => ({
-                ...acc,
-                [item.id]: item,
-              }),
-              {}
-            ),
-          });
-        })
-      );
-    } catch (error) {
-      console.log('🚀 ~ getStates ~ error:', error);
-    }
-  };
-
-  const getApiCall = async () => {
-    try {
-      const result = await apiCallService.get({ uid, projectId: projectId || '' });
-      addAndUpdateApiResource({ apis: result?.data?.apis });
-    } catch (error) {
-      console.log('🚀 ~ getApiCall ~ error:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (!projectId) return;
-    getStates();
-    getApiCall();
-    getActions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, projectId]);
 
   const containerStyle = useMemo(() => {
     if (headerPosition === 'left' || headerPosition === 'right') {
@@ -139,6 +64,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
         position: 'sticky',
         top: 0,
         height: '100vh',
+        zIndex: 10,
       };
     } else if (headerPosition === 'right') {
       return {
@@ -148,6 +74,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
         top: 0,
         height: '100vh',
         order: 2,
+        zIndex: 10,
       };
     }
     return {
@@ -159,8 +86,8 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   }, [headerPosition]);
 
   return (
-    <div>
-      <div style={containerStyle as any}>
+    <div className="relative !z-0">
+      <div className="z-10" style={containerStyle as any}>
         {!_.isEmpty(selectedHeaderLayout) && (
           <GridSystemContainer
             page={selectedHeaderLayout}
@@ -182,3 +109,8 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     </div>
   );
 }
+
+export const RenderModal: React.FC<any> = () => {
+  const { data: dataModal } = useGetModalUI();
+  return _.map(dataModal, (item) => <Modal key={item?._id} data={item} false></Modal>);
+};

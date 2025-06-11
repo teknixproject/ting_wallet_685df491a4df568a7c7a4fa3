@@ -1,17 +1,21 @@
 'use client';
 
+import { useHandleData } from '@/hooks/useHandleData';
+import { useUpdateData } from '@/hooks/useUpdateData';
 import { useEffect } from 'react';
 import ReactModal from 'react-modal';
 
 interface ModalProps {
   data: any;
-  isOpen?: boolean;
-  onClose?: () => void;
   children?: any;
   [key: string]: unknown;
 }
 
-const Modal = ({ isOpen, onClose, children, ...props }: ModalProps) => {
+const Modal = ({ children, data, ...props }: ModalProps) => {
+  const { dataState } = useHandleData({ dataProp: data?.data });
+
+  const { updateData } = useUpdateData({ dataProp: data?.data });
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const appRoot = document.getElementById('__next');
@@ -23,16 +27,17 @@ const Modal = ({ isOpen, onClose, children, ...props }: ModalProps) => {
 
   return (
     <ReactModal
-      isOpen={isOpen || false}
-      onRequestClose={onClose}
+      isOpen={dataState}
+      onRequestClose={updateData}
       shouldCloseOnOverlayClick={true}
       style={{
         content: {
+          position: 'absolute',
           background: 'lightblue',
           padding: '30px',
           borderRadius: '10px',
-          maxWidth: '500px',
           margin: 'auto',
+          zIndex: 1000,
         },
         overlay: {
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -40,8 +45,8 @@ const Modal = ({ isOpen, onClose, children, ...props }: ModalProps) => {
       }}
       {...props}
     >
+      123
       {children}
-      <button onClick={onClose}>Đóng</button>
     </ReactModal>
   );
 };
