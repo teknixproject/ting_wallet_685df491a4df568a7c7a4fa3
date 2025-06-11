@@ -44,4 +44,4 @@ const Modal = ({ isOpen, onClose, children, ...props }: ModalProps) => {
   );
 };
 
-export default Page;
+export default Modal;

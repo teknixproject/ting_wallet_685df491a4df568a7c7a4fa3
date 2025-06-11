@@ -36,13 +36,16 @@ export const stateManagementStore = create<TDocumentState & TDocumentStateAction
           [type]: dataUpdate,
         }));
       },
-      findVariable: ({ type, id }) => {
+      findVariable: ({ type, id, name }) => {
         const data = get()[type] || {};
-
-        return {
-          ...data[id],
-          value: transformVariable(data[id]),
-        };
+        if (id)
+          return {
+            ...data[id],
+            value: transformVariable(data[id]),
+          };
+        if (name) {
+          return Object.values(data).find((item: TVariable) => item.key === name);
+        }
       },
       updateVariables: ({ type, dataUpdate }) => {
         set((state) => {
