@@ -19,6 +19,7 @@ import { GapGrid, GridRow, mapAlineItem, mapJustifyContent, SpanCol, SpanRow } f
 import LoadingPage from './loadingPage';
 import { CsContainerRenderSlice } from './styles';
 import { GridSystemProps, RenderGripProps } from './types';
+import Modal from '../commons/Modal';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const componentHasMenu = ['dropdown'];
@@ -55,7 +56,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const key = _.upperFirst(sliceRef?.id?.split('$')[0]);
 
   const isButton = key === 'button';
-  const idModal = sliceRef?.dataSlice?.modal?.id;
+  const idModal = '';
 
   const data = useMemo(() => {
     return componentHasAction.includes(key!) ? sliceRef : _.get(sliceRef, 'dataSlice');
@@ -194,7 +195,9 @@ export const RenderModal: React.FC<any> = ({ modalId }: { modalId: string }) => 
   const { data: dataModal } = useGetModalUI(modalId);
   console.log('dataModal', dataModal);
 
-  return <div className=""></div>;
+  // const renderContentModal = () => {};
+
+  return <Modal data={{}} isOpen={false} onClose={() => {}}></Modal>;
 };
 
 //#region Grid System

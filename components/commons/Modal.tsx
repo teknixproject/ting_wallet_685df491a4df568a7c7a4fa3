@@ -3,7 +3,15 @@
 import { useEffect } from 'react';
 import ReactModal from 'react-modal';
 
-const Modal = ({ isOpen, onClose, children, ...props }: any) => {
+interface ModalProps {
+  data: any;
+  isOpen?: boolean;
+  onClose?: () => void;
+  children?: any;
+  [key: string]: unknown;
+}
+
+const Modal = ({ isOpen, onClose, children, ...props }: ModalProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const appRoot = document.getElementById('__next');
@@ -15,7 +23,7 @@ const Modal = ({ isOpen, onClose, children, ...props }: any) => {
 
   return (
     <ReactModal
-      isOpen={isOpen}
+      isOpen={isOpen || false}
       onRequestClose={onClose}
       shouldCloseOnOverlayClick={true}
       style={{
