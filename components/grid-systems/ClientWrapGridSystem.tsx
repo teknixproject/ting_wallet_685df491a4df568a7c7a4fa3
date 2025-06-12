@@ -36,6 +36,7 @@ const LoadingPage = dynamic(() => import('./loadingPage'), {
 export default function ClientWrapper(props: any) {
   const isPreviewUI = _.get(props, 'pathName') === 'preview-ui';
   const resetAuthSettings = authSettingStore((state) => state.reset);
+
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
   const getAuthSettings = async () => {
     try {
@@ -74,7 +75,7 @@ const RenderUIClient = (props: any) => {
   const { setStateManagement, findVariable } = stateManagementStore();
 
   const { setActions } = actionsStore();
-  const { enable, pages, loginPage } = authSettingStore();
+  const { enable, pages, entryPage } = authSettingStore();
   const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, props?.pathName);
 
   useEffect(() => {
@@ -88,7 +89,7 @@ const RenderUIClient = (props: any) => {
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
   const router = useRouter();
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
-
+  const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
 
@@ -171,6 +172,17 @@ const RenderUIClient = (props: any) => {
       console.log('🚀 ~ getApiCall ~ error:', error);
     }
   };
+  const getCustomFunctions = async () => {
+    try {
+      const result = await customFunctionService.getAll({
+        uid: uid || '',
+        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+      });
+      setCustomFunctions(result.data);
+    } catch (error) {
+      console.log('🚀 ~ getCustomFunctions ~ error:', error);
+    }
+  };
   useEffect(() => {
     if (enable) {
       const pageRole = pages.find(
@@ -185,20 +197,19 @@ const RenderUIClient = (props: any) => {
         const checkRole = check();
 
         if (!checkRole) {
-          if (loginPage) {
-            router.push(loginPage);
-          } else {
-            router.push('/login');
+          if (entryPage) {
+            router.push(entryPage);
           }
         }
       }
     }
-  }, [enable, findVariable, loginPage, pages, pathname, router]);
+  }, [enable, findVariable, entryPage, pages, pathname, router]);
   useEffect(() => {
     if (!projectId) return;
-    getStates();
-    getApiCall();
-    getActions();
+    async function fetchData() {
+      await Promise.all([getStates(), getActions(), getApiCall(), getCustomFunctions()]);
+    }
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, projectId]);
 
@@ -311,11 +322,15 @@ const PreviewUI = (props: any) => {
 
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
-
-    setStateFormDataPreview();
-    getApiCall();
-    getActions();
-    getCustomFunctions();
+    async function fetchData() {
+      await Promise.all([
+        setStateFormDataPreview(),
+        getActions(),
+        getApiCall(),
+        getCustomFunctions(),
+      ]);
+    }
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, projectId, bodyLayout]);
 

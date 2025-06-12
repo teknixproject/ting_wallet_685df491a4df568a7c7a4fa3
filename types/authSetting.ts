@@ -14,7 +14,7 @@ export type TAuthSetting = {
   projectId: string;
   enable: boolean;
   entryPage: string;
-  loginPage: string;
+  loggedInPage: string;
   pages: TPage[];
   refreshAction?: TTriggerActions;
   forbiddenCode: number;

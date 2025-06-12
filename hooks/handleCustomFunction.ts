@@ -51,6 +51,7 @@ export const handleCustomFunction = ({
   getData,
   findCustomFunction,
 }: THandleCustomData): any => {
+  console.log('🚀 ~ data:', data);
   function buildArgsFromDefinedProps(
     props: TCustomFunction['props'],
     inputs: TData['customFunction']['props']
