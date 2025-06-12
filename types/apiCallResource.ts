@@ -13,9 +13,8 @@ export enum TypeApiCall {
   INDIVIDUAL = 'INDIVIDUAL',
 }
 export type TApiCall = {
+  _id: string;
   projectId: string;
-  documentId: string;
-  uid: string;
   apis: TApiCallValue[];
 };
 export type TApiCallValue = {

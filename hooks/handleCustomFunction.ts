@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import _ from 'lodash';
 
 import { TCustomFunction, TTypeVariable } from '@/types';
@@ -56,13 +55,11 @@ export const handleCustomFunction = ({
     props: TCustomFunction['props'],
     inputs: TData['customFunction']['props']
   ) {
-    console.log('🚀 ~ inputs:', inputs);
     const args: Record<string, any> = {};
 
     props.forEach((prop) => {
       if (!prop.key) return;
       const rawData = getData(inputs?.find((item) => item.key === prop.key)?.value || null);
-      console.log('🚀 ~ props.forEach ~ rawData:', rawData);
 
       args[prop.key] = convertValueByType(rawData, prop.type, prop.isList);
     });
@@ -70,24 +67,25 @@ export const handleCustomFunction = ({
     return args;
   }
   const customFunction = findCustomFunction(data.customFunctionId);
-  console.log('🚀 ~ customFunction:', customFunction);
 
   if (_.isEmpty(customFunction)) return;
   const args = buildArgsFromDefinedProps(customFunction?.props, data?.props);
-  console.log('🚀 ~ args:', args);
-  const runFunction = () => {
+  const runFunction = async () => {
     try {
       const fn = new Function(`return ${customFunction.code}`)() as (args: any) => any;
 
       if (typeof fn === 'function') {
-        const result = fn(args);
+        const result = await fn(args);
         console.log('🚀 ~ runFunction ~ result:', result);
+
         return result;
       } else {
-        return null;
+        throw new Error('Invalid function');
       }
     } catch (error) {
-      return null;
+      console.log('🚀 ~ runFunction ~ error:', error);
+
+      throw error;
     }
   };
   return runFunction();

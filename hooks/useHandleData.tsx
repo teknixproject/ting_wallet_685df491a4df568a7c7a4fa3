@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { stateManagementStore } from '@/stores';
 import { customFunctionStore } from '@/stores/customFunction';
-import { TConditionalChild, TConditionChildMap, TTypeSelect } from '@/types';
+import { TConditionalChild, TConditionChildMap, TTypeSelect, TVariable } from '@/types';
 import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
 
 import { handleCustomFunction } from './handleCustomFunction';
@@ -50,14 +50,15 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
 
       const handleOption = (
         item: NonNullable<TDataField<TOptionApiResponse>['options']>[number],
-        value?: any
+        value?: TVariable
       ) => {
         switch (item.option) {
           case 'jsonPath':
             const valueJsonPath = JSONPath({
-              json: value?.data,
+              json: value?.value,
               path: getData(item.jsonPath as TData) || '',
             });
+            console.log('🚀 ~ useHandleData ~ valueJsonPath:', valueJsonPath);
             return valueJsonPath?.[0];
           case 'statusCode':
             return value?.statusCode;
@@ -68,18 +69,19 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
           case 'isNotEmpty':
             return !_.isEmpty(value);
           case 'exceptionMessage':
-            return value?.data?.message;
+            return value?.message;
           default:
-            return variable?.value?.data || data.defaultValue;
+            return String(value) || data.defaultValue;
         }
       };
 
-      let value = variable?.value;
+      let value = variable as TVariable;
       for (const option of apiResponse?.options || []) {
         value = handleOption(
           option as NonNullable<TDataField<TOptionApiResponse>['options']>[number],
           value
         );
+        console.log('🚀 ~ useHandleData ~ value:', { value, option });
       }
       if (_.isEmpty(variable)) return data.defaultValue;
       return value;
@@ -228,7 +230,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
             case 'isNotEmpty':
               return !_.isEmpty(value);
             default:
-              return value || data?.defaultValue;
+              return String(value) || data?.defaultValue;
           }
         }
 

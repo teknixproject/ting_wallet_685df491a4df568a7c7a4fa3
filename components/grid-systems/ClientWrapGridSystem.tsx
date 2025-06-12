@@ -121,7 +121,7 @@ const RenderUIClient = (props: any) => {
                   type,
                 }
               : {
-                  uid: uid ?? 'home',
+                  uid: uid ?? '/',
                   projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
                   type,
                 }
@@ -163,8 +163,7 @@ const RenderUIClient = (props: any) => {
 
   const getApiCall = async () => {
     try {
-      const result = await apiCallService.get({
-        uid: uid,
+      const result = await apiCallService.getAll({
         projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
       addAndUpdateApiResource({ apis: result?.data?.apis });
@@ -174,31 +173,27 @@ const RenderUIClient = (props: any) => {
   };
   useEffect(() => {
     if (enable) {
-      const role = findVariable({
-        type: 'globalState',
-        name: 'ROLE',
-      });
-      console.log('🚀 ~ useEffect ~ role:', role);
-      console.log('🚀 ~ check ~ pathname:', pathname);
-      const check = () => {
-        const pageRole = pages
-          .find((item: TAuthSetting['pages'][number]) => item.documentId.uid === pathname)
-          ?.roles?.filter((item) => item.value);
-        console.log('🚀 ~ check ~ pageRole:', pageRole);
-        return pageRole?.includes(role?.value);
-      };
-      const checkRole = check();
-      console.log('🚀 ~ useEffect ~ checkRole:', checkRole);
+      const pageRole = pages.find(
+        (item: TAuthSetting['pages'][number]) => item.documentId.uid === pathname
+      );
+      if (pageRole?.required) {
+        const roles = pageRole?.roles?.map((item) => item.value);
+        const role = localStorage.getItem('role') || localStorage.getItem('ROLE') || '';
+        const check = () => {
+          return roles?.includes(role);
+        };
+        const checkRole = check();
 
-      if (!checkRole) {
-        if (loginPage) {
-          router.push(loginPage);
-        } else {
-          router.push('/login');
+        if (!checkRole) {
+          if (loginPage) {
+            router.push(loginPage);
+          } else {
+            router.push('/login');
+          }
         }
       }
     }
-  }, [enable, loginPage]);
+  }, [enable, findVariable, loginPage, pages, pathname, router]);
   useEffect(() => {
     if (!projectId) return;
     getStates();
@@ -282,8 +277,7 @@ const PreviewUI = (props: any) => {
   };
   const getApiCall = async () => {
     try {
-      const result = await apiCallService.get({
-        uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
+      const result = await apiCallService.getAll({
         projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
       addAndUpdateApiResource({ apis: result?.data?.apis });

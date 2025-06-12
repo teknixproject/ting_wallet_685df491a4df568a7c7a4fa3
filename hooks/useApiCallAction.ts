@@ -1,14 +1,18 @@
 import axios from 'axios';
 import _ from 'lodash';
-import queryString from 'query-string';
-import { useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 import { stateManagementStore } from '@/stores';
-import { TAction, TActionApiCall, TActionVariable, TApiCallValue, TApiCallVariable } from '@/types';
+import { authSettingStore } from '@/stores/authSetting';
+import {
+    TAction, TActionApiCall, TActionCustomFunction, TActionVariable, TApiCallValue, TApiCallVariable
+} from '@/types';
 import { variableUtil } from '@/uitls';
 
 import { actionHookSliceStore } from './actionSliceStore';
 import { useApiCall } from './useApiCall';
+import { useCustomFunction } from './useCustomFunction';
 import { useHandleData } from './useHandleData';
 
 const { isUseVariable, extractAllValuesFromTemplate } = variableUtil;
@@ -21,24 +25,16 @@ type TProps = {
   executeActionFCType: (action?: TAction) => Promise<void>;
 };
 export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions => {
+  const router = useRouter();
   const { getApiMember } = useApiCall();
   const { getData } = useHandleData({});
   const findAction = actionHookSliceStore((state) => state.findAction);
-  // const updateApiResource = apiResourceStore((state) => state.updateApiResource);
-  // const apiResponsesRef = useRef<Record<string, any>>({});
-
+  const refreshAction = authSettingStore((state) => state.refreshAction);
+  const loginPage = authSettingStore((state) => state.loginPage);
+  const forbiddenCode = authSettingStore((state) => state.forbiddenCode);
   const findVariable = stateManagementStore((state) => state.findVariable);
   const updateVariables = stateManagementStore((state) => state.updateVariables);
-
-  const mounted = useRef(false);
-
-  useEffect(() => {
-    mounted.current = true;
-
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const { handleCustomFunction } = useCustomFunction({ executeActionFCType });
 
   const convertActionVariables = useCallback(
     (actionVariables: TActionVariable[], apiCall: TApiCallValue): any[] => {
@@ -97,7 +93,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
   //   },
   //   [updateVariables]
   // );
-  const handleUrl = (apiCallMember: TApiCallValue) => {
+  const convertQuery = (apiCallMember: TApiCallValue) => {
     const queryConvert = apiCallMember?.query
       ?.map((item) => {
         const type = item.type;
@@ -109,35 +105,45 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
         }
         return item;
       })
-      .reduce((acc, item) => {
-        acc[item.key as string] = item.value;
-        return acc;
-      }, {});
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.key as string]: item.value,
+        }),
+        {}
+      );
+    return queryConvert;
+  };
 
-    console.log('🚀 ~ handleUrl ~ queryConvert:', queryConvert);
-    const url = queryString.stringifyUrl({
-      url: apiCallMember.url!,
-      query: queryConvert,
-    });
-    return url;
+  const convertHeader = (apiCallMember: TApiCallValue) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const headers = apiCallMember?.headers || ({ 'Content-Type': 'application/json' } as any);
+      if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+      return headers;
+    } catch (error) {
+      console.log('🚀 ~ convertHeader ~ error:', error);
+      return apiCallMember?.headers || ({ 'Content-Type': 'application/json' } as any);
+    }
   };
   const makeApiCall = async (
     apiCall: TApiCallValue,
     body: object,
     variableId: string
   ): Promise<any> => {
-    console.log('🚀 ~ useApiCallAction ~ body:', body);
     const outputVariable = findVariable({
       type: 'apiResponse',
       id: variableId,
     });
-
     try {
       const response = await axios.request({
+        baseURL: apiCall?.baseUrl || '',
         method: apiCall?.method?.toUpperCase(),
-        url: handleUrl(apiCall),
-        headers: apiCall?.headers || { 'Content-Type': 'application/json' },
+        url: apiCall.url,
+        headers: convertHeader(apiCall),
         data: body,
+        params: convertQuery(apiCall),
       });
 
       if (outputVariable) {
@@ -145,11 +151,10 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
           type: 'apiResponse',
           dataUpdate: {
             ...outputVariable,
-            value: {
-              data: response.data,
-              statusCode: response.status,
-              succeeded: true,
-            },
+            value: response.data,
+            succeeded: true,
+            statusCode: response.status,
+            message: response.statusText,
           },
         });
       }
@@ -157,16 +162,20 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
+        if (error.status === forbiddenCode) {
+          await handleRefreshToken(apiCall, body, variableId);
+          return;
+        }
         if (outputVariable) {
           updateVariables({
             type: 'apiResponse',
             dataUpdate: {
               ...outputVariable,
-              value: {
-                data: error,
-                statusCode: error?.response?.status || 500,
-                succeeded: false,
-              },
+
+              value: error,
+              statusCode: error?.response?.status || 500,
+              succeeded: false,
+              message: error?.message,
             },
           });
         }
@@ -174,7 +183,21 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
       }
     }
   };
+  const handleRefreshToken = async (apiCall: TApiCallValue, body: object, variableId: string) => {
+    try {
+      if (refreshAction) {
+        const rootAction = Object.values(refreshAction?.onClick || {})?.find(
+          (item) => item.parentId === null
+        );
+        await handleCustomFunction(rootAction as TAction<TActionCustomFunction>);
 
+        await makeApiCall(apiCall, body, variableId);
+      } else if (loginPage) router.push(loginPage);
+    } catch (error) {
+      console.log('🚀 ~ handleRefreshToken ~ error:', error);
+      if (loginPage) router.push(loginPage);
+    }
+  };
   const handleApiCallAction = async (action: TAction<TActionApiCall>): Promise<void> => {
     const apiCall = getApiMember(action?.data?.apiId ?? '');
 
@@ -183,7 +206,6 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
     const result = await makeApiCall(apiCall, newBody, action?.data?.output?.variableId ?? '');
-    console.log('🚀 ~ handleApiCallAction ~ result:', result);
 
     // handleApiResponse(result, action?.data?.output ?? {});
 

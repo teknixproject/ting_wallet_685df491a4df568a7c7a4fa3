@@ -13,6 +13,9 @@ export type TVariable = {
   type: TTypeVariable;
   isList: boolean;
   value: any;
+  succeeded?: boolean;
+  message?: string;
+  statusCode?: number;
 };
 export type TPageVariable = {
   projectId: string;

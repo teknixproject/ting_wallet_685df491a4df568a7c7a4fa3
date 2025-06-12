@@ -17,6 +17,7 @@ const initValue: TState = {
   pages: [],
   projectId: '',
   refreshAction: undefined,
+  forbiddenCode: 403,
 };
 
 export const authSettingStore = create<TState & TActions>()(

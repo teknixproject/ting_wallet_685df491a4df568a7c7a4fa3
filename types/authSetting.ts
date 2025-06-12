@@ -1,4 +1,4 @@
-import { TAction } from './actions';
+import { TTriggerActions } from '@/types';
 
 type TPage = {
   documentId: {
@@ -16,5 +16,11 @@ export type TAuthSetting = {
   entryPage: string;
   loginPage: string;
   pages: TPage[];
-  refreshAction?: TAction; // or use `unknown` for stricter typing
+  refreshAction?: TTriggerActions;
+  forbiddenCode: number;
 };
+export type TAuthSettingUpdate = {
+  documentId: string;
+  roles?: { value: string }[];
+  required: boolean;
+} & TAuthSetting;

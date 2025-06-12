@@ -1,7 +1,5 @@
 import axiosInstance from '@/configs/axiosInstance';
-import { TApiResponse } from '@/types';
-
-import { TAuthSetting, TAuthSettingUpdate } from './type';
+import { TApiResponse, TAuthSetting, TAuthSettingUpdate } from '@/types';
 
 const create = async (data: TAuthSetting): Promise<TApiResponse<TAuthSetting>> => {
   const res = await axiosInstance.post(`/authSetting`, data);

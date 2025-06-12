@@ -3,15 +3,8 @@ import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
-  TAction,
-  TActionApiCall,
-  TActionCustomFunction,
-  TActionLoop,
-  TActionNavigate,
-  TActionUpdateState,
-  TConditional,
-  TTriggerActions,
-  TTriggerValue,
+    TAction, TActionApiCall, TActionCustomFunction, TActionLoop, TActionNavigate,
+    TActionUpdateState, TConditional, TTriggerActions, TTriggerValue
 } from '@/types';
 import { GridItem } from '@/types/gridItem';
 
@@ -24,7 +17,7 @@ import { useNavigateAction } from './useNavigateAction';
 import { useUpdateStateAction } from './useUpdateStateAction';
 
 export type TUseActions = {
-  handleAction: (triggerType: TTriggerValue) => Promise<void>;
+  handleAction: (triggerType: TTriggerValue, action?: TTriggerActions) => Promise<void>;
 };
 
 export const useActions = (data?: GridItem): TUseActions => {
@@ -110,9 +103,9 @@ export const useActions = (data?: GridItem): TUseActions => {
     }
   };
   const handleAction = useCallback(
-    async (triggerType: TTriggerValue): Promise<void> => {
+    async (triggerType: TTriggerValue, action?: TTriggerActions): Promise<void> => {
       if (!data?.actions) return;
-      await executeTriggerActions(data.actions, triggerType);
+      await executeTriggerActions(action || data.actions, triggerType);
     },
     [data?.actions, executeTriggerActions]
   );

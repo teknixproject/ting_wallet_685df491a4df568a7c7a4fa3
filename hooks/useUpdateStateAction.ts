@@ -47,8 +47,11 @@ export const useUpdateStateAction = ({ executeActionFCType }: TProps): TUseActio
         type: type as TTypeSelectState,
         id: (item.firstState[type] as any).variableId || '',
       });
+      console.log('🚀 ~ handleUpdateStateAction ~ item:', item);
 
       const variableSecond = getData(item.secondState);
+      console.log('🚀 ~ handleUpdateStateAction ~ variableSecond:', variableSecond);
+
       if (!variableFirst) return;
 
       variableFirst.value = variableSecond;
