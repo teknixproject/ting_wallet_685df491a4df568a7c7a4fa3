@@ -81,7 +81,8 @@ const RenderUIClient = (props: any) => {
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
   const router = useRouter();
   const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
-
+  const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
+  
   const { setActions } = actionsStore();
   const { enable, pages, entryPage } = authSettingStore();
   const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, props?.pathName);
