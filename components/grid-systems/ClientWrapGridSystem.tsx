@@ -47,6 +47,7 @@ export default function ClientWrapper(props: any) {
   };
   useEffect(() => {
     getAuthSettings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
   if (isPreviewUI) {
     return <PreviewUI {...props} />;
@@ -73,21 +74,21 @@ const RenderUIClient = (props: any) => {
   const { addAndUpdateApiResource, apiResources } = apiResourceStore();
   const { setStateManagement, findVariable } = stateManagementStore();
 
+    // #region hooks
+  const pathname = usePathname(); 
+  const searchParams = useSearchParams();
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+  const router = useRouter();
+  const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
+
   const { setActions } = actionsStore();
   const { enable, pages, loginPage } = authSettingStore();
-  const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, props?.pathName);
+  const { bodyLayout, isLoading } = useConstructorDataAPI(props?.documentId, uid);
 
   useEffect(() => {
     if (bodyLayout) setData(bodyLayout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // #region hooks
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const router = useRouter();
-  const uid = setUid(searchParams, pathname, process.env.NEXT_PUBLIC_DEFAULT_UID as string);
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
