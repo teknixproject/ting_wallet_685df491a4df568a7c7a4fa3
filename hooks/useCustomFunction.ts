@@ -31,6 +31,7 @@ export const useCustomFunction = ({ executeActionFCType }: TProps): TUseActions 
           findCustomFunction,
           getData,
         });
+        console.log('🚀 ~ handleCustomFunction ~ result:', result);
         const resultStander = transformVariable({
           isList: !!isList,
           type: outputType!,

@@ -30,7 +30,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
   const { getData } = useHandleData({});
   const findAction = actionHookSliceStore((state) => state.findAction);
   const refreshAction = authSettingStore((state) => state.refreshAction);
-  const loginPage = authSettingStore((state) => state.loginPage);
+  const entryPage = authSettingStore((state) => state.entryPage);
   const forbiddenCode = authSettingStore((state) => state.forbiddenCode);
   const findVariable = stateManagementStore((state) => state.findVariable);
   const updateVariables = stateManagementStore((state) => state.updateVariables);
@@ -161,6 +161,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
 
       return response.data;
     } catch (error: unknown) {
+      console.log('🚀 ~ useApiCallAction ~ error:', error);
       if (axios.isAxiosError(error)) {
         if (error.status === forbiddenCode) {
           await handleRefreshToken(apiCall, body, variableId);
@@ -185,17 +186,19 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
   };
   const handleRefreshToken = async (apiCall: TApiCallValue, body: object, variableId: string) => {
     try {
+      console.log('🚀 ~ handleRefreshToken ~ refreshAction:', refreshAction);
       if (refreshAction) {
         const rootAction = Object.values(refreshAction?.onClick || {})?.find(
           (item) => item.parentId === null
         );
+        console.log('🚀 ~ handleRefreshToken ~ rootAction:', rootAction);
         await handleCustomFunction(rootAction as TAction<TActionCustomFunction>);
 
         await makeApiCall(apiCall, body, variableId);
-      } else if (loginPage) router.push(loginPage);
+      } else if (entryPage) router.push(entryPage);
     } catch (error) {
       console.log('🚀 ~ handleRefreshToken ~ error:', error);
-      if (loginPage) router.push(loginPage);
+      if (entryPage) router.push(entryPage);
     }
   };
   const handleApiCallAction = async (action: TAction<TActionApiCall>): Promise<void> => {

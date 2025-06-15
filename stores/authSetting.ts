@@ -13,7 +13,7 @@ type TActions = {
 const initValue: TState = {
   enable: false,
   entryPage: '',
-  loginPage: '',
+  loggedInPage: '',
   pages: [],
   projectId: '',
   refreshAction: undefined,
