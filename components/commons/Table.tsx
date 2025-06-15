@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React, { memo } from 'react';
 import { RenderSlice } from '../grid-systems';
-import { convertStyle } from '@/lib/utils';
 
 interface TableProps {
   id?: string;
