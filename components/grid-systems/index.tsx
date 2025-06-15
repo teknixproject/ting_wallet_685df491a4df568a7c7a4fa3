@@ -67,6 +67,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     return componentRegistry[key as keyof typeof componentRegistry];
   }, [key]);
 
+
   const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef?.style;
 
   const sliceClasses = useMemo(() => {
@@ -101,6 +102,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
         style={isButton ? styleSlice : convertStyle(styleSlice)}
         data={sliceRef}
         childs={sliceRef?.childs}
+        styleDevice={styleDevice}
         {...multiples}
       />
     </>

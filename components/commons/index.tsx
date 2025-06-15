@@ -17,4 +17,5 @@ export const components = {
   Collapse: dynamic(() => import('./Collapse')),
   InputSearch: dynamic(() => import('./InputSearch')),
   Tabs: dynamic(() => import('./Tabs')),
+  Table: dynamic(() => import('./Table')),
 };
