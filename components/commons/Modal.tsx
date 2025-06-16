@@ -1,9 +1,10 @@
 'use client';
 
-import { useHandleData } from '@/hooks/useHandleData';
-import { useUpdateData } from '@/hooks/useUpdateData';
 import { useEffect } from 'react';
 import ReactModal from 'react-modal';
+
+import { useHandleData } from '@/hooks/useHandleData';
+import { useUpdateData } from '@/hooks/useUpdateData';
 
 interface ModalProps {
   data: any;
@@ -45,7 +46,6 @@ const Modal = ({ children, data, ...props }: ModalProps) => {
       }}
       {...props}
     >
-      123
       {children}
     </ReactModal>
   );

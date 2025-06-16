@@ -10,7 +10,6 @@ export const components = {
   Image: dynamic(() => import('./Image')),
   Link: dynamic(() => import('./Link')),
   Text: dynamic(() => import('./Text')),
-  TitleHeaderGradient: dynamic(() => import('./TitleHeaderGradient')),
   InputText: dynamic(() => import('./InputText')),
   Navigation: dynamic(() => import('./Navigation')),
   Dropdown: dynamic(() => import('./Dropdown')),

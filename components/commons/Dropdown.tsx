@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
 import { cn } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
@@ -33,6 +34,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const { dataState } = useHandleData({ dataProp: data?.data });
   const title = _.get(data, 'dataSlice.title') || dataState;
   const router = useRouter();
+  const { handleAction } = useActions();
   // Tạo ref để tham chiếu đến phần tử dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -123,7 +125,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   return (
-    <div ref={dropdownRef} className={cn(`relative inline-block`, menuClassDropdow)}>
+    <div
+      ref={dropdownRef}
+      className={cn(`relative inline-block`, menuClassDropdow)}
+      onClick={() => handleAction('onClick')}
+    >
       <button
         onClick={handleToggle}
         type="button"
