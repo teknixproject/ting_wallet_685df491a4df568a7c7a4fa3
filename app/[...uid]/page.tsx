@@ -1,20 +1,23 @@
-import { Fragment, Suspense } from 'react';
+import _ from 'lodash';
 import { Metadata } from 'next';
 import Head from 'next/head';
-import _ from 'lodash';
+import { Fragment, Suspense } from 'react';
 
 import ClientWrapper from '@/components/grid-systems/ClientWrapGridSystem';
+
 import { fetchMetadata } from '../actions/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-type Params = { uid: string };
-
+type Params = { uid: string[] };
+const handleParam = ({ uid }: { uid: string[] }) => {
+  return { uid: uid[0], param: uid.slice(1) };
+};
 export default async function Page({ params }: { params: Params }) {
-  const { uid } = await params;
-
-  const metadata = await fetchMetadata(uid);
+  const paramsProp = await params;
+  const uidParse = handleParam(paramsProp);
+  const metadata = await fetchMetadata(uidParse.uid);
   const formMetadata = _.get(metadata, 'data.form');
   const iconUrl = _.get(formMetadata, 'icon.icon') || '/favicon.ico';
 
@@ -34,7 +37,7 @@ export default async function Page({ params }: { params: Params }) {
           />
         </Head>
         <Fragment>
-          <ClientWrapper layoutId={uid} pathName={uid} />
+          <ClientWrapper layoutId={uidParse.uid} pathName={uidParse.uid} />
         </Fragment>
       </Suspense>
     );
@@ -44,8 +47,10 @@ export default async function Page({ params }: { params: Params }) {
   }
 }
 
-export async function generateMetadata({ params }: { params: { uid: string } }): Promise<Metadata> {
-  const { uid } = await params;
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const paramProps = await params;
+  const { uid } = handleParam(paramProps);
+  console.log('🚀 ~ generateMetadata ~ uid:', uid);
   const metadata = await fetchMetadata(uid);
   const formMetadata = _.get(metadata, 'data.form');
 
