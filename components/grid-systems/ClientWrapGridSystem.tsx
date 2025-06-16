@@ -34,7 +34,7 @@ const LoadingPage = dynamic(() => import('./loadingPage'), {
 });
 
 export default function ClientWrapper(props: any) {
-  const isPreviewUI = _.get(props, 'pathName') === 'preview-ui';
+  const isPreviewUI = _.get(props, 'pathName[0]') === 'preview-ui';
   const resetAuthSettings = authSettingStore((state) => state.reset);
 
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
@@ -50,6 +50,7 @@ export default function ClientWrapper(props: any) {
     getAuthSettings();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
+
   if (isPreviewUI) {
     return <PreviewUI {...props} />;
   }
@@ -281,7 +282,6 @@ const PreviewUI = (props: any) => {
         uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
         projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
       });
-      console.log('🚀 ~ getActions ~ result:', result);
       if (_.isEmpty(result?.data)) return;
       setActions(result.data);
     } catch (error) {

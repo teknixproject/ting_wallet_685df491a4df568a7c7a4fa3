@@ -45,14 +45,10 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     if (headerPosition === 'left' || headerPosition === 'right') {
       return {
         display: 'flex',
-        flexDirection: 'row',
-        minHeight: '100vh',
       };
     }
     return {
       display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
     };
   }, [headerPosition]);
 
@@ -78,7 +74,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       };
     }
     return {
-      width: '100%',
       position: 'fixed',
       top: 0,
       zIndex: 3,
