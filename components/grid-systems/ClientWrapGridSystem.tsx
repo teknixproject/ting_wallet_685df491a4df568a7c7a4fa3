@@ -51,8 +51,6 @@ export default function ClientWrapper(props: any) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  console.log('isPreviewUI', props)
-
   if (isPreviewUI) {
     return <PreviewUI {...props} />;
   }
