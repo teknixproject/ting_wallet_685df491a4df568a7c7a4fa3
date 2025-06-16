@@ -9,7 +9,7 @@ interface IconCompoProps {
 }
 
 const IconCompo = ({ data }: IconCompoProps) => {
-  const url = _.get(data, 'dataSlice.url');
+  const url = _.get(data, 'media.url');
 
   return url ? (
     <img src={url} alt="Image" className="w-full h-full" />

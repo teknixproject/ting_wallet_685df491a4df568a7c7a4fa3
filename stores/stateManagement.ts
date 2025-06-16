@@ -18,6 +18,7 @@ export type TDocumentStateActions = {
 };
 
 const initValue: TDocumentState = {
+  parameters: {},
   componentState: {},
   appState: {},
   globalState: {},

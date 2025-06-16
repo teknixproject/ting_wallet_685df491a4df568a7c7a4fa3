@@ -106,6 +106,7 @@ const RenderUIClient = (props: any) => {
 
   const getStates = async () => {
     const list: TTypeSelectState[] = [
+      'parameters',
       'appState',
       'componentState',
       'globalState',

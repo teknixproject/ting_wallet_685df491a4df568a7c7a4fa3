@@ -1,4 +1,5 @@
 import { TData } from './dataItem';
+import { TVariable } from './stateManagement';
 import { TTypeVariable } from './variable';
 
 export type TApiResponseOption = 'jsonBody' | 'statusCode' | 'succeeded';
@@ -13,6 +14,7 @@ export type TSourceValue =
   | 'conditions';
 
 export const TTypeSelectValues = [
+  'parameters',
   'appState',
   'componentState',
   'globalState',
@@ -110,6 +112,7 @@ export type TActionNavigate = {
   isExternal: boolean;
   isNewTab: boolean;
   url: string;
+  parameters: TVariable[];
 };
 
 export type TConditional = {

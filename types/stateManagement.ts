@@ -2,6 +2,7 @@ import { TTypeSelect } from './actions';
 import { TTypeVariable } from './variable';
 
 export type TTypeSelectState =
+  | 'parameters'
   | 'appState'
   | 'componentState'
   | 'globalState'
@@ -31,6 +32,7 @@ export type TPageVariableResponse = {
 
 export type TTypeDocumentState = TTypeSelectState;
 export type TDocumentState = {
+  parameters?: TVariableMap;
   appState?: TVariableMap;
   componentState?: TVariableMap;
   globalState?: TVariableMap;

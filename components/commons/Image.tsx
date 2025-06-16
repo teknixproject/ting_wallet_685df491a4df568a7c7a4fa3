@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { CSSProperties } from 'react';
+import styled, { css } from 'styled-components';
 
 import { GridItem } from '@/types/gridItem';
-import styled, { css } from 'styled-components';
 
 interface ImageProps {
   data?: GridItem;
@@ -10,7 +10,7 @@ interface ImageProps {
 }
 
 const Image = ({ data, style }: ImageProps) => {
-  const url = _.get(data, 'dataSlice.url', '/default-bg.png');
+  const url = _.get(data, 'media.url', '/default-bg.png');
 
   const newStyle: CSSProperties = {
     ...style,
