@@ -75,7 +75,9 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                             rowSpan={cell?.rowSpan}
                             style={cell?.style}
                           >
-                            <RenderSlice key={cell.id} slice={cell.child} idParent={row?.id} />
+                            {_.map(cell?.childs, (item) => (
+                              <RenderSlice key={item.id} slice={item} idParent={row?.id} />
+                            ))}
                           </td>
                         );
                       })}
@@ -101,7 +103,9 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                             rowSpan={cell?.rowSpan}
                             style={cell?.style}
                           >
-                            <RenderSlice key={cell.id} slice={cell.child} idParent={row?.id} />
+                            {_.map(cell?.childs, (item) => (
+                              <RenderSlice key={item.id} slice={item} idParent={row?.id} />
+                            ))}
                           </td>
                         );
                       })}
