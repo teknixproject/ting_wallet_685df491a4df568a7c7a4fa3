@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import { CSSProperties } from 'react';
 
+import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
 
 interface DescriptionProps {
@@ -10,7 +10,6 @@ interface DescriptionProps {
 
 const Description = ({ data, style }: DescriptionProps) => {
   const { dataState } = useHandleData({ dataProp: data?.data });
-  const title = _.get(data, 'dataSlice.title') || dataState;
   const newStyle: CSSProperties = {
     lineHeight: '170%',
     ...style,
@@ -20,10 +19,15 @@ const Description = ({ data, style }: DescriptionProps) => {
     paddingBottom: 0,
     paddingTop: 0,
   };
-
+  const { handleAction } = useActions();
   return (
-    <p style={newStyle} className="description text-pretty">
-      {title}
+    <p
+      style={newStyle}
+      className="description text-pretty"
+      onClick={() => handleAction('onClick')}
+      onChange={() => handleAction('onChange')}
+    >
+      {dataState}
     </p>
   );
 };

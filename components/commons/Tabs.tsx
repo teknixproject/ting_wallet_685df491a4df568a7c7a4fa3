@@ -1,7 +1,10 @@
 'use client';
 
 import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useActions } from '@/hooks/useActions';
+
 import { RenderSlice } from '../grid-systems';
 
 interface TabsProps {
@@ -16,9 +19,10 @@ const Tabs = ({ id, style = '', data = {}, childs = [] }: TabsProps) => {
   const [activeTab, setActiveTab] = useState<string>();
 
   const tabs = _.get(data, 'dataSlice.tabs');
-
+  const { handleAction } = useActions();
   const handleActiveTab = (id: string) => {
     setActiveTab(id);
+    handleAction('onClick');
   };
 
   useEffect(() => {

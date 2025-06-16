@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import { CSSProperties } from 'react';
 
+import { useActions } from '@/hooks/useActions';
 import { getDeviceType } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 
@@ -24,10 +25,20 @@ const BannerVideo = ({ data, style }: BannerVideoCompoProps) => {
     objectFit: 'fill',
     height: isMobile ? '100%' : 'auto',
   };
-
+  const { handleAction } = useActions();
   if (!isVideo(url)) return <div style={newStyle}>Unsupported media type</div>;
   return (
-    <video autoPlay loop muted playsInline style={newStyle} controls preload="metadata">
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      style={newStyle}
+      controls
+      preload="metadata"
+      onClick={() => handleAction('onClick')}
+      onChange={() => handleAction('onChange')}
+    >
       <source src={url} type="video/mp4" />
       <source src={url.replace(/\.\w+$/, '.webm')} type="video/webm" />
       Your browser does not support the video tag.

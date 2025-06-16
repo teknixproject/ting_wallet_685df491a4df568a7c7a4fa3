@@ -23,7 +23,6 @@ type TForm = {
 };
 
 const InputSearch: React.FC<Props> = ({ data, style, value }) => {
-  console.log('🚀 ~ value:', value);
   const [loading, setLoading] = useState<boolean>(false);
   const { dataState } = useHandleData({ dataProp: data.data });
   console.log('🚀 ~ dataState:', dataState);
