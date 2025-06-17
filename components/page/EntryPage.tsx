@@ -99,9 +99,19 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
+// utils/getOrigin.ts
+
+export async function getOrigin() {
+  const headersList = await headers();
+  const proto = headersList.get('x-forwarded-proto') || 'http';
+  const host = headersList.get('host');
+  const origin = `${proto}://${host}`;
+
+  return origin;
+}
 
 const EntryPage: FC = async () => {
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/route-patterns`;
+  const url = new URL(`/api/route-patterns`, await getOrigin());
 
   const patternsResponse = await fetch(url, {
     cache: 'no-store', // Ensure fresh data

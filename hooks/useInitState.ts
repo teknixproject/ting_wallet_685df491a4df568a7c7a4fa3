@@ -143,7 +143,6 @@ export const useInitStateRender = () => {
   const [matchingPattern, setMatchingPattern] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch patterns từ API
     fetch('/api/route-patterns')
       .then((res) => res.json())
       .then((data) => {
@@ -164,7 +163,7 @@ export const useInitStateRender = () => {
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const { setActions } = actionsStore();
   const { enable, pages, entryPage } = authSettingStore();
-  const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '');
+  const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '/');
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
