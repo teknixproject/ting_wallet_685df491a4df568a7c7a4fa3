@@ -138,7 +138,6 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
 
 //#region Render Grid
 export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
-  console.log('🚀 ~ slice:', slice);
   const { apiData, addApiData } = useApiCallStore((state) => state);
   const [childs, setChilds] = useState<GridItem[]>(slice?.childs || []);
   const [isLoading, setIsLoading] = useState(false);

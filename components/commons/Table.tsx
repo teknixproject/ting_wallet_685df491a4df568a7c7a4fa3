@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import React, { memo } from 'react';
-import { RenderSlice } from '../grid-systems';
+import { RenderGrid, RenderSlice } from '../grid-systems';
 
 interface TableProps {
   id?: string;
@@ -20,10 +20,15 @@ const optionsRender: any = {
 const Table = ({ style, data = {}, styleDevice }: TableProps) => {
   const tableConstructor = _.get(data, 'dataSlice.table');
 
+  const styleTable = data?.dataSlice?.table?.style_table || {};
+
   return (
     <>
       <table
-        style={style}
+        style={{
+          borderRadius: style?.borderRadius,
+          border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
+        }}
         className="w-full border-collapse border-2 border-gray-500 font-sans text-sm tracking-wider"
       >
         {_.map(tableConstructor?.sectionOrder, (s) => {
@@ -32,7 +37,12 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
             : {};
           if (s?.type === 'thead') {
             return (
-              <thead key={s?.id}>
+              <thead
+                style={{
+                  backgroundColor: styleTable?.headerBackgroundColor,
+                }}
+                key={s?.id}
+              >
                 {_.map(rows?.rows, (row) => {
                   const cells = row?.cells;
                   return (
@@ -44,6 +54,11 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
+                            style={{
+                              border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
+                              padding: styleTable?.cellPadding,
+                              ...cell?.style_cell,
+                            }}
                           >
                             <div style={cell?.[styleDevice as string]}>
                               {_.map(cell?.childs, (item) => (
@@ -73,7 +88,11 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
-                            style={cell?.style}
+                            style={{
+                              border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
+                              padding: styleTable?.cellPadding,
+                              ...cell?.style_cell,
+                            }}
                           >
                             {_.map(cell?.childs, (item) => (
                               <RenderSlice key={item.id} slice={item} idParent={row?.id} />
@@ -101,10 +120,14 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
-                            style={cell?.style}
+                            style={{
+                              border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
+                              padding: styleTable?.cellPadding,
+                              ...cell?.style_cell,
+                            }}
                           >
                             {_.map(cell?.childs, (item) => (
-                              <RenderSlice key={item.id} slice={item} idParent={row?.id} />
+                              <RenderGrid  key={item.id} slice={item} idParent={row?.id} items={[item]} />
                             ))}
                           </td>
                         );
