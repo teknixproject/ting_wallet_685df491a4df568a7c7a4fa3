@@ -1,6 +1,7 @@
 import { useRouter } from 'next/navigation';
 
-import { TAction, TActionNavigate, TVariable } from '@/types';
+import { TAction, TActionNavigate } from '@/types';
+import { buildPathFromPattern } from '@/uitls/pathname';
 
 import { actionHookSliceStore } from './actionSliceStore';
 import { useHandleData } from './useHandleData';
@@ -46,11 +47,6 @@ export const useNavigateAction = ({ executeActionFCType }: TProps): TUseActions 
   const findAction = actionHookSliceStore((state) => state.findAction);
   const { getData } = useHandleData({});
 
-  const convertUrl = (url: string, parameters: TVariable[]): string => {
-    const params = parameters.map((p) => getData(p.value));
-    return url + '/' + params.join('/');
-  };
-
   const isValidUrl = (url: string): boolean => {
     try {
       // Accept absolute URLs with valid protocol
@@ -69,7 +65,7 @@ export const useNavigateAction = ({ executeActionFCType }: TProps): TUseActions 
       const { url, isExternal, isNewTab, parameters = [] } = action?.data || {};
       if (!url) return;
 
-      const urlConverted = normalizeUrl(convertUrl(url, parameters));
+      const urlConverted = buildPathFromPattern(url, parameters, getData);
       console.log('🚀 ~ handleNavigateAction ~ urlConverted:', urlConverted);
 
       if (!isValidUrl(urlConverted)) {

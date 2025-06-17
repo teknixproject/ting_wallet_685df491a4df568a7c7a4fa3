@@ -25,3 +25,12 @@ export function getMatchingRoutePattern(pathname: string, patterns: string[]): s
 
   return null;
 }
+export function buildPathFromPattern(
+  pattern: string,
+  params: { key: string; value: string | number }[],
+  getData: any
+) {
+  return params.reduce((acc, { key, value }) => {
+    return acc.replace(`[${key}]`, encodeURIComponent(getData(value)));
+  }, pattern);
+}
