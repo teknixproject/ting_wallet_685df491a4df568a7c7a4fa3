@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useLayoutContext } from '@/context/LayoutContext';
 import _ from 'lodash';
 import { useEffect } from 'react';
 import useSWR from 'swr';
+
+import { useLayoutContext } from '@/context/LayoutContext';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -12,7 +13,8 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export function useConstructorDataAPI(_documentId?: string, pageName?: string) {
+export function useConstructorDataAPI(pageName?: string) {
+  console.log('🚀 ~ useConstructorDataAPI ~ pageName:', pageName);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
   const {
