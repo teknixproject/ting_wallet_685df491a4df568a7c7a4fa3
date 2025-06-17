@@ -5,14 +5,12 @@ import _ from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { CSSProperties } from 'styled-components';
-  console.log();
 
-import { usePagination } from '@/hooks/usePagination';
 import { useApiCallStore } from '@/providers';
 import { GridItem } from '@/types/gridItem';
 import { Icon } from '@iconify/react'; // Import Iconify for better icons
 
-import Loading from './Loading';
+console.log();
 
 type TProps = {
   data?: GridItem;
@@ -24,8 +22,7 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1000);
   const { apiData, findApiData } = useApiCallStore((state) => state);
-  const { updateData: handlePagination } = usePagination();
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   // Handler functions
   const handlePrevious = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -48,26 +45,26 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
     const total = Math.round(totalValue[0] / parseInt((limit as string) ?? '0'));
     return total;
   };
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        setIsLoading(true);
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     try {
+  //       setIsLoading(true);
 
-        const response = await handlePagination(data, currentPage);
+  //       const response = await handlePagination(data, currentPage);
 
-        //get limit from url
+  //       //get limit from url
 
-        const totalValue = caculateTotalPage(response.data);
-        if (_.isEmpty(totalValue)) setTotalPages(totalValue);
-      } catch (error) {
-        console.log('🚀 ~ handlePageClick ~ error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  //       const totalValue = caculateTotalPage(response.data);
+  //       if (_.isEmpty(totalValue)) setTotalPages(totalValue);
+  //     } catch (error) {
+  //       console.log('🚀 ~ handlePageClick ~ error:', error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   getData();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [currentPage]);
 
   // Generate page numbers with ellipsis
   const getPageNumbers = () => {
@@ -96,7 +93,6 @@ const Pagination: React.FC<TProps> = ({ style, data }) => {
 
   return (
     <div className="py-8 text-center" style={style}>
-      {isLoading && <Loading />}
       <div className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-gray-200 to-gray-200 p-2 shadow-lg dark:from-gray-800 dark:to-gray-900">
         <ul className="flex space-x-1 rounded-full bg-white p-1 dark:bg-gray-800">
           {/* Previous Button */}
