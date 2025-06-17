@@ -1,62 +1,15 @@
-import { Fragment, Suspense } from 'react';
-import { Metadata } from 'next';
 import _ from 'lodash';
-import Head from 'next/head';
+import { Metadata } from 'next';
 
-import ClientWrapper from '@/components/grid-systems/ClientWrapGridSystem';
+import EntryPage from '@/components/page/EntryPage';
+
 import { fetchMetadata } from './actions/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-const pageName = '/';
 
 export default async function Home() {
-  const layoutId = pageName;
-  const metadata = await fetchMetadata(pageName);
-  const formMetadata = _.get(metadata, 'data.form');
-  const iconUrl = _.get(formMetadata, 'icon.icon') || '/favicon.ico';
-
-  return (
-    <Suspense>
-      <Head>
-        <link rel="icon" href={iconUrl} type="image/png" />
-        <link rel="preload" href={iconUrl} as="image" />
-        <link
-          rel="apple-touch-icon"
-          href={_.get(formMetadata, 'icon.apple') || '/apple-icon.png'}
-        />
-        <link
-          rel="shortcut icon"
-          href={_.get(formMetadata, 'icon.shortcut') || '/shortcut-icon.png'}
-        />
-        <meta
-          name="robots"
-          content={[
-            formMetadata?.robots?.follow ? 'follow' : 'nofollow',
-            formMetadata?.robots?.index ? 'index' : 'noindex',
-            `max-snippet:${formMetadata?.robots?.maxSnippet ?? -1}`,
-            `max-video-preview:${formMetadata?.robots?.maxVideoPreview ?? -1}`,
-            `max-image-preview:${formMetadata?.robots?.maxImagePreview ?? 'large'}`,
-          ].join(', ')}
-        />
-        {formMetadata?.twitter?.label1 && (
-          <>
-            <meta name="twitter:label1" content={formMetadata?.twitter?.label1} />
-            <meta name="twitter:data1" content={formMetadata?.twitter?.data1} />
-          </>
-        )}
-        {formMetadata?.twitter?.label2 && (
-          <>
-            <meta name="twitter:label2" content={formMetadata?.twitter?.label2} />
-            <meta name="twitter:data2" content={formMetadata?.twitter?.data2} />
-          </>
-        )}
-      </Head>
-      <Fragment>
-        <ClientWrapper layoutId={layoutId} pathName={pageName} />
-      </Fragment>
-    </Suspense>
-  );
+  return <EntryPage />;
 }
 
 export async function generateMetadata(): Promise<Metadata> {

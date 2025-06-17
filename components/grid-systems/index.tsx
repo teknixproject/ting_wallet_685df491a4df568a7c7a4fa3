@@ -1,11 +1,12 @@
 'use client';
 import _ from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 
 import { rebuilComponentMonaco } from '@/app/actions/use-constructor';
 import { CONFIGS } from '@/configs';
+import { useActions } from '@/hooks/useActions';
 import { useHandleProps } from '@/hooks/useHandleProps';
 import { componentRegistry } from '@/lib/slices';
 import { cn, convertStyle, getDeviceSize, setActive } from '@/lib/utils';
@@ -28,10 +29,19 @@ const { updateTitleInText } = dynamicGenarateUtil;
 //#region Render Slice
 export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const pathname = usePathname();
+  const { handleAction } = useActions(slice!);
   const apiData = useApiCallStore((state) => state.apiData);
   const [sliceRef, setSliceRef] = useState<GridItem | null | undefined>(slice);
   const { multiples } = useHandleProps({ actionsProp: slice?.props });
+  const onPageLoad = useMemo(() => {
+    return slice?.actions?.onPageLoad;
+  }, [slice?.actions]);
 
+  useEffect(() => {
+    if (!_.isEmpty(onPageLoad)) {
+      handleAction('onPageLoad');
+    }
+  }, [onPageLoad]);
   useEffect(() => {
     if (
       sliceRef &&
@@ -66,7 +76,6 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
   const SliceComponent = useMemo(() => {
     return componentRegistry[key as keyof typeof componentRegistry];
   }, [key]);
-
 
   const styleSlice = (_.get(sliceRef, [styleDevice]) as React.CSSProperties) || sliceRef?.style;
 
@@ -129,6 +138,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
 
 //#region Render Grid
 export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
+  console.log('🚀 ~ slice:', slice);
   const { apiData, addApiData } = useApiCallStore((state) => state);
   const [childs, setChilds] = useState<GridItem[]>(slice?.childs || []);
   const [isLoading, setIsLoading] = useState(false);
@@ -191,11 +201,18 @@ export const RenderGrid: React.FC<RenderGripProps> = ({ idParent, slice }) => {
 };
 
 //#region Grid System
-const GridSystemContainer = ({ page, deviceType, isBody, isFooter, style }: GridSystemProps) => {
+const GridSystemContainer: FC<GridSystemProps> = ({
+  page,
+  deviceType,
+  isBody,
+  isFooter,
+  style,
+}) => {
   const [layout, setLayout] = useState<GridItem | null>(null);
   const styleDevice: string = getDeviceSize() as string;
 
   const config = layout || page;
+
   const previousComponentRef = useRef(null);
 
   const content = (
