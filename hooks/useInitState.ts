@@ -8,11 +8,12 @@ import { getDeviceType } from '@/lib/utils';
 import { actionService, apiCallService, stateManagerService } from '@/services';
 import { authSettingService } from '@/services/authSetting';
 import { customFunctionService } from '@/services/customFunctionService';
-import { actionsStore, apiResourceStore, layoutStore, stateManagementStore } from '@/stores';
+import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
 import { authSettingStore } from '@/stores/authSetting';
 import { customFunctionStore } from '@/stores/customFunction';
 import { pageActionsStore } from '@/stores/pageActions';
 import { TAuthSetting, TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
+import { getMatchingRoutePattern } from '@/uitls/pathname';
 
 type DeviceType = 'mobile' | 'desktop';
 
@@ -27,7 +28,6 @@ export const useInitStatePreview = () => {
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
 
   //#region store
-  const { setData } = layoutStore();
   const { addAndUpdateApiResource } = apiResourceStore();
   const { setStateManagement } = stateManagementStore();
   const { setActions } = pageActionsStore();
@@ -113,7 +113,6 @@ export const useInitStatePreview = () => {
   };
 
   useEffect(() => {
-    if (bodyLayout) setData(bodyLayout);
     async function fetchData() {
       await Promise.all([
         setStateFormDataPreview(),
@@ -138,27 +137,34 @@ export const useInitStatePreview = () => {
 };
 
 //#region State Render
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 export const useInitStateRender = () => {
-  const { setData } = layoutStore();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { addAndUpdateApiResource, apiResources } = apiResourceStore();
+  const pathname = usePathname(); // /detail/123
+  const [matchingPattern, setMatchingPattern] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch patterns từ API
+    fetch('/api/route-patterns')
+      .then((res) => res.json())
+      .then((data) => {
+        const matched = getMatchingRoutePattern(pathname, data);
+        setMatchingPattern(matched);
+      })
+      .catch((error) => console.error('Error fetching patterns:', error));
+  }, [pathname]);
+
+  const { addAndUpdateApiResource } = apiResourceStore();
   const { setStateManagement, findVariable } = stateManagementStore();
   const resetAuthSettings = authSettingStore((state) => state.reset);
 
-  const pathname = usePathname();
   const router = useRouter();
 
-  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-  const uid = pathname;
+  const uid = matchingPattern;
 
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const { setActions } = actionsStore();
   const { enable, pages, entryPage } = authSettingStore();
-  const { bodyLayout, isLoading } = useConstructorDataAPI(pathname);
-
-  useEffect(() => {
-    if (bodyLayout) setData(bodyLayout);
-  }, []);
+  const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '');
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
   const selectedBodyLayout = bodyLayout[deviceType] ?? bodyLayout ?? {};
