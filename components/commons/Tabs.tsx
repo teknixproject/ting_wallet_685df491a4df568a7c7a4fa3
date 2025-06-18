@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 import { useActions } from '@/hooks/useActions';
 
@@ -34,32 +35,8 @@ const Tabs = ({ id, style = '', data = {}, childs = [] }: TabsProps) => {
   return (
     <div style={{ ...style, width: '100%' }}>
       {/* Tab headers */}
-      <div
-        style={{
-          display: 'flex',
-          borderBottom: '1px solid #ddd',
-          marginBottom: '10px',
-        }}
-      >
-        {tabs.map((tab: any, index: any) => (
-          <button
-            key={index}
-            onClick={() => handleActiveTab(tab?.id)}
-            style={{
-              padding: '10px 20px',
-              cursor: 'pointer',
-              background: activeTab === tab?.id ? '#007bff' : '#f8f9fa',
-              color: activeTab === tab?.id ? '#fff' : '#000',
-              border: '1px solid #ddd',
-              borderBottom: activeTab === tab?.id ? 'none' : '1px solid #ddd',
-              borderRadius: '5px 5px 0 0',
-              marginRight: '5px',
-            }}
-          >
-            {tab?.label}
-          </button>
-        ))}
-      </div>
+      <TabHeader tabs={tabs} activeTab={activeTab} handleActiveTab={handleActiveTab} />
+
       {/* Tab content */}
       <div style={{ padding: '10px' }}>
         {childs.map((child: any, index: any) => {
@@ -70,6 +47,59 @@ const Tabs = ({ id, style = '', data = {}, childs = [] }: TabsProps) => {
       </div>
     </div>
   );
+};
+
+const TabHeader = ({
+  tabs,
+  activeTab,
+  handleActiveTab,
+}: {
+  tabs: any;
+  activeTab: string | undefined;
+  handleActiveTab: any;
+}) => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        borderBottom: '1px solid #ddd',
+        marginBottom: '10px',
+      }}
+    >
+      {tabs.map((tab: any, index: number) => (
+        <div
+          className="relative group"
+          key={tab.id}
+          style={{ display: 'flex', alignItems: 'center' }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              if (tab?.id) handleActiveTab(tab?.id);
+            }}
+            style={{
+              padding: '10px 20px',
+              cursor: 'pointer',
+              borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+              borderRadius: '5px 5px 0 0',
+              marginRight: '5px',
+              transition: 'all 0.3s',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {renderTabIcon(tab.icon)}
+            <span style={{ transition: 'transform 0.5s' }}>{tab.label || `Tab ${index + 1}`}</span>
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const renderTabIcon = (iconInfo: any) => {
+  if (!iconInfo || !iconInfo.name) return null;
+  return <Icon icon={iconInfo.name} width={16} height={16} className="mr-2" />;
 };
 
 export default Tabs;
