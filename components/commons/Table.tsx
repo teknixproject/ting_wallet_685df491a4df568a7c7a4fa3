@@ -22,19 +22,71 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
 
   const styleTable = data?.dataSlice?.table?.style_table || {};
 
-  return (
+  // Hàm render nội dung cell
+  const renderCellContent = (cell: any, rowId: string) => {
+    if (cell?.childs && cell.childs.length > 0) {
+      // Render childs nếu có
+      return _.map(cell.childs, (item) => (
+        <RenderSlice key={item.id} slice={item} idParent={rowId} />
+      ));
+    } else {
+      // Render placeholder hoặc nội dung mặc định cho cell rỗng
+      return <div style={{ minHeight: '20px', minWidth: '20px' }}>{cell?.text || '\u00A0'}</div>;
+    }
+  };
+
+  const getCellBorderRadius = (isFirstRow, isLastRow, isFirstCell, isLastCell) => {
+    const radius = styleTable?.borderRadius || '0px';
+    let borderRadius = '0';
+
+    if (isFirstRow && isFirstCell) {
+      borderRadius = `${radius} 0 0 0`;
+    } else if (isFirstRow && isLastCell) {
+      borderRadius = `0 ${radius} 0 0`;
+    } else if (isLastRow && isFirstCell) {
+      borderRadius = `0 0 0 ${radius}`;
+    } else if (isLastRow && isLastCell) {
+      borderRadius = `0 0 ${radius} 0`;
+    }
+
+    return borderRadius;
+  };
+
+  const getTotalInfo = () => {
+    const totalSections = tableConstructor?.sectionOrder?.length || 0;
+    let totalRows = 0;
+
+    tableConstructor?.sectionOrder?.forEach((section: any) => {
+      const rows = tableConstructor[optionsRender[section?.type]]
+        ? _.find(tableConstructor[optionsRender[section?.type]], { id: section?.id })
+        : {};
+      totalRows += rows?.rows?.length || 0;
+    });
+
+    return { totalSections, totalRows };
+  };
+
+  const { totalSections } = getTotalInfo();
+
+  return !_.isEmpty(tableConstructor) ? (
     <>
       <table
         style={{
-          borderRadius: style?.borderRadius,
-          border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
+          ...styleTable,
+          borderCollapse: 'separate',
+          borderSpacing: 0,
+          borderRadius: styleTable?.borderRadius,
         }}
-        className="w-full border-collapse border-2 border-gray-500 font-sans text-sm tracking-wider"
+        className="w-full font-sans text-sm"
       >
-        {_.map(tableConstructor?.sectionOrder, (s) => {
+        {_.map(tableConstructor?.sectionOrder, (s, sectionIndex) => {
           const rows = tableConstructor[optionsRender[s?.type]]
             ? _.find(tableConstructor[optionsRender[s?.type]], { id: s?.id })
             : {};
+
+          const isFirstSection = sectionIndex === 0;
+          const isLastSection = sectionIndex === totalSections - 1;
+
           if (s?.type === 'thead') {
             return (
               <thead
@@ -43,27 +95,38 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
                 }}
                 key={s?.id}
               >
-                {_.map(rows?.rows, (row) => {
+                {_.map(rows?.rows, (row, rowIndex) => {
                   const cells = row?.cells;
+                  const isFirstRow = isFirstSection && rowIndex === 0;
+                  const isLastRow = isLastSection && rowIndex === rows?.rows?.length - 1;
+
                   return (
                     <tr key={row?.id} style={row?.style}>
-                      {_.map(cells, (cell, index) => {
+                      {_.map(cells, (cell, cellIndex) => {
+                        const isFirstCell = cellIndex === 0;
+                        const isLastCell = cellIndex === cells.length - 1;
+                        const cellBorderRadius = getCellBorderRadius(
+                          isFirstRow,
+                          isLastRow,
+                          isFirstCell,
+                          isLastCell
+                        );
+
                         return (
                           <th
-                            key={index}
+                            key={cell?.id || `th-${row?.id}-${cellIndex}`}
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
                             style={{
                               border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
                               padding: styleTable?.cellPadding,
+                              borderRadius: cellBorderRadius,
                               ...cell?.style_cell,
                             }}
                           >
                             <div style={cell?.[styleDevice as string]}>
-                              {_.map(cell?.childs, (item) => (
-                                <RenderSlice key={item.id} slice={item} idParent={row?.id} />
-                              ))}
+                              {renderCellContent(cell, row?.id)}
                             </div>
                           </th>
                         );
@@ -74,29 +137,41 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
               </thead>
             );
           }
+
           if (s?.type === 'tbody') {
             return (
               <tbody key={s?.id}>
-                {_.map(rows?.rows, (row, index) => {
+                {_.map(rows?.rows, (row, rowIndex) => {
                   const cells = row?.cells;
+                  const isFirstRow = isFirstSection && rowIndex === 0;
+                  const isLastRow = isLastSection && rowIndex === rows?.rows?.length - 1;
                   return (
-                    <tr key={index} style={row?.style}>
-                      {_.map(cells, (cell, index) => {
+                    <tr key={rowIndex} style={row?.style}>
+                      {_.map(cells, (cell, cellIndex) => {
+                        const isFirstCell = cellIndex === 0;
+                        const isLastCell = cellIndex === cells.length - 1;
+                        const cellBorderRadius = getCellBorderRadius(
+                          isFirstRow,
+                          isLastRow,
+                          isFirstCell,
+                          isLastCell
+                        );
                         return (
                           <td
-                            key={index}
+                            key={cell?.id || `td-${row?.id}-${cellIndex}`}
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
                             style={{
                               border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
                               padding: styleTable?.cellPadding,
+                              borderRadius: cellBorderRadius,
                               ...cell?.style_cell,
                             }}
                           >
-                            {_.map(cell?.childs, (item) => (
-                              <RenderSlice key={item.id} slice={item} idParent={row?.id} />
-                            ))}
+                            <div style={cell?.[styleDevice as string]}>
+                              {renderCellContent(cell, row?.id)}
+                            </div>
                           </td>
                         );
                       })}
@@ -106,29 +181,56 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
               </tbody>
             );
           }
+
           if (s?.type === 'tfoot') {
             return (
               <tfoot key={s?.id}>
-                {_.map(rows?.rows, (row, index) => {
+                {_.map(rows?.rows, (row, rowIndex) => {
                   const cells = row?.cells;
+                  const isFirstRow = isFirstSection && rowIndex === 0;
+                  const isLastRow = isLastSection && rowIndex === rows?.rows?.length - 1;
+
                   return (
-                    <tr key={index} style={row?.style}>
-                      {_.map(cells, (cell, index) => {
+                    <tr key={rowIndex} style={row?.style}>
+                      {_.map(cells, (cell, cellIndex) => {
+                        const isFirstCell = cellIndex === 0;
+                        const isLastCell = cellIndex === cells.length - 1;
+                        const cellBorderRadius = getCellBorderRadius(
+                          isFirstRow,
+                          isLastRow,
+                          isFirstCell,
+                          isLastCell
+                        );
                         return (
                           <td
-                            key={index}
+                            key={cell?.id || `tf-${row?.id}-${cellIndex}`}
                             scope={cell?.scope}
                             colSpan={cell?.colSpan}
                             rowSpan={cell?.rowSpan}
                             style={{
                               border: `${styleTable?.borderWidth} ${styleTable?.borderStyle} ${styleTable?.borderColor}`,
                               padding: styleTable?.cellPadding,
+                              borderRadius: cellBorderRadius,
                               ...cell?.style_cell,
                             }}
                           >
-                            {_.map(cell?.childs, (item) => (
-                              <RenderGrid  key={item.id} slice={item} idParent={row?.id} items={[item]} />
-                            ))}
+                            <div style={cell?.[styleDevice as string]}>
+                              {/* Sử dụng RenderGrid cho tfoot như code gốc */}
+                              {cell?.childs && cell.childs.length > 0 ? (
+                                _.map(cell.childs, (item) => (
+                                  <RenderGrid
+                                    key={item.id}
+                                    slice={item}
+                                    idParent={row?.id}
+                                    items={[item]}
+                                  />
+                                ))
+                              ) : (
+                                <div style={{ minHeight: '20px', minWidth: '20px' }}>
+                                  {cell?.text || '\u00A0'}
+                                </div>
+                              )}
+                            </div>
                           </td>
                         );
                       })}
@@ -141,6 +243,10 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
         })}
       </table>
     </>
+  ) : (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-gray-500">No data available for table</p>
+    </div>
   );
 };
 
