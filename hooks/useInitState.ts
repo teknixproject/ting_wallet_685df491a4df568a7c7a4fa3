@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import _ from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
-import { actionService, apiCallService, stateManagerService } from '@/services';
+import { apiCallService, stateManagerService } from '@/services';
 import { authSettingService } from '@/services/authSetting';
 import { customFunctionService } from '@/services/customFunctionService';
 import { documentService } from '@/services/document';
-import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
+import { apiResourceStore, stateManagementStore } from '@/stores';
 import { authSettingStore } from '@/stores/authSetting';
 import { customFunctionStore } from '@/stores/customFunction';
 import { TAuthSetting, TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
@@ -139,17 +139,15 @@ export const useInitStatePreview = () => {
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 export const useInitStateRender = () => {
   const pathname = usePathname(); // /detail/123
-  const [matchingPattern, setMatchingPattern] = useState<string | null>(null);
+  const matchingPattern = useRef<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       const result = await documentService.getAllPageNames(projectId || '');
       const uids = result?.data?.map((item: any) => item.uid) || [];
-      console.log('🚀 ~ fetchData ~ uids:', uids);
 
       const matched = getMatchingRoutePattern(pathname, uids);
-      console.log('🚀 ~ fetchData ~ matched:', matched);
-      setMatchingPattern(matched);
+      matchingPattern.current = matched;
     }
     fetchData();
   }, [pathname]);
@@ -160,10 +158,9 @@ export const useInitStateRender = () => {
 
   const router = useRouter();
 
-  const uid = matchingPattern;
+  const uid = matchingPattern.current;
 
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
-  const { setActions } = actionsStore();
   const { enable, pages, entryPage } = authSettingStore();
   const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '/');
 
@@ -227,18 +224,18 @@ export const useInitStateRender = () => {
     }
   };
 
-  const getActions = async () => {
-    try {
-      const result = await actionService.getData({
-        uid: uid,
-        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
-      });
-      if (_.isEmpty(result?.data?.data)) return;
-      setActions(result.data.data);
-    } catch (error) {
-      console.log('🚀 ~ getStates ~ error:', error);
-    }
-  };
+  // const getActions = async () => {
+  //   try {
+  //     const result = await actionService.getData({
+  //       uid: uid,
+  //       projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+  //     });
+  //     if (_.isEmpty(result?.data?.data)) return;
+  //     setActions(result.data.data);
+  //   } catch (error) {
+  //     console.log('🚀 ~ getStates ~ error:', error);
+  //   }
+  // };
 
   const getApiCall = async () => {
     try {
@@ -293,13 +290,7 @@ export const useInitStateRender = () => {
   useEffect(() => {
     if (!projectId) return;
     async function fetchData() {
-      await Promise.all([
-        getStates(),
-        getActions(),
-        getApiCall(),
-        getCustomFunctions(),
-        getAuthSettings(),
-      ]);
+      await Promise.all([getStates(), getApiCall(), getCustomFunctions(), getAuthSettings()]);
     }
     fetchData();
   }, [uid, projectId]);
