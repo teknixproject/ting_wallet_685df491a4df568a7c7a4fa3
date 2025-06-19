@@ -8,10 +8,10 @@ import { getDeviceType } from '@/lib/utils';
 import { actionService, apiCallService, stateManagerService } from '@/services';
 import { authSettingService } from '@/services/authSetting';
 import { customFunctionService } from '@/services/customFunctionService';
+import { documentService } from '@/services/document';
 import { actionsStore, apiResourceStore, stateManagementStore } from '@/stores';
 import { authSettingStore } from '@/stores/authSetting';
 import { customFunctionStore } from '@/stores/customFunction';
-import { pageActionsStore } from '@/stores/pageActions';
 import { TAuthSetting, TTypeSelect, TTypeSelectState, TVariable, TVariableMap } from '@/types';
 import { getMatchingRoutePattern } from '@/uitls/pathname';
 
@@ -30,7 +30,6 @@ export const useInitStatePreview = () => {
   //#region store
   const { addAndUpdateApiResource } = apiResourceStore();
   const { setStateManagement } = stateManagementStore();
-  const { setActions } = pageActionsStore();
   const resetAuthSettings = authSettingStore((state) => state.reset);
 
   // #region hooks
@@ -56,18 +55,18 @@ export const useInitStatePreview = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getActions = async () => {
-    try {
-      const result = await actionService.getData({
-        uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
-        projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
-      });
-      if (_.isEmpty(result?.data)) return;
-      setActions(result.data);
-    } catch (error) {
-      console.log('🚀 ~ getStates ~ error:', error);
-    }
-  };
+  // const getActions = async () => {
+  //   try {
+  //     const result = await actionService.getData({
+  //       uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
+  //       projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
+  //     });
+  //     if (_.isEmpty(result?.data)) return;
+  //     setActions(result.data);
+  //   } catch (error) {
+  //     console.log('🚀 ~ getStates ~ error:', error);
+  //   }
+  // };
 
   const getApiCall = async () => {
     try {
@@ -116,7 +115,7 @@ export const useInitStatePreview = () => {
     async function fetchData() {
       await Promise.all([
         setStateFormDataPreview(),
-        getActions(),
+        // getActions(),
         getApiCall(),
         getCustomFunctions(),
         getAuthSettings(),
@@ -143,13 +142,16 @@ export const useInitStateRender = () => {
   const [matchingPattern, setMatchingPattern] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/route-patterns')
-      .then((res) => res.json())
-      .then((data) => {
-        const matched = getMatchingRoutePattern(pathname, data);
-        setMatchingPattern(matched);
-      })
-      .catch((error) => console.error('Error fetching patterns:', error));
+    async function fetchData() {
+      const result = await documentService.getAllPageNames(projectId || '');
+      const uids = result?.data?.map((item: any) => item.uid) || [];
+      console.log('🚀 ~ fetchData ~ uids:', uids);
+
+      const matched = getMatchingRoutePattern(pathname, uids);
+      console.log('🚀 ~ fetchData ~ matched:', matched);
+      setMatchingPattern(matched);
+    }
+    fetchData();
   }, [pathname]);
 
   const { addAndUpdateApiResource } = apiResourceStore();
