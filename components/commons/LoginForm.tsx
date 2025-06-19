@@ -76,19 +76,22 @@ const CarLoginComponent: React.FC<OnClickProps> = ({
         // Store tokens in localStorage
         const accessToken = _.get(responseData, 'data.accessToken');
         const refreshToken = _.get(responseData, 'data.refreshToken');
-
+        const roleName = _.get(responseData, 'data.role.name');
         if (accessToken) {
           localStorage.setItem('accessToken', accessToken);
         }
         if (refreshToken) {
           localStorage.setItem('refreshToken', refreshToken);
         }
+        if (roleName) {
+          localStorage.setItem('role', roleName);
+        }
 
         // Call the optional callback
         props.onSubmitLogin?.(e as any);
 
         // Redirect to /user
-        router.push('/user');
+        router.push('/user/drivers');
       } else {
         const errorMessage = _.get(responseData, 'message', 'Login failed. Please try again.');
         setError(errorMessage);
