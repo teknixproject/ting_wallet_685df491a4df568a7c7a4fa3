@@ -17,7 +17,7 @@ const optionsRender: any = {
   tfoot: 'footers',
 };
 
-const Table = ({ style, data = {}, styleDevice }: TableProps) => {
+const Table = ({ data = {}, styleDevice }: TableProps) => {
   const tableConstructor = _.get(data, 'dataSlice.table');
 
   const styleTable = data?.dataSlice?.table?.style_table || {};
@@ -35,7 +35,12 @@ const Table = ({ style, data = {}, styleDevice }: TableProps) => {
     }
   };
 
-  const getCellBorderRadius = (isFirstRow, isLastRow, isFirstCell, isLastCell) => {
+  const getCellBorderRadius = (
+    isFirstRow: boolean,
+    isLastRow: boolean,
+    isFirstCell: boolean,
+    isLastCell: boolean
+  ) => {
     const radius = styleTable?.borderRadius || '0px';
     let borderRadius = '0';
 

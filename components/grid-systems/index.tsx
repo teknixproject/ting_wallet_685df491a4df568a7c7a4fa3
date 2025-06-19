@@ -41,6 +41,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
     if (!_.isEmpty(onPageLoad)) {
       handleAction('onPageLoad');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onPageLoad]);
   useEffect(() => {
     if (
@@ -112,6 +113,7 @@ export const RenderSlice: React.FC<TRenderSlice> = ({ slice, isMenu }) => {
         data={sliceRef}
         childs={sliceRef?.childs}
         styleDevice={styleDevice}
+        pathname={pathname}
         {...multiples}
       />
     </>

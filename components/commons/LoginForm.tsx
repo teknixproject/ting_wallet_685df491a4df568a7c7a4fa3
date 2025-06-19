@@ -242,6 +242,7 @@ const CarLoginComponent: React.FC<OnClickProps> = ({
             <img
               src="https://www.mioto.vn/static/media/thue_xe_oto_tu_lai_di_du_lich_gia_re.fde3ac82.png"
               className="h-full w-full"
+              alt="Car for rent"
             />
           </div>
         </div>
