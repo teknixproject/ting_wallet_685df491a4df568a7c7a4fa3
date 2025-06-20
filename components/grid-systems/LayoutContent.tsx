@@ -85,14 +85,16 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   return (
     <div className="relative !z-0">
       <div className="z-10" style={containerStyle as any}>
-        {!_.isEmpty(selectedHeaderLayout) && (
-          <GridSystemContainer
-            page={selectedHeaderLayout}
-            deviceType={deviceType}
-            isHeader
-            style={headerStyle}
-          />
-        )}
+        <div className="relative">
+          {!_.isEmpty(selectedHeaderLayout) && (
+            <GridSystemContainer
+              page={selectedHeaderLayout}
+              deviceType={deviceType}
+              isHeader
+              style={headerStyle}
+            />
+          )}
+        </div>
         <main style={{ flex: 1 }}>{children}</main>
       </div>
       {!_.isEmpty(selectedFooterLayout) && (
