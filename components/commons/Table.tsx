@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import _ from 'lodash';
@@ -9,6 +10,7 @@ interface TableProps {
   style?: any;
   data?: any;
   styleDevice?: string;
+  [key: string]: unknown;
 }
 
 const optionsRender: any = {
@@ -17,8 +19,10 @@ const optionsRender: any = {
   tfoot: 'footers',
 };
 
-const Table = ({ data = {}, styleDevice }: TableProps) => {
+const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
   const tableConstructor = _.get(data, 'dataSlice.table');
+
+  console.log('Table', data);
 
   const styleTable = data?.dataSlice?.table?.style_table || {};
 
