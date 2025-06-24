@@ -6,6 +6,8 @@ import ReactModal from 'react-modal';
 import { useHandleData } from '@/hooks/useHandleData';
 import { useUpdateData } from '@/hooks/useUpdateData';
 
+import { StyleBox } from './StyleBox';
+
 interface ModalProps {
   data: any;
   children?: any;
@@ -27,7 +29,8 @@ const Modal = ({ children, data, ...props }: ModalProps) => {
   }, []);
 
   return (
-    <ReactModal
+    <StyleBox
+      as={ReactModal}
       isOpen={dataState}
       onRequestClose={updateData}
       shouldCloseOnOverlayClick={true}
@@ -44,10 +47,11 @@ const Modal = ({ children, data, ...props }: ModalProps) => {
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
         },
       }}
+      styledComponentCss={data?.styledComponentCss}
       {...props}
     >
       {children}
-    </ReactModal>
+    </StyleBox>
   );
 };
 

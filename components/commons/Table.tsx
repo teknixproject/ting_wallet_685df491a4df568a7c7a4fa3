@@ -2,8 +2,10 @@
 'use client';
 
 import _ from 'lodash';
-import React, { memo } from 'react';
-import { RenderGrid, RenderSlice } from '../grid-systems';
+import { memo } from 'react';
+
+import { RenderSlice } from '../grid-systems';
+import { StyleBox } from './StyleBox';
 
 interface TableProps {
   id?: string;
@@ -76,13 +78,15 @@ const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
 
   return !_.isEmpty(tableConstructor) ? (
     <>
-      <table
+      <StyleBox
+        as={'table'}
         style={{
           ...styleTable,
           borderCollapse: 'separate',
           borderSpacing: 0,
           borderRadius: styleTable?.borderRadius,
         }}
+        styledComponentCss={data?.styledComponentCss}
         className="w-full font-sans text-sm"
       >
         {_.map(tableConstructor?.sectionOrder, (s, sectionIndex) => {
@@ -224,11 +228,11 @@ const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
                               {/* Sử dụng RenderGrid cho tfoot như code gốc */}
                               {cell?.childs && cell.childs.length > 0 ? (
                                 _.map(cell.childs, (item) => (
-                                  <RenderGrid
+                                  <RenderSlice
                                     key={item.id}
                                     slice={item}
                                     idParent={row?.id}
-                                    items={[item]}
+                                    // items={[item]}
                                   />
                                 ))
                               ) : (
@@ -247,7 +251,7 @@ const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
             );
           }
         })}
-      </table>
+      </StyleBox>
     </>
   ) : (
     <div className="flex items-center justify-center h-full">

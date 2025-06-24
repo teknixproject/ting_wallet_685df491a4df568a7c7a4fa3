@@ -19,4 +19,6 @@ export const components = {
   Table: dynamic(() => import('./Table')),
   LoginForm: dynamic(() => import('./LoginForm')),
   ListDrivers: dynamic(() => import('./ListDrivers')),
+  Grid: dynamic(() => import('./Box')),
+  Flex: dynamic(() => import('./Box')),
 };

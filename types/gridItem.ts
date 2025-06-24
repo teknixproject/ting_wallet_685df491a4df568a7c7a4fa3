@@ -63,8 +63,10 @@ export type TCollapse = {
   childs: { value: string }[];
 };
 export type TDynamicGenerate = {
-  dataJsonPath?: string;
-  apiCall?: { id: string; name: string };
+  variableId: string;
+  list: TData;
+  maxItems: TData;
+  variableName: string;
 };
 export type TValueFields = {
   total: string;

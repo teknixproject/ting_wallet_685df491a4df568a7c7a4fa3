@@ -33,6 +33,7 @@ export type TData = {
   type: keyof Omit<TData, 'type'>;
   itemInList: { jsonPath?: string };
   combineText?: TCombineText;
+  dynamicGenerate?: TDataField;
   apiResponse?: TDataField;
   appState?: TDataField;
   componentState?: TDataField;
@@ -46,4 +47,5 @@ export type TData = {
   };
   valueInput?: string;
   defaultValue?: string;
+  temp: any;
 };

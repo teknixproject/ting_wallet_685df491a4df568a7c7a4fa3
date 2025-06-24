@@ -55,19 +55,6 @@ export const useInitStatePreview = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // const getActions = async () => {
-  //   try {
-  //     const result = await actionService.getData({
-  //       uid: uid || process.env.NEXT_PUBLIC_DEFAULT_UID || '',
-  //       projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
-  //     });
-  //     if (_.isEmpty(result?.data)) return;
-  //     setActions(result.data);
-  //   } catch (error) {
-  //     console.log('🚀 ~ getStates ~ error:', error);
-  //   }
-  // };
-
   const getApiCall = async () => {
     try {
       const result = await apiCallService.getAll({
@@ -152,8 +139,13 @@ export const useInitStateRender = () => {
     fetchData();
   }, [pathname]);
 
-  const { addAndUpdateApiResource } = apiResourceStore();
-  const { setStateManagement, findVariable } = stateManagementStore();
+  const addAndUpdateApiResource = apiResourceStore((state) => state.addAndUpdateApiResource);
+  const { setStateManagement, findVariable } = stateManagementStore((state) => {
+    return {
+      setStateManagement: state.setStateManagement,
+      findVariable: state.findVariable,
+    };
+  });
   const resetAuthSettings = authSettingStore((state) => state.reset);
 
   const router = useRouter();
@@ -223,19 +215,6 @@ export const useInitStateRender = () => {
       console.log('🚀 ~ getStates ~ error:', error);
     }
   };
-
-  // const getActions = async () => {
-  //   try {
-  //     const result = await actionService.getData({
-  //       uid: uid,
-  //       projectId: projectId || process.env.NEXT_PUBLIC_PROJECT_ID || '',
-  //     });
-  //     if (_.isEmpty(result?.data?.data)) return;
-  //     setActions(result.data.data);
-  //   } catch (error) {
-  //     console.log('🚀 ~ getStates ~ error:', error);
-  //   }
-  // };
 
   const getApiCall = async () => {
     try {
