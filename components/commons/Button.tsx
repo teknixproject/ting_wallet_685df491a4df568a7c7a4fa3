@@ -14,9 +14,10 @@ interface ButtonCompoProps {
 }
 
 const Button = ({ data, style }: ButtonCompoProps) => {
+  console.log('🚀 ~ Button ~ data:', data);
+  const { handleAction } = useActions(data);
   const { dataState } = useHandleData({ dataProp: data?.data });
 
-  const { handleAction } = useActions(data);
   return (
     <StyleBox
       as={'button'}

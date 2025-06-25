@@ -21,6 +21,7 @@ const optionsRender: any = {
 };
 
 const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
+  console.log('🚀 ~ data:', data);
   const tableConstructor = _.get(data, 'dataSlice.table');
 
   const styleTable = data?.dataSlice?.table?.style_table || {};
@@ -93,6 +94,7 @@ const Table = ({ data = {}, styleDevice, ...props }: TableProps) => {
           const rows = tableConstructor[optionsRender[s?.type]]
             ? _.find(tableConstructor[optionsRender[s?.type]], { id: s?.id })
             : {};
+          console.log('🚀 ~ {_.map ~ rows:', rows);
 
           const isFirstSection = sectionIndex === 0;
           const isLastSection = sectionIndex === totalSections - 1;

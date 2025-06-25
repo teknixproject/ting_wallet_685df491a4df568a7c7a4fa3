@@ -5,17 +5,20 @@ import ReactModal from 'react-modal';
 
 import { useHandleData } from '@/hooks/useHandleData';
 import { useUpdateData } from '@/hooks/useUpdateData';
+import { GridItem } from '@/types/gridItem';
 
+import { RenderSlice } from '../grid-systems';
 import { StyleBox } from './StyleBox';
 
 interface ModalProps {
   data: any;
-  children?: any;
   [key: string]: unknown;
 }
 
-const Modal = ({ children, data, ...props }: ModalProps) => {
+const Modal = ({ data, ...props }: ModalProps) => {
+  console.log('🚀 ~ Modal ~ data:', data);
   const { dataState } = useHandleData({ dataProp: data?.data });
+  console.log('🚀 ~ Modal ~ dataState:', dataState);
 
   const { updateData } = useUpdateData({ dataProp: data?.data });
 
@@ -50,7 +53,9 @@ const Modal = ({ children, data, ...props }: ModalProps) => {
       styledComponentCss={data?.styledComponentCss}
       {...props}
     >
-      {children}
+      {data?.childs?.map((item: GridItem) => (
+        <RenderSlice slice={item} key={item.id} />
+      ))}
     </StyleBox>
   );
 };

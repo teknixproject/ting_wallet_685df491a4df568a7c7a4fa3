@@ -136,6 +136,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
       type: 'apiResponse',
       id: variableId,
     });
+    console.log('🚀 ~ useApiCallAction ~ outputVariable:', outputVariable);
     try {
       const response = await axios.request({
         baseURL: apiCall?.baseUrl || '',
@@ -209,6 +210,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody = convertApiCallBody(apiCall?.body, variables);
     const result = await makeApiCall(apiCall, newBody, action?.data?.output?.variableId ?? '');
+    console.log('🚀 ~ handleApiCallAction ~ result:', result);
 
     // handleApiResponse(result, action?.data?.output ?? {});
 

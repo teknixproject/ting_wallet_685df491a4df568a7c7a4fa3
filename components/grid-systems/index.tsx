@@ -1,117 +1,154 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
+
 import _ from 'lodash';
 import { usePathname } from 'next/navigation';
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { useActions } from '@/hooks/useActions';
 import { useDynamicGenerate } from '@/hooks/useDynamicGenerate';
 import { useHandleProps } from '@/hooks/useHandleProps';
-import { componentRegistry } from '@/lib/slices';
-import { cn, getDeviceSize, setActive } from '@/lib/utils';
+import { cn, getDeviceSize } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { useQuery } from '@tanstack/react-query';
 
+import { componentRegistry } from '../commons';
 import LoadingPage from './loadingPage';
-import { GridSystemProps, RenderGripProps } from './types';
+import { GridSystemProps } from './types';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
 const componentHasMenu = ['dropdown'];
 const allowUpdateTitle = ['content'];
-type TRenderSlice = { slice: GridItem | null | undefined; idParent: string; isMenu?: boolean };
-//#region Render Slice
-export const RenderSlice: React.FC<TRenderSlice> = ({ slice: sliceProp, isMenu }) => {
-  const [slice, setSlice] = useState<GridItem>(sliceProp!);
-  const pathname = usePathname();
-  const { dynamicData, loading } = useDynamicGenerate({ data: sliceProp! });
-  console.log('🚀 ~ dynamicData:', dynamicData);
-  const { handleAction } = useActions(slice!);
-  const { multiples } = useHandleProps({ actionsProp: slice?.props });
-  const onPageLoad = useMemo(() => {
-    return slice?.actions?.onPageLoad;
-  }, [slice?.actions]);
 
-  const { isLoading } = useQuery({
-    queryKey: ['onPageLoad'],
-    queryFn: async () => {
-      await handleAction('onPageLoad');
-      return true;
-    },
-    enabled: !!onPageLoad,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-  useEffect(() => {
-    if (!_.isEqual(dynamicData, slice)) {
-      setSlice(dynamicData);
-    }
-  }, [dynamicData]);
-  const key = _.upperFirst(slice?.id?.split('$')[0]);
-
-  const isButton = key === 'button';
-
-  const data = useMemo(() => {
-    return componentHasAction.includes(key!) ? slice : _.get(slice, 'dataSlice');
-  }, [slice]);
-
-  const SliceComponent = useMemo(() => {
-    return componentRegistry[key as keyof typeof componentRegistry];
-  }, [key]);
-
-  const styleDevice: string = getDeviceSize() as string;
-  const styleSlice = (_.get(slice, [styleDevice]) as React.CSSProperties) || slice?.style;
-
-  const inlineStyles = useMemo(() => {
-    if (!slice) return {};
-    const styleSlice = (_.get(slice, [styleDevice]) as React.CSSProperties) || slice.style;
-    return {
-      gridTemplateColumns: slice.type === 'grid' ? `repeat(${slice.columns}, 1fr)` : '',
-      ...styleSlice,
-    };
-  }, [slice, styleDevice]);
-
-  const isMenuConvert = isMenu || componentHasMenu.includes(key || '');
-  const isActive = setActive({ isMenu: isMenuConvert, data, cleanedPath: pathname });
-  if (isLoading) return <LoadingPage />;
-  return (
-    <SliceComponent
-      id={_.get(slice, 'id')}
-      style={styleSlice}
-      data={slice}
-      childs={slice?.childs}
-      styleDevice={styleDevice}
-      pathname={pathname}
-      {...multiples}
-    />
-  );
+type TRenderSlice = {
+  slice: GridItem | null | undefined;
+  idParent?: string;
+  isMenu?: boolean;
 };
 
-//#region Render Grid
-// eslint-disable-next-line react/display-name
-export const RenderGrid: React.FC<RenderGripProps> = React.memo(({ idParent, slice }) => {
-  const { dynamicData, loading } = useDynamicGenerate({ data: slice });
+// Define common props interface that all components should accept
+interface ComponentProps {
+  id?: string;
+  style?: React.CSSProperties;
+  data?: GridItem;
+  childs?: GridItem[];
+  styleDevice?: string;
+  pathname?: string;
+  className?: string;
+  [key: string]: any; // Allow additional props
+}
 
-  const { handleAction } = useActions(slice);
-  const onPageLoad = useMemo(() => slice?.actions?.onPageLoad, [slice?.actions]);
+export const RenderSlice: React.FC<TRenderSlice> = memo(
+  ({ slice: sliceProp, idParent, isMenu }) => {
+    const pathname = usePathname();
 
-  // const { isLoading } = useQuery({
-  //   queryKey: [onPageLoad],
-  //   queryFn: () => handleAction('onPageLoad'),
-  //   enabled: !!onPageLoad,
-  // });
+    const { dynamicData: slice, loading } = useDynamicGenerate({ data: sliceProp! });
 
-  // const childs = useMemo(() => dynamicData.childs || [], [dynamicData.childs]);
+    const { handleAction } = useActions(slice);
+    const { multiples } = useHandleProps({ actionsProp: slice?.props });
 
-  return (
-    <>
-      {_.map(slice?.childs, (child) => (
-        <RenderSlice slice={child} key={child.id} idParent={idParent} />
-      ))}
-    </>
-  );
-});
+    const onPageLoad = useMemo(() => slice?.actions?.onPageLoad, [slice?.actions]);
 
+    const queryFn = useCallback(async () => {
+      if (!handleAction) return true;
+      try {
+        await handleAction('onPageLoad');
+        return true;
+      } catch (error) {
+        console.error('Error in onPageLoad action:', error);
+        throw error;
+      }
+    }, [handleAction]);
+
+    const { isLoading, error } = useQuery({
+      queryKey: ['onPageLoad', slice?.id],
+      queryFn,
+      enabled: !!onPageLoad && !!handleAction,
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retryDelay: 1000,
+    });
+    const key = useMemo(() => {
+      if (!slice?.id) return null;
+      const componentKey = slice.id.split('$')[0];
+      return _.upperFirst(componentKey);
+    }, [slice?.id]);
+
+    const SliceComponent = useMemo(() => {
+      if (!key) return null;
+      const component = componentRegistry[key as keyof typeof componentRegistry];
+      return component;
+    }, [key]);
+    // Early return if slice is null/undefined
+    if (!sliceProp) {
+      console.warn('RenderSlice: slice is null or undefined');
+      return null;
+    }
+
+    // Handle loading state from useDynamicGenerate
+    if (loading) {
+      return <LoadingPage />;
+    }
+
+    // Early return if dynamic generation failed
+    if (!slice) {
+      console.warn('RenderSlice: dynamic generation returned null');
+      return null;
+    }
+    // Handle query error
+    if (error) {
+      console.error(`Error loading slice ${slice?.id}:`, error);
+      return null;
+    }
+
+    // Enhanced error handling
+    if (!key) {
+      console.warn(`RenderSlice: Invalid slice id for slice:`, slice);
+      return null;
+    }
+
+    if (!SliceComponent) {
+      console.warn(`Component "${key}" not found in componentRegistry`);
+      return null;
+    }
+
+    const styleDevice: string = getDeviceSize() as string;
+    const styleSlice = (_.get(slice, [styleDevice]) as React.CSSProperties) || slice?.style;
+
+    if (isLoading) return <LoadingPage />;
+
+    // Prepare props more carefully
+    const componentProps: ComponentProps = {
+      id: slice?.id || '',
+      style: styleSlice,
+      data: slice,
+      childs: slice?.childs,
+      styleDevice,
+      pathname,
+      idParent,
+      isMenu,
+      // Spread multiples safely
+      ...(multiples && typeof multiples === 'object' ? multiples : {}),
+    };
+
+    // Filter out undefined/null values to avoid prop warnings
+    const cleanProps = Object.entries(componentProps).reduce((acc, [key, value]) => {
+      if (value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    try {
+      return React.createElement(SliceComponent, cleanProps);
+    } catch (renderError) {
+      console.error(`Error rendering component "${key}":`, renderError);
+      console.error('Props passed:', cleanProps);
+      return null;
+    }
+  }
+);
+RenderSlice.displayName = 'RenderSlice';
 //#region Grid System
 const GridSystemContainer: FC<GridSystemProps> = ({
   page,
@@ -120,15 +157,17 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   isFooter,
   style,
 }) => {
-  const styleDevice: string = getDeviceSize() as string;
-
   const config = page;
   const { handleAction } = useActions(config);
   const onPageLoad = useMemo(() => config?.actions?.onPageLoad, [config?.actions]);
+  console.log('🚀 ~ onPageLoad:', onPageLoad);
 
   const { isLoading } = useQuery({
     queryKey: [onPageLoad],
-    queryFn: () => handleAction('onPageLoad'),
+    queryFn: async () => {
+      await handleAction('onPageLoad');
+      return true;
+    },
     enabled: !!onPageLoad,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,

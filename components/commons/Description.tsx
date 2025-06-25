@@ -16,7 +16,7 @@ const Description = ({ data, style }: DescriptionProps) => {
   const { handleAction } = useActions();
   return (
     <StyleBox
-      as={'description'}
+      as={'p'}
       style={style}
       styledComponentCss={data?.styledComponentCss}
       onClick={() => handleAction('onClick')}

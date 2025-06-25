@@ -1,14 +1,14 @@
 'use client';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { getDeviceType } from '@/lib/utils';
-import { useLayoutContext } from '@/context/LayoutContext';
 import { useGetModalUI } from '@/app/actions/use-constructor';
+import { useLayoutContext } from '@/context/LayoutContext';
+import { getDeviceType } from '@/lib/utils';
 
-import LoadingPage from './loadingPage';
 import Modal from '../commons/Modal';
+import LoadingPage from './loadingPage';
 
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
@@ -111,5 +111,9 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
 
 export const RenderModal: React.FC<any> = () => {
   const { data: dataModal } = useGetModalUI();
-  return _.map(dataModal, (item) => <Modal key={item?._id} data={item} false></Modal>);
+  console.log('🚀RenderModal ~ data:', dataModal);
+
+  return _.map(dataModal, (item) => (
+    <Modal key={item?._id} data={item.layoutJson[getDeviceType()]} false></Modal>
+  ));
 };

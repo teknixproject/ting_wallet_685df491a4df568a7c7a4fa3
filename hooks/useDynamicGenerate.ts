@@ -62,6 +62,7 @@ export const useDynamicGenerate = ({
 }: TProps): { dynamicData: GridItem; loading: boolean } => {
   const dynamic = data?.dynamicGenerate;
   const { dataState: list } = useHandleData({ dataProp: dynamic?.list });
+  console.log('🚀 ~ list:', list);
   const { dataState: maxItemsRaw } = useHandleData({ dataProp: dynamic?.maxItems });
 
   const [dynamicData, setDynamicData] = useState<GridItem>(data);
