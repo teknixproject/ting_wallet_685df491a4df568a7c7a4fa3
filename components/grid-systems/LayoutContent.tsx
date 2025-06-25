@@ -19,6 +19,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
 
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => setDeviceType(getDeviceType());

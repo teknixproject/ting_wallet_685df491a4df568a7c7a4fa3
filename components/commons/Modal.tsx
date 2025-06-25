@@ -22,7 +22,7 @@ const Modal = ({ data, ...props }: ModalProps) => {
       <DialogOverlay />
       <DialogContent
         style={{
-          ...data.style,
+          ...data?.style,
         }}
         {...props}
       >
