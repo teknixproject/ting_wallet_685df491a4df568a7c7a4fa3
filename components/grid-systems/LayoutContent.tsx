@@ -19,8 +19,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
 
-  console.log('LayoutContent', headerLayout);
-
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => setDeviceType(getDeviceType());
@@ -111,7 +109,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
 
 export const RenderModal: React.FC<any> = () => {
   const { data: dataModal } = useGetModalUI();
-  console.log('🚀RenderModal ~ data:', dataModal);
 
   return _.map(dataModal, (item) => (
     <Modal key={item?._id} data={item.layoutJson[getDeviceType()]} false></Modal>

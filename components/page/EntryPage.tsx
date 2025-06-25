@@ -5,12 +5,14 @@ import { headers } from 'next/headers';
 import { FC, Suspense } from 'react';
 
 import { fetchMetadata } from '@/app/actions/server';
+import { documentService } from '@/services/document';
 import { getMatchingRoutePattern } from '@/uitls/pathname';
 
 import { RenderUIClient } from '../grid-systems/ClientWrapGridSystem';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID;
 interface MetadataIcon {
   data?: {
     form?: {
@@ -110,17 +112,18 @@ export async function getOrigin() {
   return origin;
 }
 
-const EntryPage: FC = async () => {
-  const url = new URL(`/api/route-patterns`, await getOrigin());
-
-  const patternsResponse = await fetch(url, {
-    cache: 'no-store', // Ensure fresh data
-  });
-  if (!patternsResponse.ok) {
-    console.error('❌ Failed to fetch route patterns:', await patternsResponse.text());
-    throw new Error('Failed to fetch route patterns');
+const getPatterns = async (): Promise<string[]> => {
+  try {
+    const result = await documentService.getAllPageNames(PROJECT_ID || '');
+    const uids = result?.data?.map((item: any) => item.uid) || [];
+    return uids || [];
+  } catch (error) {
+    console.log('🚀 ~ getPatterns ~ error:', error);
   }
-  const patterns: string[] = await patternsResponse.json();
+  return [];
+};
+const EntryPage: FC = async () => {
+  const patterns: string[] = await getPatterns();
 
   // Get pathname from headers
   const headerList = await headers();
