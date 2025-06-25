@@ -140,12 +140,7 @@ export const useInitStateRender = () => {
   }, [pathname]);
 
   const addAndUpdateApiResource = apiResourceStore((state) => state.addAndUpdateApiResource);
-  const { setStateManagement, findVariable } = stateManagementStore((state) => {
-    return {
-      setStateManagement: state.setStateManagement,
-      findVariable: state.findVariable,
-    };
-  });
+  const { setStateManagement, findVariable } = stateManagementStore();
   const resetAuthSettings = authSettingStore((state) => state.reset);
 
   const router = useRouter();
