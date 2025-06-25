@@ -1,3 +1,4 @@
+import axios from 'axios';
 import _ from 'lodash';
 import { Metadata } from 'next';
 import Head from 'next/head';
@@ -5,7 +6,6 @@ import { headers } from 'next/headers';
 import { FC, Suspense } from 'react';
 
 import { fetchMetadata } from '@/app/actions/server';
-import { documentService } from '@/services/document';
 import { getMatchingRoutePattern } from '@/uitls/pathname';
 
 import { RenderUIClient } from '../grid-systems/ClientWrapGridSystem';
@@ -114,7 +114,9 @@ export async function getOrigin() {
 
 const getPatterns = async (): Promise<string[]> => {
   try {
-    const result = await documentService.getAllPageNames(PROJECT_ID || '');
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/document/uids`, {
+      params: { projectId: PROJECT_ID || '' },
+    });
     const uids = result?.data?.map((item: any) => item.uid) || [];
     return uids || [];
   } catch (error) {
