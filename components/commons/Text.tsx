@@ -15,7 +15,6 @@ interface TextProps {
 }
 
 const Text = ({ data, style }: TextProps) => {
-  console.log('🚀 ~ Text ~ style:', style);
   const { dataState } = useHandleData({ dataProp: data.data });
   const isCombineText = _.get(data, 'data.type') === 'combineText';
   const { handleAction } = useActions();

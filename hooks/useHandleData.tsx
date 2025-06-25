@@ -7,6 +7,7 @@ import { stateManagementStore } from '@/stores';
 import { customFunctionStore } from '@/stores/customFunction';
 import { TConditionalChild, TConditionChildMap, TTypeSelect, TVariable } from '@/types';
 import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
+import { transformVariable } from '@/uitls/tranformVariable';
 
 import { handleCustomFunction } from './handleCustomFunction';
 
@@ -70,7 +71,13 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
           case 'exceptionMessage':
             return value?.message;
           default:
-            return value || data.defaultValue;
+            return (
+              value ||
+              transformVariable({
+                ...variable!,
+                value: data.defaultValue,
+              })
+            );
         }
       };
 
@@ -228,7 +235,13 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
             case 'isNotEmpty':
               return !_.isEmpty(value);
             default:
-              return value || data?.defaultValue;
+              return (
+                value ||
+                transformVariable({
+                  ...variable!,
+                  value: data.defaultValue,
+                })
+              );
           }
         }
 
@@ -325,7 +338,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
         case 'isNotEmpty':
           return !_.isEmpty(value);
         default:
-          return String(value) || data?.defaultValue;
+          return value || data?.defaultValue;
       }
     }
 
