@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@ant-design/v5-patch-for-react-19';
 
 import _ from 'lodash';
 import { Geist, Geist_Mono } from 'next/font/google';
-
-import { ApiStoreProvider } from '@/providers';
-import { LayoutProvider } from '@/context/LayoutContext';
-import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutContent';
-import ReactQueryProvider from '@/providers/QueryClient';
 import { Suspense } from 'react';
+
+import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutContent';
+import { LayoutProvider } from '@/context/LayoutContext';
+import { ApiStoreProvider } from '@/providers';
+import ReactQueryProvider from '@/providers/QueryClient';
 
 export const fetchSEOData = async (path: string) => {
   try {
