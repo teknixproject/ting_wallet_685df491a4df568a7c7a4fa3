@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ant-design/charts": "^2.4.0",
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@babel/standalone": "^7.27.2",
@@ -63,6 +64,7 @@
     "react": "^19.0.0",
     "react-day-picker": "^9.7.0",
     "react-dom": "^19.0.0",
+    "react-fast-compare": "^3.2.2",
     "react-frame-component": "^5.2.7",
     "react-hook-form": "^7.58.1",
     "react-jsx-parser": "^2.4.0",

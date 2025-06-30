@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { componentRegistry } from '../commons';
 import LoadingPage from './loadingPage';
+import RenderSliceItem from './RenderSliceItem';
 import { GridSystemProps } from './types';
 
 const componentHasAction = ['pagination', 'button', 'input_text'];
@@ -113,6 +114,7 @@ export const RenderSlice: React.FC<TRenderSlice> = memo(
     }
 
     const styleDevice: string = getDeviceSize() as string;
+
     const styleSlice = (_.get(slice, [styleDevice]) as React.CSSProperties) || slice?.style;
 
     if (isLoading) return <LoadingPage />;
@@ -177,7 +179,7 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   return (
     <div className={cn('', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')} style={style}>
       {config?.childs?.map((item) => (
-        <RenderSlice idParent={''} slice={item} key={item.id} />
+        <RenderSliceItem data={item} key={item.id} />
       ))}
     </div>
   );
