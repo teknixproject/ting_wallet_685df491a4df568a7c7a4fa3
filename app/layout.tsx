@@ -1,6 +1,5 @@
-import type { Metadata } from 'next';
-import './globals.css';
 import '@ant-design/v5-patch-for-react-19';
+import './globals.css';
 
 import _ from 'lodash';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -10,7 +9,9 @@ import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutCont
 import { LayoutProvider } from '@/context/LayoutContext';
 import { ApiStoreProvider } from '@/providers';
 import ReactQueryProvider from '@/providers/QueryClient';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 
+import type { Metadata } from 'next';
 export const fetchSEOData = async (path: string) => {
   try {
     const response = await fetch(process.env.NEXT_SEO_URL as string, {
@@ -58,7 +59,9 @@ export default function RootLayout({
             <LayoutProvider>
               <Suspense>
                 <RenderModal />
-                <LayoutContent>{children}</LayoutContent>
+                <LayoutContent>
+                  <AntdRegistry>{children}</AntdRegistry>
+                </LayoutContent>
               </Suspense>
             </LayoutProvider>
           </ApiStoreProvider>
