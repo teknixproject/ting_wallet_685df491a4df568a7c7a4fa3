@@ -74,7 +74,8 @@ export const convertProps = ({
   dataState?: any;
   valueStream?: any;
 }) => {
-  const value = getData(data.data, valueStream) || valueStream || data.name;
+  const value = dataState || getData(data.data, valueStream) || valueStream || data.name;
+  console.log(`🚀 ~ dataState: ${data.id}`, dataState);
   console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput } = getComponentType(valueType || '');

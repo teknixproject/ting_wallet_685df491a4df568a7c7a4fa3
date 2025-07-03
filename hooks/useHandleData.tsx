@@ -72,7 +72,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
             return value?.message;
           default:
             return (
-              value ||
+              value?.value ||
               transformVariable({
                 ...variable!,
                 value: data.defaultValue,
@@ -348,9 +348,6 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   //#region getData
   const getData = useCallback(
     (data: TData | null | undefined, valueStream?: any): any => {
-      console.log('🚀 ~ useHandleData ~ valueStream:', valueStream);
-      console.log('🚀 ~ useHandleData ~ data:', data);
-
       if (_.isEmpty(data)) return '';
       if (!data || !data.type) return data?.defaultValue;
 
