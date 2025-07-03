@@ -160,20 +160,7 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   style,
 }) => {
   const config = page;
-  const { handleAction } = useActions(config);
-  const onPageLoad = useMemo(() => config?.actions?.onPageLoad, [config?.actions]);
-  console.log('🚀 ~ onPageLoad:', onPageLoad);
-
-  const { isLoading } = useQuery({
-    queryKey: [onPageLoad],
-    queryFn: async () => {
-      await handleAction('onPageLoad');
-      return true;
-    },
-    enabled: !!onPageLoad,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+  const { isLoading } = useActions(config);
 
   if (isLoading) return <LoadingPage />;
   return (

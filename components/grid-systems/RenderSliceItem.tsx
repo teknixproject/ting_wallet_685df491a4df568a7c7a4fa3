@@ -2,14 +2,13 @@
 import _ from 'lodash';
 import { FC, memo, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
-import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
 import { stateManagementStore } from '@/stores';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
-import { useQuery } from '@tanstack/react-query';
 
 import { componentRegistry, convertProps } from './ListComponent';
 import LoadingPage from './loadingPage';
@@ -25,18 +24,18 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
-  const { handleAction } = useActions(data);
+  const { handleAction, isLoading } = useActions(data);
 
   const onPageLoad = useMemo(() => data?.actions?.onPageLoad, [data?.actions]);
 
-  const { data: dataQuery, isLoading } = useQuery({
-    queryKey: [onPageLoad],
-    queryFn: async () => {
-      await handleAction('onPageLoad');
-      return true;
-    },
-    enabled: !!onPageLoad,
-  });
+  // const { data: dataQuery, isLoading } = useQuery({
+  //   queryKey: [onPageLoad],
+  //   queryFn: async () => {
+  //     await handleAction('onPageLoad');
+  //     return true;
+  //   },
+  //   enabled: !!onPageLoad,
+  // });
 
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
 
@@ -98,18 +97,25 @@ const RenderForm: FC<TProps> = (props) => {
   const { isLoading, valueType, Component, propsCpn } = useRenderItem(data, valueStream);
 
   const methods = useForm();
-  const formData = useWatch({ control: methods.control });
+  const { handleSubmit } = methods;
+  const { handleAction } = useActions();
   const formKeys = data?.componentProps?.formKeys;
 
-  console.log('🚀 ~ formData:', formData);
-  console.log(`🚀 ~ formKeys: ${data.id}`, formKeys);
-
+  const onSubmit = (formData: any) => {
+    console.log('🚀 ~ onSubmit ~ data:', formData);
+    handleAction('onSubmit', data?.actions, formData);
+  };
+  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
 
   return (
     <FormProvider {...methods}>
-      <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+      <ComponentRenderer
+        Component={Component}
+        propsCpn={{ ...propsCpn, onFinish: () => handleSubmit(onSubmit)() }}
+        data={data}
+      >
         {data?.childs?.map((child) => (
           <RenderFormItem {...props} data={child} key={String(child.id)} formKeys={formKeys} />
         ))}
@@ -120,7 +126,6 @@ const RenderForm: FC<TProps> = (props) => {
 
 const RenderFormItem: FC<TProps> = (props) => {
   const { data, formKeys, valueStream } = props;
-  console.log('RenderFormItem', props);
 
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
@@ -137,7 +142,7 @@ const RenderFormItem: FC<TProps> = (props) => {
     const result = convertProps({ data, getData, dataState, valueStream });
     return result;
   }, [data, dataState, valueStream, getData]);
-
+  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
   if (!valueType) return <div></div>;
 
   if (isInput) {
