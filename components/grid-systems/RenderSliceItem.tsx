@@ -2,194 +2,165 @@
 import _ from 'lodash';
 import { FC, memo, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
-import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
 
 import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
 import { stateManagementStore } from '@/stores';
 import { GridItem } from '@/types/gridItem';
+import { getComponentType } from '@/uitls/component';
 import { useQuery } from '@tanstack/react-query';
 
-import ItemsRerender from './ItemsRerender';
-import { componentRegistry, convertProps, getName } from './ListComponent';
+import { componentRegistry, convertProps } from './ListComponent';
 import LoadingPage from './loadingPage';
 
 type TProps = {
   data: GridItem;
   valueStream?: any;
+  formKeys?: { key: string; value: string }[];
 };
-const getComponentValues = (value: string) => {
-  const valueType = value.toLowerCase();
-  const isForm = ['form'].includes(valueType);
-  const isNoChildren = ['list', 'collapse'].includes(valueType);
-  const isChart = valueType.includes('chart');
-  const isInput = ['inputtext', 'inputnumber', 'textarea', 'radio', 'select', 'checkbox'].includes(
-    valueType
+
+// Custom hook to extract common logic
+const useRenderItem = (data: GridItem, valueStream?: any) => {
+  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
+  const { findVariable } = stateManagementStore();
+  const { getData, dataState } = useHandleData({ dataProp: data?.data });
+  const { handleAction } = useActions(data);
+
+  const onPageLoad = useMemo(() => data?.actions?.onPageLoad, [data?.actions]);
+
+  const { data: dataQuery, isLoading } = useQuery({
+    queryKey: [onPageLoad],
+    queryFn: async () => {
+      await handleAction('onPageLoad');
+      return true;
+    },
+    enabled: !!onPageLoad,
+  });
+
+  const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
+
+  const Component = useMemo(
+    () => (valueType ? _.get(componentRegistry, valueType) || 'div' : 'div'),
+    [valueType]
   );
+
+  const propsCpn = useMemo(() => {
+    const result = convertProps({ data, getData, dataState, valueStream });
+    return result;
+  }, [data, dataState, valueStream, getData]);
+
+  console.log('🚀 ~ propsCpn:', propsCpn);
+
   return {
-    isForm,
-    isNoChildren,
-    isChart,
-    isInput,
+    isLoading,
+    valueType,
+    Component,
+    propsCpn,
+    findVariable,
+    dataState,
+    getData,
   };
 };
-const RenderSliceItem: FC<TProps> = ({ data, valueStream }) => {
-  const { findVariable } = stateManagementStore();
-  const { getData, dataState } = useHandleData({ dataProp: data?.data });
-  console.log(`🚀 ~ dataState: ${data.id}`, dataState);
-  const { handleAction } = useActions(data);
-  // const { multiples } = useHandleProps({ actionsProp: data?.props });
 
-  const { isForm, isNoChildren, isChart } = getComponentValues(data?.value || '');
-  const onPageLoad = useMemo(() => data?.actions?.onPageLoad, [data?.actions]);
-  const { data: dataQuery, isLoading } = useQuery({
-    queryKey: [onPageLoad],
-    queryFn: async () => {
-      await handleAction('onPageLoad');
-      return true;
-    },
-    enabled: !!onPageLoad,
-  });
+// Generic component renderer
+const ComponentRenderer: FC<{
+  Component: any;
+  propsCpn: any;
+  data: GridItem;
+  children?: React.ReactNode;
+}> = ({ Component, propsCpn, data, children }) => (
+  <Component {...propsCpn}>{!_.isEmpty(data?.childs) ? children : propsCpn.children}</Component>
+);
 
-  const valueType: string = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
-  const Component = useMemo(
-    () => (valueType ? _.get(componentRegistry, valueType) || 'div' : 'div'),
-    [valueType]
-  );
-
-  const props = useMemo(() => {
-    const result = convertProps({ data, findVariable, dataState });
-    if (valueStream) {
-      const value = getData(data.data, valueStream);
-      result.children = value || getName(data?.id);
-    }
-    return result;
-  }, [data, findVariable, dataState, valueStream, getData]);
-
-  console.log('🚀 ~ props:', props);
+const RenderSliceItem: FC<TProps> = (props) => {
+  const { data, valueStream } = props;
+  const { isLoading, valueType, Component, propsCpn } = useRenderItem(data, valueStream);
+  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
+  const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
 
   if (!valueType) return <div></div>;
-
   if (isLoading) return <LoadingPage />;
-
-  if (isForm) return <RenderForm data={data} valueStream={valueStream} />;
-
-  if (isNoChildren || isChart) return <Component {...props} />;
+  if (isForm) return <RenderForm {...props} />;
+  if (isNoChildren || isChart) return <Component {...propsCpn} />;
 
   return (
-    <Component {...props}>
-      {!_.isEmpty(data?.childs)
-        ? data?.childs?.map((child) => (
-            <ItemsRerender data={child} key={String(child.id)} valueStream={valueStream} />
-          ))
-        : props.children}
-    </Component>
+    <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+      {data?.childs?.map((child) => (
+        <RenderSliceItem {...props} data={child} key={String(child.id)} />
+      ))}
+    </ComponentRenderer>
   );
 };
-const RenderForm: FC<TProps> = ({ data, valueStream }) => {
-  const { findVariable } = stateManagementStore();
-  const { getData, dataState } = useHandleData({ dataProp: data?.data });
-  console.log(`🚀 ~ dataState: ${data.id}`, dataState);
-  const { handleAction } = useActions(data);
-  // const { multiples } = useHandleProps({ actionsProp: data?.props });
+
+const RenderForm: FC<TProps> = (props) => {
+  const { data, valueStream } = props;
+  const { isLoading, valueType, Component, propsCpn } = useRenderItem(data, valueStream);
 
   const methods = useForm();
-
+  const formData = useWatch({ control: methods.control });
   const formKeys = data?.componentProps?.formKeys;
 
-  const onPageLoad = useMemo(() => data?.actions?.onPageLoad, [data?.actions]);
-  const { data: dataQuery, isLoading } = useQuery({
-    queryKey: [onPageLoad],
-    queryFn: async () => {
-      await handleAction('onPageLoad');
-      return true;
-    },
-    enabled: !!onPageLoad,
-  });
-
-  const valueType: string = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
-  const Component = useMemo(
-    () => (valueType ? _.get(componentRegistry, valueType) || 'div' : 'div'),
-    [valueType]
-  );
-  const props = useMemo(() => {
-    const result = convertProps({ data, findVariable, dataState });
-    if (valueStream) {
-      const value = getData(data.data, valueStream);
-      result.children = value || getName(data?.id);
-    }
-    return result;
-  }, [data, findVariable, dataState, valueStream, getData]);
-
-  console.log('🚀 ~ props:', props);
+  console.log('🚀 ~ formData:', formData);
+  console.log(`🚀 ~ formKeys: ${data.id}`, formKeys);
 
   if (!valueType) return <div></div>;
-
   if (isLoading) return <LoadingPage />;
 
   return (
     <FormProvider {...methods}>
-      <Component {...props}>
-        {!_.isEmpty(data?.childs)
-          ? data?.childs?.map((child) => (
-              <RenderFormItem
-                data={child}
-                key={String(child.id)}
-                valueStream={valueStream}
-                formKeys={formKeys}
-              />
-            ))
-          : props.children}
-      </Component>
+      <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+        {data?.childs?.map((child) => (
+          <RenderFormItem {...props} data={child} key={String(child.id)} formKeys={formKeys} />
+        ))}
+      </ComponentRenderer>
     </FormProvider>
   );
 };
 
-const RenderFormItem: FC<{
-  data: GridItem;
-  valueStream: any;
-  formKeys: Record<string, string>;
-}> = ({ data, valueStream, formKeys }) => {
+const RenderFormItem: FC<TProps> = (props) => {
+  const { data, formKeys, valueStream } = props;
+  console.log('RenderFormItem', props);
+
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
-  const valueType: string = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
+  const { control } = useFormContext();
+  const { isInput } = getComponentType(data?.value || '');
+
+  const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
   const Component = useMemo(
     () => (valueType ? _.get(componentRegistry, valueType) || 'div' : 'div'),
     [valueType]
   );
-  const { control } = useFormContext();
-  const { isInput } = getComponentValues(data?.value || '');
-  const props = useMemo(() => {
-    const result = convertProps({ data, findVariable, dataState });
-    if (valueStream) {
-      const value = getData(data.data, valueStream);
-      result.children = value || getName(data?.id);
-    }
+
+  const propsCpn = useMemo(() => {
+    const result = convertProps({ data, getData, dataState, valueStream });
     return result;
-  }, [data, findVariable, dataState, valueStream, getData]);
+  }, [data, dataState, valueStream, getData]);
+
+  if (!valueType) return <div></div>;
 
   if (isInput) {
-    const inFormKeys = Object.values(formKeys).includes(data?.name || '');
+    const inFormKeys = formKeys?.find((item) => item?.value === data?.name);
 
     if (inFormKeys) {
       return (
         <Controller
           control={control}
-          name={valueStream}
-          render={({ field }) => <Component {...field} {...props} />}
+          name={inFormKeys.key}
+          render={({ field }) => <Component {...propsCpn} {...field} />}
         />
       );
     }
-    return <Component {...props} />;
+    return <Component {...propsCpn} />;
   }
+
   return (
-    <Component {...props}>
-      {!_.isEmpty(data?.childs)
-        ? data?.childs?.map((child) => (
-            <ItemsRerender data={child} key={String(child.id)} valueStream={valueStream} />
-          ))
-        : props.children}
-    </Component>
+    <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+      {data?.childs?.map((child) => (
+        <RenderFormItem {...props} data={child} key={String(child.id)} />
+      ))}
+    </ComponentRenderer>
   );
 };
 

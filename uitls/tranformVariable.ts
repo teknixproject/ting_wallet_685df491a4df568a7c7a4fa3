@@ -55,7 +55,8 @@ export const transformVariable = (variable: Omit<TVariable, 'id'>): any => {
         case 'Object':
           if (typeof value === 'string') {
             try {
-              return JSON.parse(value);
+              const jsonStr = value.replace(/'/g, '"');
+              return JSON.parse(jsonStr);
             } catch {
               // If JSON parsing fails, try to return as object with the string value
               return { value };

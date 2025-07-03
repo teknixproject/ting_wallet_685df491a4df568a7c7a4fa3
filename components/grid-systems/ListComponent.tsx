@@ -1,12 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-    Button, Card, Checkbox, Collapse, Drawer, Dropdown, Form, Image, Input, List, Radio, Select,
-    Statistic, Table, Tabs, Tag, Typography
+  Button,
+  Card,
+  Checkbox,
+  Collapse,
+  Drawer,
+  Dropdown,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  List,
+  Radio,
+  Select,
+  Statistic,
+  Table,
+  TableProps,
+  Tabs,
+  Tag,
+  Typography,
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
 
 import { GridItem } from '@/types/gridItem';
+import { getComponentType } from '@/uitls/component';
 import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@ant-design/plots';
 
 import { getStyleOfDevice } from './DataProvider';
@@ -21,6 +39,7 @@ export const componentRegistry = {
   image: Image,
   list: List,
   inputtext: Input,
+  inputnumber: InputNumber,
   table: Table,
   checkbox: Checkbox,
   radio: Radio,
@@ -46,23 +65,30 @@ export const componentRegistry = {
 
 export const convertProps = ({
   data,
-  findVariable,
+  getData,
   dataState,
+  valueStream,
 }: {
   data: GridItem;
-  findVariable: any;
+  getData: any;
   dataState?: any;
+  valueStream?: any;
 }) => {
-  const value = 'test';
+  const value = getData(data.data, valueStream) || valueStream || data.name;
+  console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
+  const { isInput } = getComponentType(valueType || '');
   switch (valueType) {
+    case 'image':
+      return {
+        ...data.componentProps,
+        src: value,
+      };
     case 'list':
       return {
         ...data.componentProps,
-        dataSource: _.isArray(dataState) ? dataState : [],
+        dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
         renderItem: (item: any) => {
-          // const box = data?.componentProps?.box;
-          // if (!box?.data) return <div>{item}</div>;
           return (
             <List.Item>
               <RenderSliceItem data={data.componentProps.box} valueStream={item} />
@@ -70,14 +96,31 @@ export const convertProps = ({
           );
         },
       };
-
+    case 'table':
+      return {
+        ...data.componentProps,
+        dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
+        columns: data?.componentProps?.columns?.map((item: any) => {
+          return {
+            ...item,
+            render: (value: any) => <RenderSliceItem data={item.box} valueStream={value} />,
+          };
+        }),
+      } as TableProps;
     default:
       break;
+  }
+  if (isInput) {
+    return {
+      ...data.componentProps,
+      style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
+      value: value,
+    };
   }
   return {
     ...data.componentProps,
     style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
-    children: value || getName(data?.id),
+    children: value,
   };
 };
 export const getName = (id: string) => id.split('$')[0];
