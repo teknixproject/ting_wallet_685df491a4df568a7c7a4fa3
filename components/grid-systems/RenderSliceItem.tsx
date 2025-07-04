@@ -74,7 +74,7 @@ const ComponentRenderer: FC<{
 
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
-  const { isLoading, valueType, Component, propsCpn } = useRenderItem(data, valueStream);
+  const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
   console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
   const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
 
@@ -94,9 +94,11 @@ const RenderSliceItem: FC<TProps> = (props) => {
 
 const RenderForm: FC<TProps> = (props) => {
   const { data, valueStream } = props;
-  const { isLoading, valueType, Component, propsCpn } = useRenderItem(data, valueStream);
+  const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
 
-  const methods = useForm();
+  const methods = useForm({
+    values: dataState,
+  });
   const { handleSubmit } = methods;
   const { handleAction } = useActions();
   const formKeys = data?.componentProps?.formKeys;
