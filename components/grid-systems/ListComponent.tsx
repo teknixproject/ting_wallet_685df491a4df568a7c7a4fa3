@@ -78,7 +78,7 @@ export const convertProps = ({
   console.log(`🚀 ~ dataState: ${data.id}`, dataState);
   console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
-  const { isInput } = getComponentType(valueType || '');
+  const { isInput, isChart } = getComponentType(valueType || '');
   switch (valueType) {
     case 'image':
       return {
@@ -118,8 +118,16 @@ export const convertProps = ({
       value: value,
     };
   }
+  if (isChart) {
+    return {
+      ...data.componentProps,
+      data: value,
+      style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
+    };
+  }
   return {
     ...data.componentProps,
+
     style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     children: value,
   };
