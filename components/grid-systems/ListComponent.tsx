@@ -79,6 +79,7 @@ export const convertProps = ({
 }) => {
   if (!data) return {};
   const value = dataState || getData(data?.data, valueStream) || valueStream || data?.name;
+  console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
@@ -160,6 +161,7 @@ const wrapWithAnchor = (children: ReactNode = 'Click me') => (
       e.stopPropagation();
     }}
   >
+    <List pagination={{}} />
     {children}
   </a>
 );

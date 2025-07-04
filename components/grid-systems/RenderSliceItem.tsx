@@ -74,6 +74,7 @@ const ComponentRenderer: FC<{
 
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
+  console.log('🚀 ~ valueStream:', valueStream);
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
   console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
