@@ -193,18 +193,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         onOpenChange,
     ]);
 
-    console.log('menuProps', menuProps);
-
-    return (
-        <div style={{
-            width: '100%',
-            overflow: mode === 'horizontal' ? 'auto' : 'hidden',
-            // Đảm bảo container có đủ không gian
-            minWidth: mode === 'horizontal' ? '800px' : 'auto'
-        }}>
-            <Menu {...menuProps} />
-        </div>
-    );
+    return <Menu {...menuProps} />
 };
 
 export default NavigationMenu;
