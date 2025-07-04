@@ -77,10 +77,23 @@ export const convertProps = ({
   dataState?: any;
   valueStream?: any;
 }) => {
-  const value = dataState || getData(data.data, valueStream) || valueStream || data.name;
+  if (!data) return {};
+  const value = dataState || getData(data?.data, valueStream) || valueStream || data?.name;
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
+    case 'tabs':
+      return {
+        ...data.componentProps,
+        items: data?.componentProps?.items?.map((item: any) => {
+          return {
+            ...item,
+            children: (
+              <RenderSliceItem data={item.children} valueStream={valueStream?.[item.key]} />
+            ),
+          };
+        }),
+      };
     case 'image':
       return {
         ...data.componentProps,

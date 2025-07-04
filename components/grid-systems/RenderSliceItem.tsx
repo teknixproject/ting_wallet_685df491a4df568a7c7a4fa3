@@ -75,7 +75,7 @@ const ComponentRenderer: FC<{
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
-  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
+  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
 
   if (!valueType) return <div></div>;
@@ -107,7 +107,7 @@ const RenderForm: FC<TProps> = (props) => {
     console.log('🚀 ~ onSubmit ~ data:', formData);
     handleAction('onSubmit', data?.actions, formData);
   };
-  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
+  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
 
@@ -144,7 +144,7 @@ const RenderFormItem: FC<TProps> = (props) => {
     const result = convertProps({ data, getData, dataState, valueStream });
     return result;
   }, [data, dataState, valueStream, getData]);
-  console.log(`🚀 ~ propsCpn: ${data.id}`, propsCpn);
+  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   if (!valueType) return <div></div>;
 
   if (isInput) {
