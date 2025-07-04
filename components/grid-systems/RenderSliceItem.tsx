@@ -26,17 +26,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
   const { handleAction, isLoading } = useActions(data);
 
-  const onPageLoad = useMemo(() => data?.actions?.onPageLoad, [data?.actions]);
-
-  // const { data: dataQuery, isLoading } = useQuery({
-  //   queryKey: [onPageLoad],
-  //   queryFn: async () => {
-  //     await handleAction('onPageLoad');
-  //     return true;
-  //   },
-  //   enabled: !!onPageLoad,
-  // });
-
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
 
   const Component = useMemo(
@@ -78,6 +67,11 @@ const RenderSliceItem: FC<TProps> = (props) => {
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
   console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
+  console.log(`🚀 ${data.id}~ { isForm, isNoChildren, isChart }:`, {
+    isForm,
+    isNoChildren,
+    isChart,
+  });
 
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
