@@ -18,7 +18,7 @@ import {
   TableProps,
   Tabs,
   Tag,
-  Typography,
+  Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -29,6 +29,7 @@ import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@
 
 import { getStyleOfDevice } from './DataProvider';
 import RenderSliceItem from './RenderSliceItem';
+import NavigationMenu from './configComponent/ConfigMenu';
 
 export const componentRegistry = {
   button: Button,
@@ -61,6 +62,7 @@ export const componentRegistry = {
   radarchart: Radar,
   rosechart: Rose,
   stockchart: Stock,
+  menu: NavigationMenu
 };
 
 export const convertProps = ({
@@ -75,8 +77,6 @@ export const convertProps = ({
   valueStream?: any;
 }) => {
   const value = dataState || getData(data.data, valueStream) || valueStream || data.name;
-  console.log(`🚀 ~ dataState: ${data.id}`, dataState);
-  console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput } = getComponentType(valueType || '');
   switch (valueType) {
