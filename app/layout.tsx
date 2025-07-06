@@ -8,8 +8,8 @@ import { Suspense } from 'react';
 import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutContent';
 import { LayoutProvider } from '@/context/LayoutContext';
 import { ApiStoreProvider } from '@/providers';
+import AntdProvider from '@/providers/AntdProvider';
 import ReactQueryProvider from '@/providers/QueryClient';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 import type { Metadata } from 'next';
 export const fetchSEOData = async (path: string) => {
@@ -60,7 +60,7 @@ export default function RootLayout({
               <Suspense>
                 <RenderModal />
                 <LayoutContent>
-                  <AntdRegistry>{children}</AntdRegistry>
+                  <AntdProvider>{children}</AntdProvider>
                 </LayoutContent>
               </Suspense>
             </LayoutProvider>

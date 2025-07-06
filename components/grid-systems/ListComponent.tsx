@@ -1,7 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
-  Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
-  InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
+  Button,
+  Card,
+  Checkbox,
+  Collapse,
+  Drawer,
+  Dropdown,
+  DropdownProps,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  List,
+  Modal,
+  Radio,
+  Select,
+  Statistic,
+  Table,
+  TableProps,
+  Tabs,
+  Tag,
+  Typography,
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -85,11 +105,9 @@ export const convertProps = ({
       return {
         ...data.componentProps,
         menu: {
-          items: value
+          items: value,
         },
-        children: <Button>
-          {data?.componentProps?.label || getName(data.id)}
-        </Button>,
+        children: <Button>{data?.componentProps?.label || getName(data.id)}</Button>,
       } as DropdownProps;
     case 'image':
       return {
@@ -158,7 +176,6 @@ export const convertProps = ({
   }
   return {
     ...data.componentProps,
-
     style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     children: value,
   };
