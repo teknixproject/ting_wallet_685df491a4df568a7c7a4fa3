@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/** @jsxImportSource @emotion/react */
 import _ from 'lodash';
 import { FC, memo, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
@@ -9,6 +10,8 @@ import { useHandleData } from '@/hooks/useHandleData';
 import { stateManagementStore } from '@/stores';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
+import { convertToEmotionStyle } from '@/uitls/styleInline';
+import { css } from '@emotion/react';
 
 import { componentRegistry, convertProps } from './ListComponent';
 import LoadingPage from './loadingPage';
@@ -35,6 +38,10 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
 
   const propsCpn = useMemo(() => {
     const result = convertProps({ data, getData, dataState, valueStream });
+    const cssMultiple = css`
+      ${convertToEmotionStyle(result?.styleMultiple)}
+    `;
+    result.css = cssMultiple;
     return result;
   }, [data, dataState, valueStream, getData]);
 
@@ -72,7 +79,6 @@ const RenderSliceItem: FC<TProps> = (props) => {
     isNoChildren,
     isChart,
   });
-
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
   if (isForm) return <RenderForm {...props} />;

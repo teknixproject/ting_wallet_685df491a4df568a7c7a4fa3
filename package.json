@@ -16,6 +16,7 @@
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@babel/standalone": "^7.27.2",
     "@codesandbox/sandpack-react": "^2.20.0",
+    "@emotion/react": "^11.14.0",
     "@hookform/resolvers": "^5.1.1",
     "@iconify/react": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.11",
