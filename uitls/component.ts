@@ -7,11 +7,13 @@ export const getComponentType = (value: string) => {
   const isInput = ['inputtext', 'inputnumber', 'textarea', 'radio', 'select', 'checkbox'].includes(
     valueType
   );
+  const isFeebBack = ['modal', 'drawer'].includes(valueType);
   return {
     isUseOptionsData,
     isForm,
     isNoChildren,
     isChart,
     isInput,
+    isFeebBack,
   };
 };

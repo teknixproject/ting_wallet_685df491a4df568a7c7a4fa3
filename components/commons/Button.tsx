@@ -13,7 +13,6 @@ interface ButtonCompoProps {
 }
 
 const Button = ({ data, style }: ButtonCompoProps) => {
-  console.log('🚀 ~ Button ~ data:', data);
   const { handleAction } = useActions(data);
   const { dataState } = useHandleData({ dataProp: data?.data });
 
@@ -22,9 +21,9 @@ const Button = ({ data, style }: ButtonCompoProps) => {
       onClick={() => handleAction('onClick')}
       className="cursor-pointer"
       style={style}
-      // styledComponentCss={data?.styledComponentCss}
+    // styledComponentCss={data?.styledComponentCss}
     >
-      {dataState || 'Button'}
+      {dataState || 'Button 123'}
     </ButtonAntd>
   );
 };

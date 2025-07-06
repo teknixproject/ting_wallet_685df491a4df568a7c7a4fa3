@@ -17,6 +17,8 @@ const Modal = ({ data, ...props }: ModalProps) => {
 
   const { updateData } = useUpdateData({ dataProp: data?.data });
 
+  console.log('ModalModal', Modal);
+
   return (
     <Dialog open={dataState} onOpenChange={updateData}>
       <DialogOverlay />

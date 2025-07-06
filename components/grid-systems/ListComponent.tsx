@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
-  InputNumber, List, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
+  InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -10,9 +10,10 @@ import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@ant-design/plots';
 
-import NavigationMenu from './configComponent/ConfigMenu';
+import ConfigMenu from './configComponent/ConfigMenu';
 import { getStyleOfDevice } from './DataProvider';
 import RenderSliceItem from './RenderSliceItem';
+import ConfigModal from './configComponent/ConfigModal';
 
 export const componentRegistry = {
   button: Button,
@@ -35,7 +36,6 @@ export const componentRegistry = {
   tabs: Tabs,
   dropdown: Dropdown,
   card: Card,
-  drawer: Drawer,
   statistic: Statistic,
   linechart: Line,
   columnchart: Column,
@@ -46,7 +46,9 @@ export const componentRegistry = {
   radarchart: Radar,
   rosechart: Rose,
   stockchart: Stock,
-  menu: NavigationMenu,
+  menu: ConfigMenu,
+  modal: Modal,
+  drawer: Drawer,
 };
 
 export const convertProps = ({
@@ -86,7 +88,7 @@ export const convertProps = ({
           items: value
         },
         children: <Button>
-          {data?.componentProps?.label||getName(data.id)}
+          {data?.componentProps?.label || getName(data.id)}
         </Button>,
       } as DropdownProps;
     case 'image':
@@ -117,6 +119,20 @@ export const convertProps = ({
           };
         }),
       } as TableProps;
+    case 'modal': {
+      console.log('data.componentProps', data.componentProps);
+
+      return {
+        ...data.componentProps
+      }
+    }
+    case 'drawer': {
+      console.log('drawer', data.componentProps);
+
+      return {
+        ...data.componentProps
+      }
+    }
     default:
       break;
   }

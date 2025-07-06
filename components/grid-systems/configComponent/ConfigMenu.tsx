@@ -28,7 +28,7 @@ const convertIconStringToComponent = (iconString: string) => {
     return <Icon icon={iconString} />;
 };
 
-const NavigationMenu: React.FC<NavigationMenuProps> = ({
+const ConfigMenu: React.FC<NavigationMenuProps> = ({
     items,
     mode = 'horizontal',
     theme = 'light',
@@ -196,4 +196,4 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     return <Menu {...menuProps} />
 };
 
-export default NavigationMenu;
+export default ConfigMenu;

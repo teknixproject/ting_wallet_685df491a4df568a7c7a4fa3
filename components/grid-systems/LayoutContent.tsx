@@ -53,34 +53,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     };
   }, [headerPosition]);
 
-  const headerStyle = useMemo(() => {
-    if (headerPosition === 'left') {
-      return {
-        // width: '250px',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        zIndex: 10,
-      };
-    } else if (headerPosition === 'right') {
-      return {
-        // width: '250px',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        order: 2,
-        zIndex: 10,
-      };
-    }
-    return {
-      position: 'fixed',
-      top: 0,
-      zIndex: 3,
-    };
-  }, [headerPosition]);
-
   return (
     <div className="relative !z-0">
       <div className="z-10" style={containerStyle as any}>
@@ -90,7 +62,12 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
               page={selectedHeaderLayout}
               deviceType={deviceType}
               isHeader
-              style={headerStyle}
+              style={{
+                flexShrink: 0,
+                position: 'sticky',
+                top: 0,
+                zIndex: 10,
+              }}
             />
           )}
         </div>

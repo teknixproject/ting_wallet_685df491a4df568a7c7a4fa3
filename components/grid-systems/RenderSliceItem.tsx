@@ -12,6 +12,7 @@ import { getComponentType } from '@/uitls/component';
 
 import { componentRegistry, convertProps } from './ListComponent';
 import LoadingPage from './loadingPage';
+import ConfigModal from './configComponent/ConfigModal';
 
 type TProps = {
   data: GridItem;
@@ -66,7 +67,7 @@ const RenderSliceItem: FC<TProps> = (props) => {
   console.log('🚀 ~ valueStream:', valueStream);
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
   console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
-  const { isForm, isNoChildren, isChart } = getComponentType(data?.value || '');
+  const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   console.log(`🚀 ${data.id}~ { isForm, isNoChildren, isChart }:`, {
     isForm,
     isNoChildren,
@@ -77,6 +78,7 @@ const RenderSliceItem: FC<TProps> = (props) => {
   if (isLoading) return <LoadingPage />;
   if (isForm) return <RenderForm {...props} />;
   if (isNoChildren || isChart) return <Component {...propsCpn} />;
+  if (isFeebBack) return <ConfigModal {...props} />
 
   return (
     <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
@@ -139,7 +141,7 @@ const RenderFormItem: FC<TProps> = (props) => {
     const result = convertProps({ data, getData, dataState, valueStream });
     return result;
   }, [data, dataState, valueStream, getData]);
-  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
+
   if (!valueType) return <div></div>;
 
   if (isInput) {
