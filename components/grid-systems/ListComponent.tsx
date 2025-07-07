@@ -33,7 +33,6 @@ import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@
 import ConfigMenu from './configComponent/ConfigMenu';
 import { getStyleOfDevice } from './DataProvider';
 import RenderSliceItem from './RenderSliceItem';
-import ConfigModal from './configComponent/ConfigModal';
 
 export const componentRegistry = {
   button: Button,
@@ -121,12 +120,42 @@ export const convertProps = ({
         renderItem: (item: any) => {
           return (
             <List.Item>
-              <RenderSliceItem data={data.componentProps.box} valueStream={item} />
+              <RenderSliceItem data={data.componentProps.columns} valueStream={item} />
             </List.Item>
           );
         },
       };
     case 'table':
+      const configs: TableProps = _.cloneDeep(data?.componentProps) || {}
+      let summary = null
+      if (configs.enableFooter && configs.footerColumns?.length > 0) {
+        summary = () => (
+          <Table.Summary>
+            <Table.Summary.Row>
+              {configs.columns?.map((column, index) => {
+                const footerColumn = configs.footerColumns.find(
+                  (fc: any) => fc.dataIndex === column.dataIndex
+                )
+
+
+                console.log('data.componentProps.box', data.componentProps);
+
+                return (
+                  <Table.Summary.Cell
+                    key={column.key || index}
+                    index={index}
+                    align={footerColumn?.align || 'left'}
+                  >
+                    <div style={{ fontWeight: 'bold' }}>
+                      <RenderSliceItem data={data.componentProps.box} />
+                    </div>
+                  </Table.Summary.Cell>
+                )
+              })}
+            </Table.Summary.Row>
+          </Table.Summary>
+        )
+      }
       return {
         ...data.componentProps,
         dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
@@ -135,18 +164,17 @@ export const convertProps = ({
             ...item,
             render: (value: any) => <RenderSliceItem data={item.box} valueStream={value} />,
           };
-        }),
+        },
+        ),
+        summary
+
       } as TableProps;
     case 'modal': {
-      console.log('data.componentProps', data.componentProps);
-
       return {
         ...data.componentProps
       }
     }
     case 'drawer': {
-      console.log('drawer', data.componentProps);
-
       return {
         ...data.componentProps
       }
