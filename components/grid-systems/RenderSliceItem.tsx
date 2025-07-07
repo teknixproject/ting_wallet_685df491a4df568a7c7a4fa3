@@ -26,6 +26,8 @@ type TProps = {
 
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
+  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
+  const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
   const actionsProp = useMemo(
@@ -65,8 +67,13 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       ...dynamicProps,
       ...multiples,
     };
+    if (isNoChildren && 'children' in result) {
+      delete result.children;
+    }
+    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
 
   return {

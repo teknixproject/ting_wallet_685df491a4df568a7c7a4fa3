@@ -129,7 +129,7 @@ export const convertProps = ({
       }
       return {
         ...data.componentProps,
-        dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
+        dataSource: _.isArray(value) ? value : data.componentProps?.dataSource,
         columns: data?.componentProps?.columns?.map((item: any) => {
           return {
             ...item,
