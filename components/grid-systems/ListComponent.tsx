@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-    Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
-    InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
+  Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
+  InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -64,7 +64,6 @@ export const convertProps = ({
 }) => {
   if (!data) return {};
   const value = dataState || getData(data?.data, valueStream) || valueStream;
-  console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
@@ -101,12 +100,33 @@ export const convertProps = ({
         renderItem: (item: any) => {
           return (
             <List.Item>
-              <RenderSliceItem data={data.componentProps.box} valueStream={item} />
+              <RenderSliceItem data={data.componentProps.columns} valueStream={item} />
             </List.Item>
           );
         },
       };
     case 'table':
+      const configs: TableProps = _.cloneDeep(data?.componentProps) || {}
+      let summary = null
+      if (configs.enableFooter && configs.footerColumns?.length > 0) {
+        summary = () => (
+          <Table.Summary>
+            <Table.Summary.Row>
+              {configs.footerColumns?.map((footer, index) => {
+                return (
+                  <Table.Summary.Cell
+                    key={footer.key || index}
+                    index={index}
+                    align={footer?.align || 'left'}
+                  >
+                    <RenderSliceItem data={footer.box} />
+                  </Table.Summary.Cell>
+                )
+              })}
+            </Table.Summary.Row>
+          </Table.Summary>
+        )
+      }
       return {
         ...data.componentProps,
         dataSource: _.isArray(value) ? value : data.componentProps?.dataSource,
@@ -115,7 +135,10 @@ export const convertProps = ({
             ...item,
             render: (value: any) => <RenderSliceItem data={item.box} valueStream={value} />,
           };
-        }),
+        },
+        ),
+        summary
+
       } as TableProps;
     case 'modal': {
       return {
