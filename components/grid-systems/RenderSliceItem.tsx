@@ -26,7 +26,6 @@ type TProps = {
 
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
-  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
   const actionsProp = useMemo(
@@ -56,8 +55,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     staticProps.css = cssMultiple;
     const dynamicProps = Object.entries(data?.componentProps?.actions || {}).reduce(
       (acc, [eventName, actionObj]) => {
-        console.log('🚀 ~ propsCpn ~ eventName, actionObj:', { eventName, actionObj });
-
         acc[eventName] = () => handleAction('onClick', actionObj as TTriggerActions);
         return acc;
       },
@@ -68,7 +65,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       ...dynamicProps,
       ...multiples,
     };
-    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
@@ -96,15 +92,8 @@ const ComponentRenderer: FC<{
 
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
-  console.log('🚀 ~ valueStream:', valueStream);
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
-  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
-  console.log(`🚀 ${data.id}~ { isForm, isNoChildren, isChart }:`, {
-    isForm,
-    isNoChildren,
-    isChart,
-  });
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
   if (isForm) return <RenderForm {...props} />;
@@ -131,10 +120,8 @@ const RenderForm: FC<TProps> = (props) => {
   const formKeys = data?.componentProps?.formKeys;
 
   const onSubmit = (formData: any) => {
-    console.log('🚀 ~ onSubmit ~ data:', formData);
     handleAction('onSubmit', data?.actions, formData);
   };
-  console.log(`🚀 ~ propsCpn: ${data?.id}`, propsCpn);
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
 

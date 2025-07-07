@@ -64,7 +64,6 @@ export const convertProps = ({
 }) => {
   if (!data) return {};
   const value = dataState || getData(data?.data, valueStream) || valueStream;
-  console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
@@ -113,23 +112,14 @@ export const convertProps = ({
         summary = () => (
           <Table.Summary>
             <Table.Summary.Row>
-              {configs.columns?.map((column, index) => {
-                const footerColumn = configs.footerColumns.find(
-                  (fc: any) => fc.dataIndex === column.dataIndex
-                )
-
-
-                console.log('data.componentProps.box', data.componentProps);
-
+              {configs.footerColumns?.map((footer, index) => {
                 return (
                   <Table.Summary.Cell
-                    key={column.key || index}
+                    key={footer.key || index}
                     index={index}
-                    align={footerColumn?.align || 'left'}
+                    align={footer?.align || 'left'}
                   >
-                    <div style={{ fontWeight: 'bold' }}>
-                      <RenderSliceItem data={data.componentProps.box} />
-                    </div>
+                    <RenderSliceItem data={footer.box} />
                   </Table.Summary.Cell>
                 )
               })}
