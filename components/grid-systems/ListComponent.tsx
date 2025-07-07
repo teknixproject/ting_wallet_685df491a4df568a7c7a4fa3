@@ -1,27 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  Button,
-  Card,
-  Checkbox,
-  Collapse,
-  Drawer,
-  Dropdown,
-  DropdownProps,
-  Form,
-  Image,
-  Input,
-  InputNumber,
-  List,
-  Modal,
-  Radio,
-  Select,
-  Statistic,
-  Table,
-  TableProps,
-  Tabs,
-  Tag,
-  Typography,
+    Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
+    InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -33,7 +14,6 @@ import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@
 import ConfigMenu from './configComponent/ConfigMenu';
 import { getStyleOfDevice } from './DataProvider';
 import RenderSliceItem from './RenderSliceItem';
-import ConfigModal from './configComponent/ConfigModal';
 
 export const componentRegistry = {
   button: Button,
@@ -83,7 +63,7 @@ export const convertProps = ({
   valueStream?: any;
 }) => {
   if (!data) return {};
-  const value = dataState || getData(data?.data, valueStream) || valueStream || data?.name;
+  const value = dataState || getData(data?.data, valueStream) || valueStream;
   console.log(`🚀 ~ value: ${data.id}`, value);
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
@@ -138,18 +118,13 @@ export const convertProps = ({
         }),
       } as TableProps;
     case 'modal': {
-      console.log('data.componentProps', data.componentProps);
-
       return {
-        ...data.componentProps
-      }
+        ...data.componentProps,
+        open: value,
+      };
     }
     case 'drawer': {
-      console.log('drawer', data.componentProps);
-
-      return {
-        ...data.componentProps
-      }
+      return { ...data.componentProps, open: value };
     }
     default:
       break;

@@ -7,7 +7,9 @@ import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-fo
 
 import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
+import { useHandleProps } from '@/hooks/useHandleProps';
 import { stateManagementStore } from '@/stores';
+import { TTriggerActions } from '@/types';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { convertToEmotionStyle } from '@/uitls/styleInline';
@@ -15,7 +17,6 @@ import { css } from '@emotion/react';
 
 import { componentRegistry, convertProps } from './ListComponent';
 import LoadingPage from './loadingPage';
-import ConfigModal from './configComponent/ConfigModal';
 
 type TProps = {
   data: GridItem;
@@ -28,6 +29,11 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
+  const actionsProp = useMemo(
+    () => data?.componentProps?.dataProps || [],
+    [data?.componentProps?.dataProps]
+  );
+  const { multiples } = useHandleProps({ actionsProp });
   const { handleAction, isLoading } = useActions(data);
 
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
@@ -38,15 +44,34 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   );
 
   const propsCpn = useMemo(() => {
-    const result = convertProps({ data, getData, dataState, valueStream });
-    const cssMultiple = css`
-      ${convertToEmotionStyle(result?.styleMultiple)}
-    `;
-    result.css = cssMultiple;
-    return result;
-  }, [data, dataState, valueStream, getData]);
+    const staticProps = {
+      ...convertProps({ data, getData, dataState, valueStream }),
+      onClick: () => handleAction('onClick'),
+      onChange: () => handleAction('onChange'),
+    };
 
-  console.log('🚀 ~ propsCpn:', propsCpn);
+    const cssMultiple = css`
+      ${convertToEmotionStyle(staticProps?.styleMultiple)}
+    `;
+    staticProps.css = cssMultiple;
+    const dynamicProps = Object.entries(data?.componentProps?.actions || {}).reduce(
+      (acc, [eventName, actionObj]) => {
+        console.log('🚀 ~ propsCpn ~ eventName, actionObj:', { eventName, actionObj });
+
+        acc[eventName] = () => handleAction('onClick', actionObj as TTriggerActions);
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+    const result = {
+      ...staticProps,
+      ...dynamicProps,
+      ...multiples,
+    };
+    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
+
+    return result;
+  }, [data, getData, dataState, valueStream, multiples, handleAction]);
 
   return {
     isLoading,
@@ -84,7 +109,6 @@ const RenderSliceItem: FC<TProps> = (props) => {
   if (isLoading) return <LoadingPage />;
   if (isForm) return <RenderForm {...props} />;
   if (isNoChildren || isChart) return <Component {...propsCpn} />;
-  if (isFeebBack) return <ConfigModal {...props} />
 
   return (
     <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
