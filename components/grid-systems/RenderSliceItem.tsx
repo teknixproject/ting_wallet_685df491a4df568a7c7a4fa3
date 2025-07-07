@@ -73,6 +73,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
 
   return {
