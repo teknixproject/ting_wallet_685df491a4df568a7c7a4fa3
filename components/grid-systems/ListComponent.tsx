@@ -106,13 +106,13 @@ export const convertProps = ({
         },
       };
     case 'table':
-      const configs: TableProps = _.cloneDeep(data?.componentProps) || {}
+      const configs: any = _.cloneDeep(data?.componentProps) || {}
       let summary = null
       if (configs.enableFooter && configs.footerColumns?.length > 0) {
         summary = () => (
           <Table.Summary>
             <Table.Summary.Row>
-              {configs.footerColumns?.map((footer, index) => {
+              {configs.footerColumns?.map((footer: any, index: any) => {
                 return (
                   <Table.Summary.Cell
                     key={footer.key || index}
