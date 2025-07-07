@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { JSONPath } from 'jsonpath-plus';
 import _ from 'lodash';
+import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { stateManagementStore } from '@/stores';
@@ -29,6 +30,7 @@ type TUseHandleData = {
 };
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
+  const params = useParams();
   const apiResponseState = stateManagementStore((state) => state.apiResponse);
   const findCustomFunction = customFunctionStore((state) => state.findCustomFunction);
   const appState = stateManagementStore((state) => state.appState);
@@ -345,15 +347,27 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     return value;
   };
 
+  const handleParemeters = (data: TData) => {
+    console.log('🚀 ~ handleParemeters ~ data:', data);
+    const paramName = data?.parameters?.paramName;
+    console.log('🚀 ~ handleParemeters ~ paramName:', paramName);
+
+    if (!paramName) return '';
+    const result = params[paramName];
+    console.log('🚀 ~ handleParemeters ~ result:', result);
+    return result;
+  };
   //#region getData
   const getData = useCallback(
-    (data: TData | null | undefined, valueStream?: any): any => {
+    (data: TData | null | undefined, valueStream?: any) => {
       if (_.isEmpty(data)) return '';
       if (!data || !data.type) return data?.defaultValue;
 
       switch (data.type) {
         case 'valueInput':
           return handleInputValue(data.valueInput);
+        case 'parameters':
+          return handleParemeters(data);
         case 'dynamicGenerate':
           return handleDynamicGenerate(data);
         case 'apiResponse':
@@ -369,7 +383,11 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
         case 'itemInList':
           return handleItemInList(data, valueStream);
         case 'customFunction':
-          return handleCustomFunction({ data: data.customFunction, findCustomFunction, getData });
+          return handleCustomFunction({
+            data: data.customFunction,
+            findCustomFunction,
+            getData,
+          });
         default:
           return data?.defaultValue;
       }

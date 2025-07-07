@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
-  InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
+    Button, Card, Checkbox, Collapse, DatePicker, Drawer, Dropdown, DropdownProps, Form, Image,
+    Input, InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag,
+    Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -49,6 +50,7 @@ export const componentRegistry = {
   menu: ConfigMenu,
   modal: Modal,
   drawer: Drawer,
+  datepicker: DatePicker,
 };
 
 export const convertProps = ({
@@ -106,13 +108,13 @@ export const convertProps = ({
         },
       };
     case 'table':
-      const configs: TableProps = _.cloneDeep(data?.componentProps) || {}
-      let summary = null
+      const configs: any = _.cloneDeep(data?.componentProps) || {};
+      let summary = null;
       if (configs.enableFooter && configs.footerColumns?.length > 0) {
         summary = () => (
           <Table.Summary>
             <Table.Summary.Row>
-              {configs.footerColumns?.map((footer, index) => {
+              {configs.footerColumns?.map((footer: any, index: number) => {
                 return (
                   <Table.Summary.Cell
                     key={footer.key || index}
@@ -121,11 +123,11 @@ export const convertProps = ({
                   >
                     <RenderSliceItem data={footer.box} />
                   </Table.Summary.Cell>
-                )
+                );
               })}
             </Table.Summary.Row>
           </Table.Summary>
-        )
+        );
       }
       return {
         ...data.componentProps,
@@ -135,10 +137,8 @@ export const convertProps = ({
             ...item,
             render: (value: any) => <RenderSliceItem data={item.box} valueStream={value} />,
           };
-        },
-        ),
-        summary
-
+        }),
+        summary,
       } as TableProps;
     case 'modal': {
       return {

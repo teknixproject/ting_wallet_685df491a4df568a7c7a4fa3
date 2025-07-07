@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Suspense } from 'react';
 
-import LayoutContent, { RenderModal } from '@/components/grid-systems/LayoutContent';
+import LayoutContent from '@/components/grid-systems/LayoutContent';
 import { LayoutProvider } from '@/context/LayoutContext';
 import { ApiStoreProvider } from '@/providers';
 import AntdProvider from '@/providers/AntdProvider';
@@ -58,7 +58,6 @@ export default function RootLayout({
           <ApiStoreProvider>
             <LayoutProvider>
               <Suspense>
-                <RenderModal />
                 <LayoutContent>
                   <AntdProvider>{children}</AntdProvider>
                 </LayoutContent>

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import dayjs from 'dayjs';
 /** @jsxImportSource @emotion/react */
 import _ from 'lodash';
 import { FC, memo, useMemo } from 'react';
@@ -27,7 +28,7 @@ type TProps = {
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
   console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
-  const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
+  const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
   const actionsProp = useMemo(
@@ -70,6 +71,11 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     if (isNoChildren && 'children' in result) {
       delete result.children;
     }
+    if (isDatePicker) {
+      if (typeof result.value === 'string') result.value = dayjs(result.value);
+      if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
+    }
+    if ('styleMultiple' in result) delete result.styleMultiple;
     console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
@@ -106,13 +112,13 @@ const RenderSliceItem: FC<TProps> = (props) => {
   if (isForm) return <RenderForm {...props} />;
   if (isNoChildren || isChart) return <Component {...propsCpn} />;
 
-  return (
-    <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
-      {data?.childs?.map((child) => (
-        <RenderSliceItem {...props} data={child} key={String(child.id)} />
-      ))}
-    </ComponentRenderer>
-  );
+  // return (
+  //   <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+  //     {data?.childs?.map((child) => (
+  //       <RenderSliceItem {...props} data={child} key={String(child.id)} />
+  //     ))}
+  //   </ComponentRenderer>
+  // );
 };
 
 const RenderForm: FC<TProps> = (props) => {
@@ -124,9 +130,11 @@ const RenderForm: FC<TProps> = (props) => {
   });
   const { handleSubmit } = methods;
   const { handleAction } = useActions();
-  const formKeys = data?.componentProps?.formKeys;
+  const formKeys = useMemo(() => data?.componentProps?.formKeys, [data?.componentProps?.formKeys]);
 
   const onSubmit = (formData: any) => {
+    console.log('🚀 ~ onSubmit ~ formData:', formData);
+
     handleAction('onSubmit', data?.actions, formData);
   };
   if (!valueType) return <div></div>;
@@ -149,22 +157,11 @@ const RenderForm: FC<TProps> = (props) => {
 
 const RenderFormItem: FC<TProps> = (props) => {
   const { data, formKeys, valueStream } = props;
-
+  const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
   const { findVariable } = stateManagementStore();
-  const { getData, dataState } = useHandleData({ dataProp: data?.data });
+  // const { getData, dataState } = useHandleData({ dataProp: data?.data });
   const { control } = useFormContext();
   const { isInput } = getComponentType(data?.value || '');
-
-  const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
-  const Component = useMemo(
-    () => (valueType ? _.get(componentRegistry, valueType) || 'div' : 'div'),
-    [valueType]
-  );
-
-  const propsCpn = useMemo(() => {
-    const result = convertProps({ data, getData, dataState, valueStream });
-    return result;
-  }, [data, dataState, valueStream, getData]);
 
   if (!valueType) return <div></div>;
 
