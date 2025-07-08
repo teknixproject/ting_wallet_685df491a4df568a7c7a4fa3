@@ -98,6 +98,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
     }
     if ('styleMultiple' in result) delete result.styleMultiple;
+    if ('dataProps' in result) delete result.dataProps;
     console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
@@ -134,13 +135,13 @@ const RenderSliceItem: FC<TProps> = (props) => {
   if (isForm) return <RenderForm {...props} />;
   if (isNoChildren || isChart) return <Component {...propsCpn} />;
 
-  // return (
-  //   <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
-  //     {data?.childs?.map((child) => (
-  //       <RenderSliceItem {...props} data={child} key={String(child.id)} />
-  //     ))}
-  //   </ComponentRenderer>
-  // );
+  return (
+    <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
+      {data?.childs?.map((child) => (
+        <RenderSliceItem {...props} data={child} key={String(child.id)} />
+      ))}
+    </ComponentRenderer>
+  );
 };
 
 const RenderForm: FC<TProps> = (props) => {

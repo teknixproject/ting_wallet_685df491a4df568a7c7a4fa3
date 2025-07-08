@@ -117,11 +117,10 @@ export const convertProps = ({
     case 'list':
       return {
         ...data.componentProps,
-        dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
         renderItem: (item: any) => {
           return (
             <List.Item>
-              <RenderSliceItem data={data.componentProps.columns} valueStream={item} />
+              <RenderSliceItem data={data.componentProps.box} valueStream={item} />
             </List.Item>
           );
         },
