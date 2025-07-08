@@ -360,8 +360,8 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   //#region getData
   const getData = useCallback(
     (data: TData | null | undefined, valueStream?: any) => {
-      if (_.isEmpty(data)) return '';
-      if (!data || !data.type) return data?.defaultValue;
+      if (_.isEmpty(data) && valueStream) return valueStream;
+      if (_.isEmpty(data) || !data.type) return data?.defaultValue;
 
       switch (data.type) {
         case 'valueInput':

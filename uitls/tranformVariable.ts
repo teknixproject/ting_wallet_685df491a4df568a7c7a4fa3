@@ -76,12 +76,12 @@ export const transformVariable = (variable: Omit<TVariable, 'id'>): any => {
           const date = new Date(value);
           return isNaN(date.getTime()) ? new Date() : date;
 
-        case 'Object':
-          if (typeof value === 'string') {
-            return parseObjectString(value);
-          }
-          if (typeof value === 'object') return value;
-          return { value };
+        // case 'Object':
+        //   if (typeof value === 'string') {
+        //     return parseObjectString(value);
+        //   }
+        //   if (typeof value === 'object') return value;
+        //   return { value };
 
         default:
           return value;

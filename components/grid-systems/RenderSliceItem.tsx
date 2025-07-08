@@ -10,7 +10,6 @@ import { useActions } from '@/hooks/useActions';
 import { useHandleData } from '@/hooks/useHandleData';
 import { useHandleProps } from '@/hooks/useHandleProps';
 import { stateManagementStore } from '@/stores';
-import { TTriggerActions } from '@/types';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { convertCssObjectToCamelCase, convertToEmotionStyle } from '@/uitls/styleInline';
@@ -35,7 +34,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     () => data?.componentProps?.dataProps || [],
     [data?.componentProps?.dataProps]
   );
-  const { multiples } = useHandleProps({ actionsProp });
+  const { multiples } = useHandleProps({ actionsProp, valueStream });
   const { handleAction, isLoading } = useActions(data);
 
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
@@ -46,17 +45,13 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   );
 
   const propsCpn = useMemo(() => {
+    console.log('123', { dataState, getValue: getData(data.data, valueStream), valueStream });
+
     const staticProps = {
-      ...convertProps({ data, getData, dataState, valueStream }),
+      ...convertProps({ data }),
       onClick: () => handleAction('onClick'),
       onChange: () => handleAction('onChange'),
     };
-
-    // const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple)
-    // const advancedCss = convertCssObjectToCamelCase(staticProps?.styleMultiple)
-    // const cssMultiple = css`
-    //    ${advancedCss}
-    // `;
 
     const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
 
@@ -78,24 +73,17 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     }
 
     staticProps.css = cssMultiple;
-    const dynamicProps = Object.entries(data?.componentProps?.actions || {}).reduce(
-      (acc, [eventName, actionObj]) => {
-        acc[eventName] = () => handleAction('onClick', actionObj as TTriggerActions);
-        return acc;
-      },
-      {} as Record<string, any>
-    );
+
     const result = {
       ...staticProps,
-      ...dynamicProps,
       ...multiples,
     };
-    if (isNoChildren && 'children' in result) {
-      delete result.children;
-    }
     if (isDatePicker) {
       if (typeof result.value === 'string') result.value = dayjs(result.value);
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
+    }
+    if (isNoChildren && 'children' in result) {
+      delete result.children;
     }
     if ('styleMultiple' in result) delete result.styleMultiple;
     if ('dataProps' in result) delete result.dataProps;

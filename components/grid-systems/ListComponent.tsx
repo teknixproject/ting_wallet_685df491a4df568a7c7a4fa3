@@ -72,19 +72,9 @@ export const componentRegistry = {
   datepicker: DatePicker,
 };
 
-export const convertProps = ({
-  data,
-  getData,
-  dataState,
-  valueStream,
-}: {
-  data: GridItem;
-  getData: any;
-  dataState?: any;
-  valueStream?: any;
-}) => {
+export const convertProps = ({ data }: { data: GridItem }) => {
   if (!data) return {};
-  const value = dataState || getData(data?.data, valueStream) || valueStream;
+  // const value = getData(data?.data, valueStream) || dataState || valueStream;
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
@@ -94,9 +84,7 @@ export const convertProps = ({
         items: data?.componentProps?.items?.map((item: any) => {
           return {
             ...item,
-            children: (
-              <RenderSliceItem data={item.children} valueStream={valueStream?.[item.key]} />
-            ),
+            children: <RenderSliceItem data={item.children} />,
           };
         }),
       };
@@ -104,15 +92,11 @@ export const convertProps = ({
     case 'dropdown':
       return {
         ...data.componentProps,
-        menu: {
-          items: value,
-        },
         children: <Button>{data?.componentProps?.label || getName(data.id)}</Button>,
       } as DropdownProps;
     case 'image':
       return {
         ...data.componentProps,
-        src: value,
       };
     case 'list':
       return {
@@ -149,7 +133,6 @@ export const convertProps = ({
       }
       return {
         ...data.componentProps,
-        dataSource: _.isArray(value) ? value : data.componentProps?.dataSource,
         columns: data?.componentProps?.columns?.map((item: any) => {
           return {
             ...item,
@@ -161,11 +144,10 @@ export const convertProps = ({
     case 'modal': {
       return {
         ...data.componentProps,
-        open: value,
       };
     }
     case 'drawer': {
-      return { ...data.componentProps, open: value };
+      return { ...data.componentProps };
     }
     default:
       break;
@@ -173,27 +155,23 @@ export const convertProps = ({
   if (isUseOptionsData) {
     return {
       ...data.componentProps,
-      options: value,
     };
   }
   if (isInput) {
     return {
       ...data.componentProps,
       style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
-      value: value,
     };
   }
   if (isChart) {
     return {
       ...data.componentProps,
-      data: value,
       style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     };
   }
   return {
     ...data.componentProps,
     style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
-    children: value,
   };
 };
 export const getName = (id: string) => id.split('$')[0];
