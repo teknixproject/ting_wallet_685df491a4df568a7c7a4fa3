@@ -63,3 +63,22 @@ export const convertToEmotionStyle = (formData: TForm): CSSObject => {
 
   return style;
 };
+
+// Utility function to convert kebab-case to camelCase for CSS properties
+const kebabToCamel = (str: string): string => {
+  return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+};
+
+// Function to convert CSS object with kebab-case properties to camelCase
+export const convertCssObjectToCamelCase = (cssObj: Record<string, any>): Record<string, any> => {
+  if (!cssObj || typeof cssObj !== 'object') return cssObj;
+
+  const convertedObj: Record<string, any> = {};
+
+  Object.keys(cssObj).forEach((key) => {
+    const camelCaseKey = kebabToCamel(key);
+    convertedObj[camelCaseKey] = cssObj[key];
+  });
+
+  return convertedObj;
+};

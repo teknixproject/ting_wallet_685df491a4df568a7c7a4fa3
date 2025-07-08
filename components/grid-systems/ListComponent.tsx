@@ -1,9 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-    Button, Card, Checkbox, Collapse, DatePicker, Drawer, Dropdown, DropdownProps, Form, Image,
-    Input, InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag,
-    Typography
+  Button,
+  Card,
+  Checkbox,
+  Collapse,
+  DatePicker,
+  Drawer,
+  Dropdown,
+  DropdownProps,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  List,
+  Modal,
+  Radio,
+  Select,
+  Statistic,
+  Table,
+  TableProps,
+  Tabs,
+  Tag,
+  Typography,
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -114,7 +133,7 @@ export const convertProps = ({
         summary = () => (
           <Table.Summary>
             <Table.Summary.Row>
-              {configs.footerColumns?.map((footer: any, index: number) => {
+              {configs.footerColumns?.map((footer: any, index: any) => {
                 return (
                   <Table.Summary.Cell
                     key={footer.key || index}
