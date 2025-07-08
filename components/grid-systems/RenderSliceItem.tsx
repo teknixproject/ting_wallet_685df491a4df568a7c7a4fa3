@@ -12,7 +12,7 @@ import { stateManagementStore } from '@/stores';
 import { TTriggerActions } from '@/types';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
-import { convertToEmotionStyle } from '@/uitls/styleInline';
+import { convertCssObjectToCamelCase, convertToEmotionStyle } from '@/uitls/styleInline';
 import { css } from '@emotion/react';
 
 import { componentRegistry, convertProps } from './ListComponent';
@@ -51,9 +51,32 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       onChange: () => handleAction('onChange'),
     };
 
-    const cssMultiple = css`
-      ${convertToEmotionStyle(staticProps?.styleMultiple)}
-    `;
+    // const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple)
+    // const advancedCss = convertCssObjectToCamelCase(staticProps?.styleMultiple)
+    // const cssMultiple = css`
+    //    ${advancedCss}
+    // `;
+
+    const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
+
+    // Fix 1: Check if advancedCss is a string (CSS string) or object (CSS object)
+    let cssMultiple;
+
+    if (typeof advancedCss === 'string') {
+      // If it's a CSS string, use template literal directly
+      cssMultiple = css`
+        ${advancedCss}
+      `;
+    } else if (advancedCss && typeof advancedCss === 'object') {
+      // If it's a CSS object, convert kebab-case to camelCase and use as object
+      const convertedCssObj = convertCssObjectToCamelCase(advancedCss);
+      cssMultiple = css(convertedCssObj);
+    } else {
+      // Fallback to empty css
+      cssMultiple = css``;
+    }
+
+
     staticProps.css = cssMultiple;
     const dynamicProps = Object.entries(data?.componentProps?.actions || {}).reduce(
       (acc, [eventName, actionObj]) => {
@@ -70,7 +93,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     if (isNoChildren && 'children' in result) {
       delete result.children;
     }
-    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
+    // console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
