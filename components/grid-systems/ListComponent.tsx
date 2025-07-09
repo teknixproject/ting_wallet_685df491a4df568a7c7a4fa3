@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
+  Badge,
   Button,
   Card,
   Checkbox,
@@ -23,7 +24,6 @@ import {
   Tabs,
   Tag,
   Typography,
-  Badge
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -31,6 +31,7 @@ import { ReactNode } from 'react';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@ant-design/plots';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 import ConfigMenu from './configComponent/ConfigMenu';
 import { getStyleOfDevice } from './DataProvider';
@@ -71,7 +72,8 @@ export const componentRegistry = {
   modal: Modal,
   drawer: Drawer,
   datepicker: DatePicker,
-  badge: Badge
+  badge: Badge,
+  icon: Icon,
 };
 
 export const convertProps = ({ data }: { data: GridItem }) => {
