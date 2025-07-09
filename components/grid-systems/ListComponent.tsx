@@ -23,6 +23,7 @@ import {
   Tabs,
   Tag,
   Typography,
+  Badge
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -70,6 +71,7 @@ export const componentRegistry = {
   modal: Modal,
   drawer: Drawer,
   datepicker: DatePicker,
+  badge: Badge
 };
 
 export const convertProps = ({ data }: { data: GridItem }) => {
