@@ -28,8 +28,9 @@ type TProps = {
     type: any;
     data: any;
   }[];
+  valueStream?: any;
 };
-export const useHandleProps = ({ actionsProp }: TProps): TUseActions => {
+export const useHandleProps = ({ actionsProp, valueStream }: TProps): TUseActions => {
   const actionsReal = useMemo(() => actionsProp, [actionsProp]);
   const { getData } = useHandleData({});
   const { setMultipleActions } = actionHookSliceStore();
@@ -138,7 +139,7 @@ export const useHandleProps = ({ actionsProp }: TProps): TUseActions => {
             e?.preventDefault?.();
             await handleAction(item.name)();
           };
-        else result[item.name] = getData(item.data);
+        else result[item.name] = getData(item.data, valueStream);
       }
     });
 

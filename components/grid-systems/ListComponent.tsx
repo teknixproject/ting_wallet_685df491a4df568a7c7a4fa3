@@ -1,8 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  Button, Card, Checkbox, Collapse, Drawer, Dropdown, DropdownProps, Form, Image, Input,
-  InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag, Typography
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Collapse,
+  DatePicker,
+  Drawer,
+  Dropdown,
+  DropdownProps,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  List,
+  Modal,
+  Radio,
+  Select,
+  Statistic,
+  Table,
+  TableProps,
+  Tabs,
+  Tag,
+  Typography,
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -10,6 +31,7 @@ import { ReactNode } from 'react';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@ant-design/plots';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 import ConfigMenu from './configComponent/ConfigMenu';
 import { getStyleOfDevice } from './DataProvider';
@@ -49,21 +71,14 @@ export const componentRegistry = {
   menu: ConfigMenu,
   modal: Modal,
   drawer: Drawer,
+  datepicker: DatePicker,
+  badge: Badge,
+  icon: Icon,
 };
 
-export const convertProps = ({
-  data,
-  getData,
-  dataState,
-  valueStream,
-}: {
-  data: GridItem;
-  getData: any;
-  dataState?: any;
-  valueStream?: any;
-}) => {
+export const convertProps = ({ data }: { data: GridItem }) => {
   if (!data) return {};
-  const value = dataState || getData(data?.data, valueStream) || valueStream;
+  // const value = getData(data?.data, valueStream) || dataState || valueStream;
   const valueType = data?.value?.toLowerCase();
   const { isInput, isChart, isUseOptionsData } = getComponentType(valueType || '');
   switch (valueType) {
@@ -73,9 +88,7 @@ export const convertProps = ({
         items: data?.componentProps?.items?.map((item: any) => {
           return {
             ...item,
-            children: (
-              <RenderSliceItem data={item.children} valueStream={valueStream?.[item.key]} />
-            ),
+            children: <RenderSliceItem data={item.children} />,
           };
         }),
       };
@@ -83,31 +96,26 @@ export const convertProps = ({
     case 'dropdown':
       return {
         ...data.componentProps,
-        menu: {
-          items: value,
-        },
         children: <Button>{data?.componentProps?.label || getName(data.id)}</Button>,
       } as DropdownProps;
     case 'image':
       return {
         ...data.componentProps,
-        src: value,
       };
     case 'list':
       return {
         ...data.componentProps,
-        dataSource: _.isArray(value) ? value : data.componentProps.dataSource,
         renderItem: (item: any) => {
           return (
             <List.Item>
-              <RenderSliceItem data={data.componentProps.columns} valueStream={item} />
+              <RenderSliceItem data={data.componentProps.box} valueStream={item} />
             </List.Item>
           );
         },
       };
     case 'table':
-      const configs: any = _.cloneDeep(data?.componentProps) || {}
-      let summary = null
+      const configs: any = _.cloneDeep(data?.componentProps) || {};
+      let summary = null;
       if (configs.enableFooter && configs.footerColumns?.length > 0) {
         summary = () => (
           <Table.Summary>
@@ -121,33 +129,29 @@ export const convertProps = ({
                   >
                     <RenderSliceItem data={footer.box} />
                   </Table.Summary.Cell>
-                )
+                );
               })}
             </Table.Summary.Row>
           </Table.Summary>
-        )
+        );
       }
       return {
         ...data.componentProps,
-        dataSource: _.isArray(value) ? value : data.componentProps?.dataSource,
         columns: data?.componentProps?.columns?.map((item: any) => {
           return {
             ...item,
             render: (value: any) => <RenderSliceItem data={item.box} valueStream={value} />,
           };
-        },
-        ),
-        summary
-
+        }),
+        summary,
       } as TableProps;
     case 'modal': {
       return {
         ...data.componentProps,
-        open: value,
       };
     }
     case 'drawer': {
-      return { ...data.componentProps, open: value };
+      return { ...data.componentProps };
     }
     default:
       break;
@@ -155,27 +159,23 @@ export const convertProps = ({
   if (isUseOptionsData) {
     return {
       ...data.componentProps,
-      options: value,
     };
   }
   if (isInput) {
     return {
       ...data.componentProps,
       style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
-      value: value,
     };
   }
   if (isChart) {
     return {
       ...data.componentProps,
-      data: value,
       style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     };
   }
   return {
     ...data.componentProps,
     style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
-    children: value,
   };
 };
 export const getName = (id: string) => id.split('$')[0];

@@ -46,12 +46,11 @@ type THandleCustomData = {
   getData: (data: TData | null) => any;
   findCustomFunction: (id: string) => TCustomFunction;
 };
-export const handleCustomFunction = ({
+export const handleCustomFunction = async ({
   data,
   getData,
   findCustomFunction,
-}: THandleCustomData): any => {
-  console.log('🚀 ~ data:', data);
+}: THandleCustomData): Promise<any> => {
   function buildArgsFromDefinedProps(
     props: TCustomFunction['props'],
     inputs: TData['customFunction']['props']
@@ -77,17 +76,14 @@ export const handleCustomFunction = ({
 
       if (typeof fn === 'function') {
         const result = await fn(args);
-        console.log('🚀 ~ runFunction ~ result:', result);
 
         return result;
       } else {
         throw new Error('Invalid function');
       }
     } catch (error) {
-      console.log('🚀 ~ runFunction ~ error:', error);
-
       throw error;
     }
   };
-  return runFunction();
+  return await runFunction();
 };

@@ -30,7 +30,10 @@ export type TCombineText = {
   style: React.CSSProperties & { textGradient?: string };
 }[];
 export type TData = {
-  type: keyof Omit<TData, 'type'> & 'parameters';
+  type: keyof Omit<TData, 'type'>;
+  parameters: {
+    paramName: string;
+  };
   itemInList: { jsonPath?: string };
   combineText?: TCombineText;
   dynamicGenerate?: TDataField;

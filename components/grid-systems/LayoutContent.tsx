@@ -3,11 +3,9 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useGetModalUI } from '@/app/actions/use-constructor';
 import { useLayoutContext } from '@/context/LayoutContext';
 import { getDeviceType } from '@/lib/utils';
 
-import Modal from '../commons/Modal';
 import LoadingPage from './loadingPage';
 
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
@@ -18,7 +16,6 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
-
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -84,11 +81,3 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     </div>
   );
 }
-
-export const RenderModal: React.FC<any> = () => {
-  const { data: dataModal } = useGetModalUI();
-
-  return _.map(dataModal, (item) => (
-    <Modal key={item?._id} data={item.layoutJson[getDeviceType()]} false></Modal>
-  ));
-};
