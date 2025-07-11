@@ -156,6 +156,7 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   page,
   isBody,
   isFooter,
+  style,
 }) => {
   const { isLoading } = useActions(page);
 
@@ -164,7 +165,7 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   return (
     <div
       className={cn('relative', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')}
-      style={page?.componentProps?.styleMultiple?.normal}
+      style={{ ...page?.componentProps?.styleMultiple?.normal, ...style }}
     >
       {page?.childs?.map((item) => (
         <RenderSliceItem data={item} key={item.id} />
