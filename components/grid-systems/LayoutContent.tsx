@@ -53,7 +53,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   return (
     <div className="relative !z-0">
       <div className="z-10" style={containerStyle as any}>
-        <div className="relative">
+        <div className="sticky top-0 z-10 max-h-screen overflow-hidden">
           {!_.isEmpty(selectedHeaderLayout) && (
             <GridSystemContainer
               page={selectedHeaderLayout}
@@ -70,14 +70,16 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
         </div>
         <main style={{ flex: 1 }}>{children}</main>
       </div>
-      {!_.isEmpty(selectedFooterLayout) && (
-        <GridSystemContainer
-          page={selectedFooterLayout}
-          deviceType={deviceType}
-          isFooter
-          style={{ width: '100%' }}
-        />
-      )}
-    </div>
+      {
+        !_.isEmpty(selectedFooterLayout) && (
+          <GridSystemContainer
+            page={selectedFooterLayout}
+            deviceType={deviceType}
+            isFooter
+            style={{ width: '100%' }}
+          />
+        )
+      }
+    </div >
   );
 }
