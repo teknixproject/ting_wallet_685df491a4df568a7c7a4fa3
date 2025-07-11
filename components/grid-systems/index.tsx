@@ -154,21 +154,19 @@ RenderSlice.displayName = 'RenderSlice';
 //#region Grid System
 const GridSystemContainer: FC<GridSystemProps> = ({
   page,
-  deviceType,
   isBody,
   isFooter,
-  style,
 }) => {
-  const config = page;
-  const { isLoading } = useActions(config);
+  const { isLoading } = useActions(page);
 
   if (isLoading) return <LoadingPage />;
+
   return (
     <div
       className={cn('relative', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')}
-      style={style}
+      style={page?.componentProps?.styleMultiple?.normal}
     >
-      {config?.childs?.map((item) => (
+      {page?.childs?.map((item) => (
         <RenderSliceItem data={item} key={item.id} />
       ))}
     </div>
