@@ -53,7 +53,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   return (
     <div className="relative !z-0">
       <div className="z-10" style={containerStyle as any}>
-        <div className="relative max-h-screen">
+        <div className="relative">
           {!_.isEmpty(selectedHeaderLayout) && (
             <GridSystemContainer
               page={selectedHeaderLayout}
