@@ -27,7 +27,7 @@ export const RenderUIClient: FC = () => {
   return (
     <div className="relative">
       {!_.isEmpty(selectedBodyLayout) && (
-        <GridSystemContainer page={selectedBodyLayout || {}} deviceType={deviceType} isBody />
+        <GridSystemContainer page={selectedBodyLayout} deviceType={deviceType} isBody />
       )}
     </div>
   );

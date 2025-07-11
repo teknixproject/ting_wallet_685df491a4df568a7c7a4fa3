@@ -76,6 +76,14 @@ export const componentRegistry = {
   icon: Icon,
 };
 
+const convertIconStringToComponent = (iconString: string) => {
+  if (!iconString || typeof iconString !== 'string') {
+    return null
+  }
+
+  return <Icon icon={iconString} />
+}
+
 export const convertProps = ({ data }: { data: GridItem }) => {
   if (!data) return {};
   // const value = getData(data?.data, valueStream) || dataState || valueStream;
@@ -152,6 +160,25 @@ export const convertProps = ({ data }: { data: GridItem }) => {
     }
     case 'drawer': {
       return { ...data.componentProps };
+    }
+
+    case 'button': {
+      const buttonProps = _.cloneDeep(data?.componentProps) || {}
+
+      // Xử lý icon cho Button
+      if (buttonProps.iconData && buttonProps.iconData.name) {
+        buttonProps.icon = convertIconStringToComponent(buttonProps.iconData.name)
+        // Xóa iconData khỏi props vì Button component không cần nó
+        delete buttonProps.iconData
+      }
+
+      return {
+        ...buttonProps,
+        style: {
+          ...data.style,
+          ...buttonProps.style,
+        },
+      }
     }
     default:
       break;
