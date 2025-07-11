@@ -26,7 +26,6 @@ type TProps = {
 
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
-  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
@@ -45,11 +44,9 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   );
 
   const propsCpn = useMemo(() => {
-    console.log('123', { dataState, getValue: getData(data.data, valueStream), valueStream });
-
     const staticProps = {
       ...convertProps({ data }),
-      onClick: () => handleAction('onClick'),
+      // onClick: () => handleAction('onClick'),
       onChange: () => handleAction('onChange'),
     };
 
@@ -87,7 +84,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     }
     if ('styleMultiple' in result) delete result.styleMultiple;
     if ('dataProps' in result) delete result.dataProps;
-    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,7 +151,10 @@ const RenderForm: FC<TProps> = (props) => {
     <FormProvider {...methods}>
       <ComponentRenderer
         Component={Component}
-        propsCpn={{ ...propsCpn, onFinish: () => handleSubmit(onSubmit)() }}
+        propsCpn={{
+          ...propsCpn,
+          onFinish: () => handleSubmit(onSubmit)()
+        }}
         data={data}
       >
         {data?.childs?.map((child) => (
