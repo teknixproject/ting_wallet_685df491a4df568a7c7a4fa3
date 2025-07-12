@@ -8,7 +8,7 @@ import React, { FC, memo, useCallback, useMemo } from 'react';
 import { useActions } from '@/hooks/useActions';
 import { useDynamicGenerate } from '@/hooks/useDynamicGenerate';
 import { useHandleProps } from '@/hooks/useHandleProps';
-import { cn, getDeviceSize } from '@/lib/utils';
+import { getDeviceSize } from '@/lib/utils';
 import { GridItem } from '@/types/gridItem';
 import { useQuery } from '@tanstack/react-query';
 
@@ -163,16 +163,17 @@ const GridSystemContainer: FC<GridSystemProps> = ({
   const { isLoading } = useActions(config);
 
   if (isLoading) return <LoadingPage />;
-  return (
-    <div
-      className={cn('relative', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')}
-      style={style}
-    >
-      {config?.childs?.map((item) => (
-        <RenderSliceItem data={item} key={item.id} />
-      ))}
-    </div>
-  );
+  return <RenderSliceItem data={config} key={config.id} />;
+  // return (
+  //   <div
+  //     className={cn('relative', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')}
+  //     style={style}
+  //   >
+  //     {config?.childs?.map((item) => (
+  //       <RenderSliceItem data={item} key={item.id} />
+  //     ))}
+  //   </div>
+  // );
 };
 
 export default GridSystemContainer;

@@ -26,7 +26,6 @@ type TProps = {
 
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
-  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
@@ -45,12 +44,10 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   );
 
   const propsCpn = useMemo(() => {
-    console.log('123', { dataState, getValue: getData(data.data, valueStream), valueStream });
-
     const staticProps = {
       ...convertProps({ data }),
       onClick: () => handleAction('onClick'),
-      onChange: () => handleAction('onChange'),
+      // onChange: () => handleAction('onChange'),
     };
 
     const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
@@ -82,16 +79,16 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       if (typeof result.value === 'string') result.value = dayjs(result.value);
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
     }
-    if (isNoChildren && 'children' in result) {
-      delete result.children;
-    }
+    // if (isNoChildren && 'children' in result) {
+    //   delete result.children;
+    // }
     if ('styleMultiple' in result) delete result.styleMultiple;
     if ('dataProps' in result) delete result.dataProps;
-    console.log(`🚀 ~ propsCpn ~ ${data.id}:`, result);
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
+  console.log(`🚀 ~ propsCpn ~ ${data.id}:`, propsCpn);
 
   return {
     isLoading,
@@ -196,6 +193,7 @@ const RenderFormItem: FC<TProps> = (props) => {
       {data?.childs?.map((child) => (
         <RenderFormItem {...props} data={child} key={String(child.id)} />
       ))}
+      <p className="grow"></p>
     </ComponentRenderer>
   );
 };
