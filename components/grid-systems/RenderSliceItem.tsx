@@ -46,8 +46,8 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const propsCpn = useMemo(() => {
     const staticProps = {
       ...convertProps({ data }),
-      onClick: () => handleAction('onClick'),
-      // onChange: () => handleAction('onChange'),
+      // onClick: () => handleAction('onClick'),
+      onChange: () => handleAction('onChange'),
     };
 
     const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
