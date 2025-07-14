@@ -54,7 +54,7 @@ export const PreviewUI: FC = () => {
   return (
     <div className="component-preview-container">
       {isPage && !customWidgetName ? (
-        <div className="relative flex flex-col justify-between min-h-screen">
+        <div className="relative flex flex-col min-h-screen">
           {!_.isEmpty(selectedHeaderLayout) && (
             <GridSystemContainer
               page={selectedHeaderLayout || {}}

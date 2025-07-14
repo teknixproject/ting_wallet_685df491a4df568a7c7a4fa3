@@ -1,4 +1,3 @@
-import axios from 'axios';
 import _ from 'lodash';
 import { Metadata } from 'next';
 import Head from 'next/head';
@@ -111,25 +110,29 @@ export async function getOrigin() {
 
   return origin;
 }
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const getPatterns = async (): Promise<string[]> => {
   try {
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/document/uids`, {
-      params: { projectId: PROJECT_ID || '' },
-    });
-    const uids = result?.data?.map((item: any) => item.uid) || [];
-    return uids || [];
+    const res = await fetch(`${API_URL}/document/uids?projectId=${PROJECT_ID || ''}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data) return [];
+    const uids = Array.isArray(data) ? data.map((item: any) => item?.uid).filter(Boolean) : [];
+    return uids;
   } catch (error) {
     console.log('🚀 ~ getPatterns ~ error:', error);
+    return [];
   }
-  return [];
 };
 const EntryPage: FC = async () => {
   const patterns: string[] = await getPatterns();
 
   // Get pathname from headers
   const headerList = await headers();
-  const pathname = headerList.get('x-path-name') || '/';
+  const pathname = headerList.get('x-path-name');
+  if (!pathname) {
+    return <div>Error: Pathname not found</div>;
+  }
 
   // Find matching pattern
   const matchingPattern = getMatchingRoutePattern(pathname, patterns);

@@ -31,7 +31,7 @@ export const convertToEmotionStyle = (formData: TForm): CSSObject => {
         acc['-webkit-font-smoothing'] = value;
       } else {
         // Use kebabCase for standard properties
-        acc[kebabCase(key)] = value;
+        acc[kebabCase(key)] = `${value} !important`;
       }
       return acc;
     }, {} as CSSObject);

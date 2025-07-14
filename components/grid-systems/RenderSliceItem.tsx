@@ -46,8 +46,8 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const propsCpn = useMemo(() => {
     const staticProps = {
       ...convertProps({ data }),
-      // onClick: () => handleAction('onClick'),
-      onChange: () => handleAction('onChange'),
+      onClick: () => handleAction('onClick'),
+      // onChange: () => handleAction('onChange'),
     };
 
     const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
@@ -79,15 +79,16 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       if (typeof result.value === 'string') result.value = dayjs(result.value);
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
     }
-    if (isNoChildren && 'children' in result) {
-      delete result.children;
-    }
+    // if (isNoChildren && 'children' in result) {
+    //   delete result.children;
+    // }
     if ('styleMultiple' in result) delete result.styleMultiple;
     if ('dataProps' in result) delete result.dataProps;
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
+  console.log(`🚀 ~ propsCpn ~ ${data.id}:`, propsCpn);
 
   return {
     isLoading,
@@ -195,6 +196,7 @@ const RenderFormItem: FC<TProps> = (props) => {
       {data?.childs?.map((child) => (
         <RenderFormItem {...props} data={child} key={String(child.id)} />
       ))}
+      <p className="grow"></p>
     </ComponentRenderer>
   );
 };
