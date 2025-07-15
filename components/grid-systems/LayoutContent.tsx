@@ -68,7 +68,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
             />
           )}
         </div>
-        <main style={{ flex: 1 }}>{children}</main>
+        <main style={{ flex: 1, overflow: 'hidden' }}>{children}</main>
       </div>
       {
         !_.isEmpty(selectedFooterLayout) && (
