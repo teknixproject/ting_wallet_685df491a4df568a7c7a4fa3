@@ -47,7 +47,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     const staticProps = {
       ...convertProps({ data }),
       // onClick: () => handleAction('onClick'),
-      onChange: () => handleAction('onChange'),
+      // onChange: () => handleAction('onChange'),
     };
 
     const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
@@ -88,7 +88,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, getData, dataState, valueStream, multiples, handleAction]);
-  console.log(`🚀 ~ propsCpn ~ ${data.id}:`, propsCpn);
 
   return {
     isLoading,
@@ -108,7 +107,7 @@ const ComponentRenderer: FC<{
   data: GridItem;
   children?: React.ReactNode;
 }> = ({ Component, propsCpn, data, children }) => (
-  <Component {...propsCpn}>{!_.isEmpty(data?.childs) ? children : propsCpn.children}</Component>
+  <Component key={data?.id} {...propsCpn}>{!_.isEmpty(data?.childs) ? children : propsCpn.children}</Component>
 );
 
 const RenderSliceItem: FC<TProps> = (props) => {
@@ -118,12 +117,13 @@ const RenderSliceItem: FC<TProps> = (props) => {
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
   if (isForm) return <RenderForm {...props} />;
-  if (isNoChildren || isChart) return <Component {...propsCpn} />;
+
+  if (isNoChildren || isChart) return <Component key={data?.id} {...propsCpn} />;
 
   return (
     <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
-      {data?.childs?.map((child) => (
-        <RenderSliceItem {...props} data={child} key={String(child.id)} />
+      {data?.childs?.map((child, index) => (
+        <RenderSliceItem {...props} data={child} key={child.id ? String(child.id) : `child-${index}`} />
       ))}
     </ComponentRenderer>
   );
@@ -141,8 +141,6 @@ const RenderForm: FC<TProps> = (props) => {
   const formKeys = useMemo(() => data?.componentProps?.formKeys, [data?.componentProps?.formKeys]);
 
   const onSubmit = (formData: any) => {
-    console.log('🚀 ~ onSubmit ~ formData:', formData);
-
     handleAction('onSubmit', data?.actions, formData);
   };
   if (!valueType) return <div></div>;
@@ -158,8 +156,10 @@ const RenderForm: FC<TProps> = (props) => {
         }}
         data={data}
       >
-        {data?.childs?.map((child) => (
-          <RenderFormItem {...props} data={child} key={String(child.id)} formKeys={formKeys} />
+        {data?.childs?.map((child, index) => (
+          <RenderFormItem {...props} data={child}
+            key={`form-child-${child.id}`}
+            formKeys={formKeys} />
         ))}
       </ComponentRenderer>
     </FormProvider>
@@ -194,7 +194,7 @@ const RenderFormItem: FC<TProps> = (props) => {
   return (
     <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
       {data?.childs?.map((child) => (
-        <RenderFormItem {...props} data={child} key={String(child.id)} />
+        <RenderFormItem {...props} data={child} key={`form-child-${child.id}`} />
       ))}
       <p className="grow"></p>
     </ComponentRenderer>

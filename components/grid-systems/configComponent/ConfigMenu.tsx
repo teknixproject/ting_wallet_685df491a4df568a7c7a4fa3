@@ -48,7 +48,7 @@ const ConfigMenu: React.FC<NavigationMenuProps> = ({
     const router = useRouter();
     const pathname = usePathname();
 
-    // Process menu items với icon conversion
+    // Process menu items với icon conversion và clean up invalid props
     const processMenuItems = useCallback((menuItems: any[]): any[] => {
         if (!Array.isArray(menuItems)) return menuItems;
 
@@ -68,6 +68,52 @@ const ConfigMenu: React.FC<NavigationMenuProps> = ({
             // Đảm bảo có key nếu chưa có
             if (!processedItem.key && processedItem.label) {
                 processedItem.key = processedItem.label.toLowerCase().replace(/\s+/g, '-');
+            }
+
+            // Clean up invalid DOM attributes - Mở rộng danh sách
+            const invalidDomAttributes = [
+                'collapsible',
+                'collapsed',
+                'expandable',
+                'expanded',
+                'selectable',
+                'checkable',
+                'checked',
+                'loading',
+                'ghost',
+                'block',
+                'danger',
+                'size',
+                'shape',
+                'htmlType',
+                'minWidth',
+                'maxWidth',
+                'resizable',
+                'sortable',
+                'filterable',
+                'width',
+                'height',
+                'flex',
+                'flexDirection',
+                'justifyContent',
+                'alignItems'
+            ];
+
+            invalidDomAttributes.forEach(attr => {
+                if (processedItem.hasOwnProperty(attr)) {
+                    delete processedItem[attr];
+                }
+            });
+
+            // Chuyển đổi boolean false thành undefined cho các thuộc tính boolean
+            if (processedItem.collapsible === false) {
+                processedItem.collapsible = undefined;
+            }
+            if (processedItem.selectable === false) {
+                processedItem.selectable = undefined;
+            }
+            if (processedItem.disabled === false) {
+                processedItem.disabled = undefined;
             }
 
             return processedItem;
@@ -160,14 +206,14 @@ const ConfigMenu: React.FC<NavigationMenuProps> = ({
             overflowedIndicator: mode === 'horizontal' ? null : undefined,
         };
 
-        // Chỉ thêm các props nếu chúng được định nghĩa
+        // Chỉ thêm các props nếu chúng được định nghĩa và không phải false
         if (defaultOpenKeys.length > 0) props.defaultOpenKeys = defaultOpenKeys;
-        if (multiple !== undefined) props.multiple = multiple;
-        if (selectable !== undefined) props.selectable = selectable;
-        if (inlineCollapsed !== undefined) props.inlineCollapsed = inlineCollapsed;
+        if (multiple !== undefined && multiple !== false) props.multiple = multiple;
+        if (selectable !== undefined && selectable !== false) props.selectable = selectable;
+        if (inlineCollapsed !== undefined && inlineCollapsed !== false) props.inlineCollapsed = inlineCollapsed;
         if (inlineIndent !== undefined) props.inlineIndent = inlineIndent;
         if (triggerSubMenuAction !== undefined) props.triggerSubMenuAction = triggerSubMenuAction;
-        if (forceSubMenuRender !== undefined) props.forceSubMenuRender = forceSubMenuRender;
+        if (forceSubMenuRender !== undefined && forceSubMenuRender !== false) props.forceSubMenuRender = forceSubMenuRender;
         if (onSelect) props.onSelect = onSelect;
         if (onDeselect) props.onDeselect = onDeselect;
         if (onOpenChange) props.onOpenChange = onOpenChange;
@@ -193,7 +239,7 @@ const ConfigMenu: React.FC<NavigationMenuProps> = ({
         onOpenChange,
     ]);
 
-    return <Menu {...menuProps} />
+    return <Menu {...menuProps} />;
 };
 
 export default ConfigMenu;
