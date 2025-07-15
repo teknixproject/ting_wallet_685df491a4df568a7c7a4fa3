@@ -46,7 +46,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const propsCpn = useMemo(() => {
     const staticProps = {
       ...convertProps({ data }),
-      // onClick: () => handleAction('onClick'),
+      onClick: () => handleAction('onClick'),
       // onChange: () => handleAction('onChange'),
     };
 
