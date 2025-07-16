@@ -50,5 +50,6 @@ export type TData = {
   };
   valueInput?: string;
   defaultValue?: string;
+  condition?: TAction<TConditionChildMap>;
   temp: any;
 };

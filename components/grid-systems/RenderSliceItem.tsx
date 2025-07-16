@@ -29,10 +29,12 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { getData, dataState } = useHandleData({ dataProp: data?.data });
+  console.log('🚀 ~ useRenderItem ~ dataState:', dataState);
   const actionsProp = useMemo(
     () => data?.componentProps?.dataProps || [],
     [data?.componentProps?.dataProps]
   );
+  console.log('🚀 ~ useRenderItem ~ actionsProp:', actionsProp);
   const { multiples } = useHandleProps({ actionsProp, valueStream });
   const { handleAction, isLoading } = useActions(data);
 
@@ -107,12 +109,15 @@ const ComponentRenderer: FC<{
   data: GridItem;
   children?: React.ReactNode;
 }> = ({ Component, propsCpn, data, children }) => (
-  <Component key={data?.id} {...propsCpn}>{!_.isEmpty(data?.childs) ? children : propsCpn.children}</Component>
+  <Component key={data?.id} {...propsCpn}>
+    {!_.isEmpty(data?.childs) ? children : propsCpn.children}
+  </Component>
 );
 
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
+  console.log('🚀 ~ propsCpn:', propsCpn);
   const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
@@ -123,7 +128,11 @@ const RenderSliceItem: FC<TProps> = (props) => {
   return (
     <ComponentRenderer Component={Component} propsCpn={propsCpn} data={data}>
       {data?.childs?.map((child, index) => (
-        <RenderSliceItem {...props} data={child} key={child.id ? String(child.id) : `child-${index}`} />
+        <RenderSliceItem
+          {...props}
+          data={child}
+          key={child.id ? String(child.id) : `child-${index}`}
+        />
       ))}
     </ComponentRenderer>
   );
@@ -152,14 +161,17 @@ const RenderForm: FC<TProps> = (props) => {
         Component={Component}
         propsCpn={{
           ...propsCpn,
-          onFinish: () => handleSubmit(onSubmit)()
+          onFinish: () => handleSubmit(onSubmit)(),
         }}
         data={data}
       >
         {data?.childs?.map((child, index) => (
-          <RenderFormItem {...props} data={child}
+          <RenderFormItem
+            {...props}
+            data={child}
             key={`form-child-${child.id}`}
-            formKeys={formKeys} />
+            formKeys={formKeys}
+          />
         ))}
       </ComponentRenderer>
     </FormProvider>

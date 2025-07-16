@@ -43,7 +43,7 @@ const getDefaultValue = (type: TTypeVariable): any => {
 };
 
 // Type-safe transform function
-export const transformVariable = (variable: Omit<TVariable, 'id'>): any => {
+export const transformVariable = (variable: Omit<TVariable, 'id' | 'key'>): any => {
   if (!variable || variable.value === null || variable.value === undefined) {
     return variable?.value ?? null;
   }

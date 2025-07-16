@@ -159,6 +159,8 @@ export type TConditionalChild = {
   fistCondition: string;
   secondCondition: string;
   compare: TConditionChildCompareValue;
+  valueReturn?: Omit<TVariable, 'key' | 'id'>;
+  isReturnValue?: boolean;
 };
 export type TConditionChildCompareValue = {
   firstValue: TData;
