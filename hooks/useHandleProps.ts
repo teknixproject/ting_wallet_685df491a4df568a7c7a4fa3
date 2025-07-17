@@ -170,12 +170,13 @@ export const useHandleProps = ({
     return _.reduce(
       validActions,
       (result, item) => {
-        const value = item.type.includes('MouseEventHandler')
-          ? async (e: any) => {
-              e?.preventDefault?.();
-              await createActionHandler(item.name)();
-            }
-          : getData(item.data, valueStream);
+        const value =
+          item?.type && item.type.includes('MouseEventHandler')
+            ? async (e: any) => {
+                e?.preventDefault?.();
+                await createActionHandler(item.name)();
+              }
+            : getData(item.data, valueStream);
 
         return _.set(result, item.name, value);
       },
