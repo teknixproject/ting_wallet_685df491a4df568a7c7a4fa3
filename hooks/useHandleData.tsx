@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { JSONPath } from 'jsonpath-plus';
 import _ from 'lodash';
@@ -11,13 +12,13 @@ import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
 import { executeConditionalInData } from '@/uitls/handleConditionInData';
 import { transformVariable } from '@/uitls/tranformVariable';
 
-import { actionHookSliceStore } from './actionSliceStore';
 import { handleCustomFunction } from './handleCustomFunction';
 import { findRootConditionChild, handleCompareCondition } from './useConditionAction';
 
 type UseHandleDataReturn = {
   dataState?: any;
   getData: (data: TData | null | undefined, valueStream?: any) => any;
+  getTrackedData: (data: TData | null | undefined, valueStream?: any) => any;
 };
 
 const handleCompareValue = ({
@@ -33,12 +34,25 @@ const handleCompareValue = ({
   return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
 };
 type TUseHandleData = {
-  dataProp?: TData;
+  dataProp?: { name: string; data: TData }[];
+
+  valueStream?: any;
+};
+
+const getIdInData = (data: TData) => {
+  const type = data?.type;
+  if (['appState', 'componentState', 'globalState', 'apiResponseState'].includes(type)) {
+    return data[type].variableId;
+  }
+};
+const getVariableIdsFormData = (dataProps: TUseHandleData['dataProp']) => {
+  const ids = dataProps?.map((item) => getIdInData(item.data));
+  const cleaned = _.compact(ids);
+  return cleaned;
 };
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const params = useParams();
-  const { findAction } = actionHookSliceStore();
   const apiResponseState = stateManagementStore((state) => state.apiResponse);
   const findCustomFunction = customFunctionStore((state) => state.findCustomFunction);
   const appState = stateManagementStore((state) => state.appState);
@@ -46,11 +60,29 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const globalState = stateManagementStore((state) => state.globalState);
   const [dataState, setDataState] = useState<any>();
   const itemInList = useRef(null);
+  const dataPropRef = useRef<TUseHandleData['dataProp']>(null);
+  const valueStreamRef = useRef<TUseHandleData['valueStream']>(null);
   const findVariable = stateManagementStore((state) => state.findVariable);
   const handleInputValue = (data: TData['valueInput']) => {
     return data || '';
   };
+  useEffect(() => {
+    // const ids = getVariableIdsFormData(props.dataProp);
 
+    const dataMultiple = props.dataProp?.reduce((obj, item) => {
+      return {
+        ...obj,
+        [item.name]: getData(item.data, props.valueStream),
+      };
+    }, {});
+
+    setDataState(dataMultiple);
+  }, [appState, globalState, componentState, apiResponseState, props.valueStream]);
+
+  useEffect(() => {
+    dataPropRef.current = props.dataProp;
+    valueStreamRef.current = props.valueStream;
+  }, [props]);
   //#region handle api
   const handleApiResponse = useCallback(
     (data: TData) => {
@@ -300,7 +332,9 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   };
 
   const handleCondition = (data: TData) => {
+    if (!data?.condition) return;
     const value = executeConditionalInData(data?.condition, getData);
+    console.log('🚀 ~ handleCondition ~ value:', value);
     // return executeConditional(conditionChildMap, findAction, getData);
     return value;
     // if (_.isEmpty(conditionChildMap)) return;
@@ -312,7 +346,10 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const getData = useCallback(
     (data: TData | null | undefined, valueStream?: any) => {
       if (_.isEmpty(data) && valueStream) return valueStream;
+      if (_.isEmpty(data) && props.valueStream) return props.valueStream;
       if (_.isEmpty(data) || !data.type) return data?.defaultValue;
+      // dataPropRef.current = data;
+      // valueStreamRef.current = valueStream;
 
       switch (data.type) {
         case 'valueInput':
@@ -349,36 +386,29 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     [handleApiResponse, handleState]
   );
   //#region tracking
-  const variableId = (props?.dataProp?.[props?.dataProp?.type] as any)?.variableId || '';
-
-  const apiResponseTracking = apiResponseState?.[variableId];
-  const appStateTracking = appState?.[variableId];
-  const componentStateTracking = componentState?.[variableId];
-  const globalStateTracking = globalState?.[variableId];
 
   //#region handle main
   // Fixed useEffect - only update when data actually changes
-  useEffect(() => {
-    if (props?.dataProp) {
-      const newDataState = getData(props.dataProp);
-      // Only update state if the value actually changed
-      setDataState((prevState: any) => {
-        if (!_.isEqual(prevState, newDataState)) {
-          return newDataState;
-        }
-        return prevState;
-      });
-    }
-  }, [
-    props.dataProp,
-    apiResponseTracking,
-    appStateTracking,
-    componentStateTracking,
-    globalStateTracking,
-  ]);
+  // useEffect(() => {
+  //   if (dataPropRef) {
+  //     const newDataState = getData(dataPropRef.current);
+  //     // Only update state if the value actually changed
+  //     setDataState((prevState: any) => {
+  //       if (!_.isEqual(prevState, newDataState)) {
+  //         return newDataState;
+  //       }
+  //       return prevState;
+  //     });
+  //   }
+  // }, [apiResponseTracking, appStateTracking, componentStateTracking, globalStateTracking]);
+  const getTrackedData = useCallback((data: TData | null | undefined, valueStream?: any) => {
+    const result = getData(data, valueStream);
+    return result;
+  }, []);
 
   return {
     getData,
     dataState,
+    getTrackedData,
   };
 };
