@@ -102,7 +102,7 @@ export const evaluateLogicOperation = (
 export const findRootConditionChild = (
   condition: TConditionChildMap
 ): TConditionalChild | undefined => {
-  return Object.values(condition.childs).find((child) => !child.parentId);
+  return Object.values(condition?.childs || {})?.find((child) => !child?.parentId);
 };
 
 /**
@@ -145,7 +145,7 @@ export const evaluateCompareCondition = (
   return evaluateComparison(firstValue, secondValue, compare.operator);
 };
 
-const executeValueReturn = (conditionChild: TConditionalChild, valueComparasion: boolean) => {
+const executeValueReturn = (conditionChild: TConditionChildMap, valueComparasion: boolean) => {
   console.log('🚀 ~ executeValueReturn ~ valueComparasion:', valueComparasion);
 
   if (conditionChild.isReturnValue && valueComparasion === true) {
@@ -176,7 +176,7 @@ export const handleCompareCondition = (
   // Handle simple comparison condition
   if (conditionChild.type === ConditionType.COMPARE) {
     const valueCompareSignle = evaluateCompareCondition(conditionChild.compare, getData);
-    return executeValueReturn(conditionChild, valueCompareSignle);
+    return valueCompareSignle;
   }
 
   // Handle complex logic condition
@@ -193,7 +193,7 @@ export const handleCompareCondition = (
     secondValue,
     conditionChild.logicOperator
   );
-  return executeValueReturn(conditionChild, valueComparasion);
+  return valueComparasion;
 };
 
 /**
@@ -226,14 +226,15 @@ export const processCondition = async (
 
   const isConditionMet = handleCompareCondition(rootCondition.id, conditionChild.data, getData);
 
-  if (isConditionMet && conditionChild.next) {
+  const isReturnValue = conditionChild.data.isReturnValue;
+  if (isConditionMet && conditionChild.next && !isReturnValue) {
     await executeActionFCType(findAction(conditionChild.next));
   }
 
   return isConditionMet;
 };
 
-/**
+/** This is as if, ifelse, else
  * Executes a conditional action by evaluating its conditions
  * @param action - The conditional action to execute
  * @param findAction - Function to find actions by ID
@@ -244,10 +245,10 @@ export const executeConditional = async (
   action: TAction<TConditional>,
   findAction: (id: string) => TAction | undefined,
   getData: (value: any) => any,
-  executeActionFCType: (action?: TAction) => Promise<void>
+  executeActionFCType?: (action?: TAction) => Promise<void>
 ): Promise<void> => {
   const conditions = action?.data?.conditions;
-
+  if (!executeActionFCType) return;
   if (!conditions || _.isEmpty(conditions)) {
     console.warn('No conditions found in action');
     // Still execute next action if available
@@ -257,6 +258,7 @@ export const executeConditional = async (
     return;
   }
 
+  let valueReturn = null;
   // Process each condition until the first one that is met
   for (const conditionId of conditions) {
     try {
@@ -268,6 +270,12 @@ export const executeConditional = async (
       );
 
       if (isConditionMet) {
+        const condition = findAction(conditionId) as TAction<TConditionChildMap>;
+        const isReturnValue = condition?.data?.isReturnValue;
+        const value = _.get(condition, 'data.valueReturn');
+        if (value && isReturnValue) {
+          valueReturn = transformVariable(value);
+        }
         break; // Exit after first matching condition
       }
     } catch (error) {
@@ -276,6 +284,7 @@ export const executeConditional = async (
     }
   }
 
+  if (valueReturn) return valueReturn;
   // Execute next action if available
   if (action?.next) {
     await executeActionFCType(findAction(action.next));

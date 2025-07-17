@@ -8,8 +8,10 @@ import { stateManagementStore } from '@/stores';
 import { customFunctionStore } from '@/stores/customFunction';
 import { TConditionChildMap, TTypeSelect, TVariable } from '@/types';
 import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
+import { executeConditionalInData } from '@/uitls/handleConditionInData';
 import { transformVariable } from '@/uitls/tranformVariable';
 
+import { actionHookSliceStore } from './actionSliceStore';
 import { handleCustomFunction } from './handleCustomFunction';
 import { findRootConditionChild, handleCompareCondition } from './useConditionAction';
 
@@ -36,6 +38,7 @@ type TUseHandleData = {
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const params = useParams();
+  const { findAction } = actionHookSliceStore();
   const apiResponseState = stateManagementStore((state) => state.apiResponse);
   const findCustomFunction = customFunctionStore((state) => state.findCustomFunction);
   const appState = stateManagementStore((state) => state.appState);
@@ -297,11 +300,13 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   };
 
   const handleCondition = (data: TData) => {
-    const conditionChildMap = data.condition?.data || ({} as TConditionChildMap);
-    if (_.isEmpty(conditionChildMap)) return;
-    const rootCondition = findRootConditionChild(conditionChildMap);
+    const value = executeConditionalInData(data?.condition, getData);
+    // return executeConditional(conditionChildMap, findAction, getData);
+    return value;
+    // if (_.isEmpty(conditionChildMap)) return;
+    // const rootCondition = findRootConditionChild(conditionChildMap);
 
-    return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
+    // return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
   };
   //#region getData
   const getData = useCallback(

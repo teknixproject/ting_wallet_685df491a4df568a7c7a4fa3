@@ -159,8 +159,6 @@ export type TConditionalChild = {
   fistCondition: string;
   secondCondition: string;
   compare: TConditionChildCompareValue;
-  valueReturn?: Omit<TVariable, 'key' | 'id'>;
-  isReturnValue?: boolean;
 };
 export type TConditionChildCompareValue = {
   firstValue: TData;
@@ -170,6 +168,8 @@ export type TConditionChildCompareValue = {
 export type TConditionChildMap = {
   label: 'if' | 'else' | 'elseIf' | 'loopCondition';
   childs: { [key: string]: TConditionalChild };
+  valueReturn?: Omit<TVariable, 'key' | 'id'>;
+  isReturnValue?: boolean;
 };
 
 //#region  loop

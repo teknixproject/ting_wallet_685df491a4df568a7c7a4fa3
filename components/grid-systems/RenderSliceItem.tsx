@@ -13,6 +13,7 @@ import { stateManagementStore } from '@/stores';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/uitls/component';
 import { convertCssObjectToCamelCase, convertToEmotionStyle } from '@/uitls/styleInline';
+import { convertDataToProps } from '@/uitls/transfromProp';
 import { css } from '@emotion/react';
 
 import { componentRegistry, convertProps } from './ListComponent';
@@ -95,7 +96,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     isLoading,
     valueType,
     Component,
-    propsCpn,
+    propsCpn: convertDataToProps(propsCpn),
     findVariable,
     dataState,
     getData,
