@@ -2,8 +2,7 @@
 import dayjs from 'dayjs';
 /** @jsxImportSource @emotion/react */
 import _ from 'lodash';
-import { FC, memo, useMemo } from 'react';
-import isEqual from 'react-fast-compare';
+import { FC, useMemo } from 'react';
 import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { useActions } from '@/hooks/useActions';
@@ -24,19 +23,22 @@ type TProps = {
   valueStream?: any;
   formKeys?: { key: string; value: string }[];
 };
-
+const getPropData = (data: GridItem) =>
+  data?.componentProps?.dataProps?.filter((item: any) => item.type === 'data');
+const getPropActions = (data: GridItem) =>
+  data?.componentProps?.dataProps?.filter((item: any) => item.type.includes('MouseEventHandler'));
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
+  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
-  const { getData, dataState } = useHandleData({ dataProp: data?.data });
+  const { dataState } = useHandleData({
+    dataProp: getPropData(data),
+    valueStream,
+  });
   console.log('🚀 ~ useRenderItem ~ dataState:', dataState);
-  const actionsProp = useMemo(
-    () => data?.componentProps?.dataProps || [],
-    [data?.componentProps?.dataProps]
-  );
-  console.log('🚀 ~ useRenderItem ~ actionsProp:', actionsProp);
-  const { multiples } = useHandleProps({ actionsProp, valueStream });
+  const { actions } = useHandleProps({ dataProps: getPropActions(data) });
+
   const { handleAction, isLoading } = useActions(data);
 
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
@@ -76,7 +78,8 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
 
     const result = {
       ...staticProps,
-      ...multiples,
+      ...dataState,
+      ...actions,
     };
     if (isDatePicker) {
       if (typeof result.value === 'string') result.value = dayjs(result.value);
@@ -90,7 +93,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, getData, dataState, valueStream, multiples, handleAction]);
+  }, [data, dataState, valueStream, handleAction]);
 
   return {
     isLoading,
@@ -99,7 +102,6 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     propsCpn: convertDataToProps(propsCpn),
     findVariable,
     dataState,
-    getData,
   };
 };
 
@@ -118,7 +120,6 @@ const ComponentRenderer: FC<{
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
-  console.log('🚀 ~ propsCpn:', propsCpn);
   const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
@@ -214,4 +215,4 @@ const RenderFormItem: FC<TProps> = (props) => {
   );
 };
 
-export default memo(RenderSliceItem, isEqual);
+export default RenderSliceItem;
