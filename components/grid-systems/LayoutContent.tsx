@@ -14,7 +14,7 @@ const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
 });
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { headerLayout, footerLayout, headerPosition } = useLayoutContext();
+  const { headerLayout, sidebarLayout, footerLayout, sidebarPosition } = useLayoutContext();
   const [deviceType, setDeviceType] = useState(getDeviceType());
 
   useEffect(() => {
@@ -31,6 +31,13 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       {},
     [headerLayout, deviceType]
   );
+  const selectedSidebarLayout = useMemo(
+    () =>
+      (sidebarLayout?.layoutJson && (sidebarLayout?.layoutJson as any)[deviceType]) ??
+      sidebarLayout?.layoutJson ??
+      {},
+    [sidebarLayout, deviceType]
+  );
   const selectedFooterLayout = useMemo(
     () =>
       (footerLayout?.layoutJson && (footerLayout?.layoutJson as Record<string, any>)[deviceType]) ??
@@ -40,7 +47,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   );
 
   const containerStyle = useMemo(() => {
-    if (headerPosition === 'left' || headerPosition === 'right') {
+    if (sidebarPosition === 'left' || sidebarPosition === 'right') {
       return {
         display: 'flex',
       };
@@ -48,15 +55,28 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     return {
       display: 'flex',
     };
-  }, [headerPosition]);
+  }, [sidebarPosition]);
 
   return (
     <div className="relative !z-0">
-      <div className="z-10" style={containerStyle as any}>
-        <div className="sticky top-0 z-10 max-h-screen overflow-hidden">
-          {!_.isEmpty(selectedHeaderLayout) && (
+      {
+
+        !_.isEmpty(selectedHeaderLayout) && (
+          <div className="sticky top-0 z-10 max-h-screen overflow-hidden">
             <GridSystemContainer
               page={selectedHeaderLayout}
+              deviceType={deviceType}
+              isFooter
+              style={{ width: '100%' }}
+            />
+          </div>
+        )
+      }
+      <div className="z-10" style={containerStyle as any}>
+        <div className="sticky top-0 z-10 max-h-screen overflow-hidden">
+          {!_.isEmpty(selectedSidebarLayout) && (
+            <GridSystemContainer
+              page={selectedSidebarLayout}
               deviceType={deviceType}
               isHeader
               style={{

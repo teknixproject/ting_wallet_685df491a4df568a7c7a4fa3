@@ -51,7 +51,7 @@ const handleCssWithEmotion = (staticProps: Record<string, any>) => {
 };
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
-  console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
+  // console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
   const { isForm, isNoChildren, isChart, isDatePicker } = getComponentType(data?.value || '');
   const { findVariable } = stateManagementStore();
   const { dataState } = useHandleData({
@@ -59,7 +59,7 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     valueStream,
   });
 
-  console.log(`🚀 ~ useRenderItem ~ dataState:${data.id}`, dataState);
+  // console.log(`🚀 ~ useRenderItem ~ dataState:${data.id}`, dataState);
   const { actions } = useHandleProps({ dataProps: getPropActions(data) });
 
   const { handleAction, isLoading } = useActions(data);
@@ -82,12 +82,14 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
       valueType === 'menu'
         ? { ...staticProps, ...actions }
         : {
-            ...staticProps,
-            ...dataState,
-            ...actions,
-          };
+          ...staticProps,
+          ...dataState,
+          ...actions,
+        };
+    console.log('isDatePicker', isDatePicker);
 
     if (isDatePicker) {
+
       if (typeof result.value === 'string') result.value = dayjs(result.value);
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
     }
@@ -126,10 +128,10 @@ const ComponentRenderer: FC<{
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
-  console.log(`🚀 ~ propsCpn: ${data.id}`, {
-    propsCpn,
-    data,
-  });
+  // console.log(`🚀 ~ propsCpn: ${data.id}`, {
+  //   propsCpn,
+  //   data,
+  // });
   const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
