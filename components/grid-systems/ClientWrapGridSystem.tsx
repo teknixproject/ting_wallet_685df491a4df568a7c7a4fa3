@@ -6,8 +6,6 @@ import { FC } from 'react';
 
 import { useInitStatePreview, useInitStateRender } from '@/hooks/useInitState';
 
-import DynamicComponent from './preview-ui';
-
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
   ssr: false,
@@ -78,7 +76,7 @@ export const PreviewUI: FC = () => {
           )}
         </div>
       ) : (
-        <DynamicComponent customWidgetName={customWidgetName} />
+        <div />
       )}
     </div>
   );
