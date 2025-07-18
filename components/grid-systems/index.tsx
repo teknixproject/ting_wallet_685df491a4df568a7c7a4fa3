@@ -164,7 +164,7 @@ const GridSystemContainer: FC<GridSystemProps> = ({
 
   return (
     <div
-      className={cn('relative', isBody ? 'z-1 min-h-screen' : '', isFooter ? 'z-3' : '')}
+      className={cn('relative', isBody ? 'z-1 !h-screen' : '', isFooter ? 'z-3' : '')}
       style={{ ...page?.componentProps?.styleMultiple?.normal, ...style }}
     >
       {page?.childs?.map((item) => (
