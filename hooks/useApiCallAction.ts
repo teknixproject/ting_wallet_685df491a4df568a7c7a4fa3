@@ -6,12 +6,7 @@ import { useCallback } from 'react';
 import { stateManagementStore } from '@/stores';
 import { authSettingStore } from '@/stores/authSetting';
 import {
-  TAction,
-  TActionApiCall,
-  TActionCustomFunction,
-  TActionVariable,
-  TApiCallValue,
-  TApiCallVariable,
+    TAction, TActionApiCall, TActionCustomFunction, TActionVariable, TApiCallValue, TApiCallVariable
 } from '@/types';
 import { variableUtil } from '@/uitls';
 
@@ -213,6 +208,7 @@ export const useApiCallAction = ({ executeActionFCType }: TProps): TUseActions =
     const variables = convertActionVariables(action?.data?.variables ?? [], apiCall);
     const newBody =
       triggerName === 'onSubmit' ? formData : convertApiCallBody(apiCall?.body, variables);
+    console.log('🚀 ~ handleApiCallAction ~ newBody:', newBody);
 
     const result = await makeApiCall(apiCall, newBody, action?.data?.output?.variableId ?? '');
 

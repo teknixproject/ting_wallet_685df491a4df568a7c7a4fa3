@@ -1,29 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Collapse,
-  DatePicker,
-  Drawer,
-  Dropdown,
-  DropdownProps,
-  Form,
-  Image,
-  Input,
-  InputNumber,
-  List,
-  Modal,
-  Radio,
-  Select,
-  Statistic,
-  Table,
-  TableProps,
-  Tabs,
-  Tag,
-  Typography,
+    Badge, Button, Card, Checkbox, Collapse, DatePicker, Drawer, Dropdown, DropdownProps, Form,
+    Image, Input, InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag,
+    Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';

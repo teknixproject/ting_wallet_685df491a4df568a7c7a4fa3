@@ -25,8 +25,30 @@ type TProps = {
 };
 const getPropData = (data: GridItem) =>
   data?.componentProps?.dataProps?.filter((item: any) => item.type === 'data');
+
 const getPropActions = (data: GridItem) =>
   data?.componentProps?.dataProps?.filter((item: any) => item.type.includes('MouseEventHandler'));
+
+const handleCssWithEmotion = (staticProps: Record<string, any>) => {
+  const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
+  let cssMultiple;
+
+  if (typeof advancedCss === 'string') {
+    // If it's a CSS string, use template literal directly
+    cssMultiple = css`
+      ${advancedCss}
+    `;
+  } else if (advancedCss && typeof advancedCss === 'object') {
+    // If it's a CSS object, convert kebab-case to camelCase and use as object
+    const convertedCssObj = convertCssObjectToCamelCase(advancedCss);
+    cssMultiple = css(convertedCssObj);
+  } else {
+    // Fallback to empty css
+    cssMultiple = css``;
+  }
+
+  return cssMultiple;
+};
 // Custom hook to extract common logic
 const useRenderItem = (data: GridItem, valueStream?: any) => {
   console.log('🚀 ~ useRenderItem ~ valueStream:', valueStream);
@@ -36,7 +58,8 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
     dataProp: getPropData(data),
     valueStream,
   });
-  console.log('🚀 ~ useRenderItem ~ dataState:', dataState);
+
+  console.log(`🚀 ~ useRenderItem ~ dataState:${data.id}`, dataState);
   const { actions } = useHandleProps({ dataProps: getPropActions(data) });
 
   const { handleAction, isLoading } = useActions(data);
@@ -51,45 +74,28 @@ const useRenderItem = (data: GridItem, valueStream?: any) => {
   const propsCpn = useMemo(() => {
     const staticProps = {
       ...convertProps({ data }),
-      onClick: () => handleAction('onClick'),
-      // onChange: () => handleAction('onChange'),
     };
 
-    const advancedCss = convertToEmotionStyle(staticProps?.styleMultiple);
+    staticProps.css = handleCssWithEmotion(staticProps);
 
-    // Fix 1: Check if advancedCss is a string (CSS string) or object (CSS object)
-    let cssMultiple;
+    const result =
+      valueType === 'menu'
+        ? { ...staticProps, ...actions }
+        : {
+            ...staticProps,
+            ...dataState,
+            ...actions,
+          };
 
-    if (typeof advancedCss === 'string') {
-      // If it's a CSS string, use template literal directly
-      cssMultiple = css`
-        ${advancedCss}
-      `;
-    } else if (advancedCss && typeof advancedCss === 'object') {
-      // If it's a CSS object, convert kebab-case to camelCase and use as object
-      const convertedCssObj = convertCssObjectToCamelCase(advancedCss);
-      cssMultiple = css(convertedCssObj);
-    } else {
-      // Fallback to empty css
-      cssMultiple = css``;
-    }
-
-    staticProps.css = cssMultiple;
-
-    const result = {
-      ...staticProps,
-      ...dataState,
-      ...actions,
-    };
     if (isDatePicker) {
       if (typeof result.value === 'string') result.value = dayjs(result.value);
       if (typeof result.defaultValue === 'string') result.defaultValue = dayjs(result.defaultValue);
     }
-    // if (isNoChildren && 'children' in result) {
-    //   delete result.children;
-    // }
-    if ('styleMultiple' in result) delete result.styleMultiple;
-    if ('dataProps' in result) delete result.dataProps;
+    if (isNoChildren && 'children' in result) {
+      _.unset(result, 'children');
+    }
+    if ('styleMultiple' in result) _.unset(result, 'styleMultiple');
+    if ('dataProps' in result) _.unset(result, 'dataProps');
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +126,10 @@ const ComponentRenderer: FC<{
 const RenderSliceItem: FC<TProps> = (props) => {
   const { data, valueStream } = props;
   const { isLoading, valueType, Component, propsCpn, dataState } = useRenderItem(data, valueStream);
+  console.log(`🚀 ~ propsCpn: ${data.id}`, {
+    propsCpn,
+    data,
+  });
   const { isForm, isNoChildren, isChart, isFeebBack } = getComponentType(data?.value || '');
   if (!valueType) return <div></div>;
   if (isLoading) return <LoadingPage />;
