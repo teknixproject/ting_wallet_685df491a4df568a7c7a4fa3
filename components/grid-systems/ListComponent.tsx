@@ -1,29 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Collapse,
-  DatePicker,
-  Drawer,
-  Dropdown,
-  DropdownProps,
-  Form,
-  Image,
-  Input,
-  InputNumber,
-  List,
-  Modal,
-  Radio,
-  Select,
-  Statistic,
-  Table,
-  TableProps,
-  Tabs,
-  Tag,
-  Typography,
+    Badge, Button, Card, Checkbox, Collapse, DatePicker, Drawer, Dropdown, DropdownProps, Form,
+    Image, Input, InputNumber, List, Modal, Radio, Select, Statistic, Table, TableProps, Tabs, Tag,
+    Typography
 } from 'antd';
 import _ from 'lodash';
 import { ReactNode } from 'react';
@@ -34,7 +14,6 @@ import { Bar, Column, Histogram, Line, Liquid, Pie, Radar, Rose, Stock } from '@
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 import ConfigMenu from './configComponent/ConfigMenu';
-import { getStyleOfDevice } from './DataProvider';
 import RenderSliceItem from './RenderSliceItem';
 
 export const componentRegistry = {
@@ -78,11 +57,11 @@ export const componentRegistry = {
 
 const convertIconStringToComponent = (iconString: string) => {
   if (!iconString || typeof iconString !== 'string') {
-    return null
+    return null;
   }
 
-  return <Icon icon={iconString} />
-}
+  return <Icon icon={iconString} />;
+};
 
 export const convertProps = ({ data }: { data: GridItem }) => {
   if (!data) return {};
@@ -163,13 +142,13 @@ export const convertProps = ({ data }: { data: GridItem }) => {
     }
 
     case 'button': {
-      const buttonProps = _.cloneDeep(data?.componentProps) || {}
+      const buttonProps = _.cloneDeep(data?.componentProps) || {};
 
       // Xử lý icon cho Button
       if (buttonProps.iconData && buttonProps.iconData.name) {
-        buttonProps.icon = convertIconStringToComponent(buttonProps.iconData.name)
+        buttonProps.icon = convertIconStringToComponent(buttonProps.iconData.name);
         // Xóa iconData khỏi props vì Button component không cần nó
-        delete buttonProps.iconData
+        delete buttonProps.iconData;
       }
 
       return {
@@ -178,7 +157,7 @@ export const convertProps = ({ data }: { data: GridItem }) => {
           ...data.style,
           ...buttonProps.style,
         },
-      }
+      };
     }
     default:
       break;
@@ -191,18 +170,18 @@ export const convertProps = ({ data }: { data: GridItem }) => {
   if (isInput) {
     return {
       ...data.componentProps,
-      style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
+      // style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     };
   }
   if (isChart) {
     return {
       ...data.componentProps,
-      style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
+      // style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
     };
   }
   return {
     ...data.componentProps,
-    style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
+    // style: { ...getStyleOfDevice(data), ...data?.componentProps?.style },
   };
 };
 export const getName = (id: string) => id.split('$')[0];

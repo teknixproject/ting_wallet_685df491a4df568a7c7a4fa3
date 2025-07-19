@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import _ from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
 import { getDeviceType } from '@/lib/utils';
@@ -205,15 +205,14 @@ export const useInitStatePreview = () => {
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 export const useInitStateRender = () => {
   const pathname = usePathname(); // /detail/123
-  const matchingPattern = useRef<string | null>(null);
-
+  const [uid, setUid] = useState<string | null>(null);
   useEffect(() => {
     async function fetchData() {
       const result = await documentService.getAllPageNames(projectId || '');
       const uids = result?.data?.map((item: any) => item.uid) || [];
 
       const matched = getMatchingRoutePattern(pathname, uids);
-      matchingPattern.current = matched;
+      setUid(matched);
     }
     fetchData();
   }, [pathname]);
@@ -224,11 +223,9 @@ export const useInitStateRender = () => {
 
   const router = useRouter();
 
-  const uid = matchingPattern.current;
-
   const setCustomFunctions = customFunctionStore((state) => state.setCustomFunctions);
   const { enable, pages, entryPage } = authSettingStore();
-  const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '/');
+  const { bodyLayout, isLoading } = useConstructorDataAPI(uid || '');
   const [loading, setLoading] = useState<boolean>(false);
 
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());

@@ -6,8 +6,6 @@ import { FC } from 'react';
 
 import { useInitStatePreview, useInitStateRender } from '@/hooks/useInitState';
 
-import DynamicComponent from './preview-ui';
-
 const GridSystemContainer = dynamic(() => import('@/components/grid-systems'), {
   loading: () => <LoadingPage />,
   ssr: false,
@@ -54,7 +52,7 @@ export const PreviewUI: FC = () => {
   return (
     <div className="component-preview-container">
       {isPage && !customWidgetName ? (
-        <div className="relative flex flex-col justify-between min-h-screen">
+        <div className="relative flex flex-col min-h-screen">
           {!_.isEmpty(selectedHeaderLayout) && (
             <GridSystemContainer
               page={selectedHeaderLayout || {}}
@@ -78,7 +76,7 @@ export const PreviewUI: FC = () => {
           )}
         </div>
       ) : (
-        <DynamicComponent customWidgetName={customWidgetName} />
+        <div />
       )}
     </div>
   );

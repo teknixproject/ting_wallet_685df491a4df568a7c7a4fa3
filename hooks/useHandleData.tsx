@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { JSONPath } from 'jsonpath-plus';
 import _ from 'lodash';
@@ -6,27 +7,48 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { stateManagementStore } from '@/stores';
 import { customFunctionStore } from '@/stores/customFunction';
-import { TConditionalChild, TConditionChildMap, TTypeSelect, TVariable } from '@/types';
+import { TConditionChildMap, TTypeSelect, TVariable } from '@/types';
 import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
+import { executeConditionalInData } from '@/uitls/handleConditionInData';
 import { transformVariable } from '@/uitls/tranformVariable';
 
 import { handleCustomFunction } from './handleCustomFunction';
+import { findRootConditionChild, handleCompareCondition } from './useConditionAction';
 
 type UseHandleDataReturn = {
   dataState?: any;
   getData: (data: TData | null | undefined, valueStream?: any) => any;
+  getTrackedData: (data: TData | null | undefined, valueStream?: any) => any;
 };
 
-const getRootConditionChild = (condition: TConditionChildMap): TConditionalChild | undefined => {
-  return Object.values(condition.childs || {}).find((child) => !child.parentId);
-};
+const handleCompareValue = ({
+  conditionChildMap,
+  getData,
+}: {
+  conditionChildMap: TConditionChildMap;
+  getData: any;
+}) => {
+  if (_.isEmpty(conditionChildMap)) return;
+  const rootCondition = findRootConditionChild(conditionChildMap);
 
-const getConditionChild = (conditionId: string, condition: TConditionChildMap) => {
-  return condition.childs[conditionId];
+  return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
 };
-
 type TUseHandleData = {
-  dataProp?: TData;
+  dataProp?: { name: string; data: TData }[];
+
+  valueStream?: any;
+};
+
+const getIdInData = (data: TData) => {
+  const type = data?.type;
+  if (['appState', 'componentState', 'globalState', 'apiResponseState'].includes(type)) {
+    return data[type].variableId;
+  }
+};
+const getVariableIdsFormData = (dataProps: TUseHandleData['dataProp']) => {
+  const ids = dataProps?.map((item) => getIdInData(item.data));
+  const cleaned = _.compact(ids);
+  return cleaned;
 };
 
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
@@ -38,11 +60,29 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const globalState = stateManagementStore((state) => state.globalState);
   const [dataState, setDataState] = useState<any>();
   const itemInList = useRef(null);
+  const dataPropRef = useRef<TUseHandleData['dataProp']>(null);
+  const valueStreamRef = useRef<TUseHandleData['valueStream']>(null);
   const findVariable = stateManagementStore((state) => state.findVariable);
   const handleInputValue = (data: TData['valueInput']) => {
     return data || '';
   };
+  useEffect(() => {
+    // const ids = getVariableIdsFormData(props.dataProp);
 
+    const dataMultiple = props.dataProp?.reduce((obj, item) => {
+      return {
+        ...obj,
+        [item.name]: getData(item.data, props.valueStream),
+      };
+    }, {});
+
+    setDataState(dataMultiple);
+  }, [appState, globalState, componentState, apiResponseState, props.valueStream]);
+
+  useEffect(() => {
+    dataPropRef.current = props.dataProp;
+    valueStreamRef.current = props.valueStream;
+  }, [props]);
   //#region handle api
   const handleApiResponse = useCallback(
     (data: TData) => {
@@ -96,71 +136,6 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     [findVariable]
   );
 
-  const getConditionValue = useCallback((conditionMap: TConditionChildMap) => {
-    const conditionRoot = getRootConditionChild(conditionMap);
-    if (_.isEmpty(conditionRoot)) return false;
-    const isConditionMet = handleCompareCondition(conditionRoot?.id as string, conditionMap);
-    return isConditionMet;
-  }, []);
-
-  const handleCompareCondition = useCallback(
-    (conditionChildId: string, condition: TConditionChildMap): boolean => {
-      const conditionChild = getConditionChild(conditionChildId, condition);
-
-      if (conditionChild.type === 'compare') {
-        return getCompareValue(conditionChild.compare);
-      }
-
-      let firstValue;
-      let secondValue;
-
-      if (conditionChild.fistCondition) {
-        firstValue = handleCompareCondition(conditionChild.fistCondition, condition);
-      }
-
-      if (conditionChild.secondCondition) {
-        secondValue = handleCompareCondition(conditionChild.secondCondition, condition);
-      }
-
-      if (conditionChild.logicOperator === 'and') {
-        return !!(firstValue && secondValue);
-      }
-      if (conditionChild.logicOperator === 'or') {
-        return !!(firstValue || secondValue);
-      }
-      return !!(firstValue && secondValue);
-    },
-    []
-  );
-
-  const evaluateCondition = (firstValue: any, secondValue: any, operator: string): boolean => {
-    switch (operator) {
-      case 'equal':
-        return String(firstValue) === String(secondValue);
-      case 'notEqual':
-        return String(firstValue) !== String(secondValue);
-      case 'greaterThan':
-        return Number(firstValue) > Number(secondValue);
-      case 'lessThan':
-        return Number(firstValue) < Number(secondValue);
-      case 'greaterThanOrEqual':
-        return Number(firstValue) >= Number(secondValue);
-      case 'lessThanOrEqual':
-        return Number(firstValue) <= Number(secondValue);
-      default:
-        return false;
-    }
-  };
-
-  const getCompareValue = useCallback((compare: TConditionalChild['compare']): boolean => {
-    const firstCompare = getData(compare?.firstValue);
-    const secondCompare = getData(compare?.secondValue);
-    if (!firstCompare || !secondCompare) return false;
-
-    const resultCompare = evaluateCondition(firstCompare, secondCompare, compare.operator);
-    return resultCompare;
-  }, []);
-
   //#region  handle state
   const handleState = useCallback(
     (data: TData) => {
@@ -197,9 +172,10 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
               if (Array.isArray(value)) {
                 value = value.filter((item: any) => {
                   itemInList.current = item;
-                  const result = getConditionValue(
-                    optionItem.filterCondition?.data as TConditionChildMap
-                  );
+                  const result = handleCompareValue({
+                    conditionChildMap: optionItem.filterCondition?.data as TConditionChildMap,
+                    getData,
+                  });
                   return result;
                 });
               }
@@ -300,9 +276,10 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
           if (Array.isArray(value)) {
             value = value.filter((item: any) => {
               itemInList.current = item;
-              const result = getConditionValue(
-                optionItem.filterCondition?.data as TConditionChildMap
-              );
+              const result = handleCompareValue({
+                conditionChildMap: optionItem.filterCondition?.data as TConditionChildMap,
+                getData,
+              });
               return result;
             });
           }
@@ -348,20 +325,31 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   };
 
   const handleParemeters = (data: TData) => {
-    console.log('🚀 ~ handleParemeters ~ data:', data);
     const paramName = data?.parameters?.paramName;
-    console.log('🚀 ~ handleParemeters ~ paramName:', paramName);
-
     if (!paramName) return '';
     const result = params[paramName];
-    console.log('🚀 ~ handleParemeters ~ result:', result);
     return result;
+  };
+
+  const handleCondition = (data: TData) => {
+    if (!data?.condition) return;
+    const value = executeConditionalInData(data?.condition, getData);
+    console.log('🚀 ~ handleCondition ~ value:', value);
+    // return executeConditional(conditionChildMap, findAction, getData);
+    return value;
+    // if (_.isEmpty(conditionChildMap)) return;
+    // const rootCondition = findRootConditionChild(conditionChildMap);
+
+    // return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
   };
   //#region getData
   const getData = useCallback(
     (data: TData | null | undefined, valueStream?: any) => {
       if (_.isEmpty(data) && valueStream) return valueStream;
+      if (_.isEmpty(data) && props.valueStream) return props.valueStream;
       if (_.isEmpty(data) || !data.type) return data?.defaultValue;
+      // dataPropRef.current = data;
+      // valueStreamRef.current = valueStream;
 
       switch (data.type) {
         case 'valueInput':
@@ -388,6 +376,9 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
             findCustomFunction,
             getData,
           });
+
+        case 'condition':
+          return handleCondition(data);
         default:
           return data?.defaultValue;
       }
@@ -395,36 +386,29 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     [handleApiResponse, handleState]
   );
   //#region tracking
-  const variableId = (props?.dataProp?.[props?.dataProp?.type] as any)?.variableId || '';
-
-  const apiResponseTracking = apiResponseState?.[variableId];
-  const appStateTracking = appState?.[variableId];
-  const componentStateTracking = componentState?.[variableId];
-  const globalStateTracking = globalState?.[variableId];
 
   //#region handle main
   // Fixed useEffect - only update when data actually changes
-  useEffect(() => {
-    if (props?.dataProp) {
-      const newDataState = getData(props.dataProp);
-      // Only update state if the value actually changed
-      setDataState((prevState: any) => {
-        if (!_.isEqual(prevState, newDataState)) {
-          return newDataState;
-        }
-        return prevState;
-      });
-    }
-  }, [
-    props.dataProp,
-    apiResponseTracking,
-    appStateTracking,
-    componentStateTracking,
-    globalStateTracking,
-  ]);
+  // useEffect(() => {
+  //   if (dataPropRef) {
+  //     const newDataState = getData(dataPropRef.current);
+  //     // Only update state if the value actually changed
+  //     setDataState((prevState: any) => {
+  //       if (!_.isEqual(prevState, newDataState)) {
+  //         return newDataState;
+  //       }
+  //       return prevState;
+  //     });
+  //   }
+  // }, [apiResponseTracking, appStateTracking, componentStateTracking, globalStateTracking]);
+  const getTrackedData = useCallback((data: TData | null | undefined, valueStream?: any) => {
+    const result = getData(data, valueStream);
+    return result;
+  }, []);
 
   return {
     getData,
     dataState,
+    getTrackedData,
   };
 };
